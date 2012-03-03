@@ -8,7 +8,7 @@ class DocumentProperties(dict):
 class Style(dict):
     def __init__(self):
         self.name = None
-		
+        
 
 class DocumentTreeNode(object):
     def __init__(self):
@@ -31,10 +31,11 @@ class DocumentTreeNode(object):
         #TODO
         return Style()
     
-    builder = property(__get_builder)
-    effective_style = property(__get_effective_style)
+    builder = property(__get_builder, None)
+    effective_style = property(__get_effective_style, None)
     
     def fill_parent_fields(self):
+        #TODO
         pass
     
     def generate(self):
@@ -45,70 +46,68 @@ class Document(DocumentTreeNode):
     builder = None
     
     def __init__(self):
+        super(Document, self).__init__()
         self.style = Style() # TODO assign default document style from StyleManager
         self.properties = DocumentProperties()
         self.builder = None
         
         
 class Paragraph(DocumentTreeNode):
-    pass
-
-
-class Span(object):
     def __init__(self):
+        super(Paragraph, self).__init__()
+
+
+class Span(DocumentTreeNode):
+    def __init__(self):
+        super(Span, self).__init__()
         self.text = None
         
 
 class List(DocumentTreeNode):
-    pass
+    def __init__(self):
+        super(List, self).__init__()
 
+
+class Sequence(object):
+    def __init__(self, start_value = 1):
+        self.value = start_value - 1
+        self.subsequence = None
+        
+    def next_value(self):
+        self.value += 1
+        return self.value
+    
 
 class NumberedObject(DocumentTreeNode):
     def __init__(self):
+        super(NumberedObject, self).__init__()
         self.sequence = None
         
         
 class Header(NumberedObject):
-    pass
+    def __init__(self):
+        super(Header, self).__init__()
 
 
 class Image(NumberedObject):
     def __init__(self):
+        super(Image, self).__init__()
         self.path = None
-        
 
-class ListStyle(object):
-    BULLET = 0
-    NUMBER = 1
-    
-    
-class Alignment(object):
-    LEFT = 0
-    CENTER = 1
-    RIGHT = 2
-    JUSTIFY = 4
-    
 
-# Classes below this line are not usable yet! Classes above may not be finished but they are usable.
-
-class Sequence(object):
-    pass
-
-class StyleManager(object):
-    pass
-
-class TCell(object):
+class TCell(DocumentTreeNode):
     def __init__(self):
+        super(TCell, self).__init__()
         self.rowspan = 1
         self.colspan = 1
-        self.style = None
-        self.content = None
-    
-class Table(DocumentTreeNode):
+
+
+class Table(NumberedObject):
     __default_row_height = 20
     __default_column_width = 100
     
     def __init__(self):
+        super(Table, self).__init__()
         self.__rows = [[TCell()]]
         self.__rowHeights = [self.__default_row_height]
         self.__columnWidths = [self.__default_column_width]
@@ -174,7 +173,32 @@ class Table(DocumentTreeNode):
     
     def set_column_width(self, index, width):
         self.__columnWidths[index] = width
+    
+    def __get_content(self):
+        content = []
+        for i in xrange(0, self.rows_num - 1):
+            content.extend(self.__rows[i])
+        return content
         
     rows_num = property(__get_rows_num, None)
     cols_num = property(__get_cols_num, None)
+    content = property(__get_content, None)
+
+class ListStyle(object):
+    BULLET = 0
+    NUMBER = 1
+    
+    
+class Alignment(object):
+    LEFT = 0
+    CENTER = 1
+    RIGHT = 2
+    JUSTIFY = 4
+
+
+class StyleManager(object):
+    #TODO
+    pass
+  
+
     
