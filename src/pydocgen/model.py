@@ -35,9 +35,29 @@ class DocumentTreeNode(object):
     effective_style = property(__get_effective_style, None)
     
     def fill_parent_fields(self):
-        #TODO
-        pass
-    
+        stack = []
+        visited = {}
+        curr_node = self
+        
+        stack.append(curr_node)
+        
+        while len(stack) > 0:
+            first_child_not_visited = None
+            for i in xrange(0, len(curr_node.content)):
+                if (not visited.has_key(curr_node.content[i])):
+                    first_child_not_visited = curr_node.content[i]
+                    break
+                
+            if (first_child_not_visited is not None):
+                first_child_not_visited.parent = curr_node
+                visited[first_child_not_visited] = True
+                stack.append(first_child_not_visited)
+                curr_node = first_child_not_visited
+            else:
+                stack.pop()
+                if (len(stack) > 0):
+                    curr_node = stack[-1]
+                
     def generate(self):
         return self.builder.generate(self)
     
