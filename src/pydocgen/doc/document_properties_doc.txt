@@ -1,0 +1,3 @@
+The following document properties are supported:
+	- title: string
+	- keywords: list of string

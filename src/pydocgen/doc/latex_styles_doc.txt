@@ -1,0 +1,21 @@
+The following styles are supported for Document:
+	- page-numbering: bool
+	- page-width: integer (mm)
+	- page-height: integer (mm)
+	- print-orientation: PageOrientation
+
+The following styles are supported for Paragraph:
+	- alignment: Alignment
+	- text-indent: integer (pt)
+	- margin-top: integer (pt)
+	- margin-bottom: integer (pt)
+	- margin-left: integer (pt)
+	- margin-right: integer (pt)
+
+The following styles are supported for Span:
+	- font-name: string
+	- font-size: integer (pt)
+	- font-effects: FontEffect | ...
+	- color: string (e.g. "#1234ff")
+	- background-color: string (e.g. "#1234ff")
+	

@@ -93,6 +93,7 @@ class Image(NumberedObject):
     def __init__(self):
         super(Image, self).__init__()
         self.path = None
+        self.caption = None
 
 
 class TCell(DocumentTreeNode):
@@ -112,6 +113,7 @@ class Table(NumberedObject):
         self.__rowHeights = [self.__default_row_height]
         self.__columnWidths = [self.__default_column_width]
         self.border_width = 1
+        self.caption = None
             
     def __get_rows_num(self):
         return len(self.__rows)
@@ -193,7 +195,18 @@ class Alignment(object):
     LEFT = 0
     CENTER = 1
     RIGHT = 2
-    JUSTIFY = 4
+    JUSTIFY = 3
+    
+    
+class PageOrientation(object):
+    PORTRAIT = 0
+    LANDSCAPE = 1
+    
+    
+class FontEffect(object):
+    BOLD = 1
+    ITALIC = 2
+    UNDERLINE = 4
 
 
 class StyleManager(object):
