@@ -2,7 +2,11 @@ The following styles are supported for Document:
 	- page-numbering: bool
 	- page-width: integer (mm)
 	- page-height: integer (mm)
-	- print-orientation: PageOrientation
+	- margin-top: integer (mm)
+	- margin-bottom: integer (mm)
+	- margin-left: integer (mm)
+	- margin-right: integer (mm)
+	- font-size: integer (pt)
 
 The following styles are supported for Paragraph:
 	- alignment: Alignment
