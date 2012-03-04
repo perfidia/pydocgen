@@ -17,15 +17,10 @@ class DocumentTreeNode(object):
         self.content = list() # of DocumentTreeNode
         
     def __get_builder(self):
-        builder = None
         node = self
-        while node is not None:
-            try:
-                builder = node.builder
-                break
-            except AttributeError:
-                node = node.parent    
-        return builder
+        while node.parent is not None:
+            node = node.parent   
+        return node.builder
     
     def __get_effective_style(self):
         #TODO
