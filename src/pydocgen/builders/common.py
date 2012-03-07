@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pydocgen.model import *
+from pydocgen.model import Document, Paragraph, Span, Header, List, Image, Table
 
 class Builder(object):
     def generate(self, documentTreeNode):
@@ -14,3 +14,7 @@ class Builder(object):
             return self.generate_header(documentTreeNode)
         if isinstance(documentTreeNode, List):
             return self.generate_list(documentTreeNode)
+        if isinstance(documentTreeNode, Image):
+            return self.generate_image(documentTreeNode)
+        if isinstance(documentTreeNode, Table):
+            return self.generate_table(documentTreeNode)

@@ -5,7 +5,7 @@ from pydocgen.builders.common import Builder
 
 class HtmlBuilder(Builder):
     def __init__(self):
-        pass
+        super(HtmlBuilder, self).__init__()
     
     def generate_document(self, document):
         return ""
@@ -20,4 +20,10 @@ class HtmlBuilder(Builder):
         return ""
     
     def generate_list(self, lst):
+        return ""
+    
+    def generate_image(self, image):
+        return ""
+    
+    def generate_table(self, table):
         return ""
