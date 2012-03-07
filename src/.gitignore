@@ -2,3 +2,8 @@
 .project
 .pydevproject
 .settings/*
+doc_example01.htm
+doc_example01.tex
+doc_example01.pdf
+doc_example01.aux
+doc_example01.log
