@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 class DocumentProperties(dict):
     pass
 
@@ -15,6 +14,10 @@ class DocumentTreeNode(object):
         self.parent = None
         self.style = None
         self.content = list() # of DocumentTreeNode
+        
+    def __iadd__(self, other):
+        self.content.append(other)
+        return self
         
     def __get_builder(self):
         node = self
@@ -66,6 +69,15 @@ class Document(DocumentTreeNode):
         self.properties = DocumentProperties()
         self.builder = None
         
+    def generate_file(self, path):
+        if self.builder is not None:
+            output = self.generate()
+            output_file = open(path, "w")
+            output_file.write(output)
+            output_file.close()
+        else:
+            raise Exception("The document has no builder!")
+        
         
 class Paragraph(DocumentTreeNode):
     def __init__(self):
@@ -73,9 +85,9 @@ class Paragraph(DocumentTreeNode):
 
 
 class Span(DocumentTreeNode):
-    def __init__(self):
+    def __init__(self, text = None):
         super(Span, self).__init__()
-        self.text = None
+        self.text = text
         
 
 class List(DocumentTreeNode):
