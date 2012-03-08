@@ -7,6 +7,7 @@ The following styles are supported for Document:
 	- margin-left: integer (mm)
 	- margin-right: integer (mm)
 	- font-size: integer (pt)
+	- font-name: string ("Times New Roman", "Arial", "Computer Modern", "DejaVu Serif")
 
 The following styles are supported for Paragraph:
 	- alignment: Alignment

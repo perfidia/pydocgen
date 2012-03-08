@@ -122,10 +122,33 @@ class LatexBuilder(Builder):
     def __generate_language_package_reference(self, document_properties):
         result = ""
         
-        if (document_properties.has_key("lang")):
+        if document_properties.has_key("lang"):
             lang = document_properties["lang"]
             if lang.startswith("pl"):
                 result += "\n\usepackage{polski}"
+        
+        return result
+    
+    def __generate_font_packages_reference(self, document_style):
+        result = ""
+        
+        if (document_style.has_key("font-name")):
+            font_name = document_style['font-name'].strip().lower()
+            
+            if font_name == "times new roman":
+                result += "\n\\usepackage{mathptmx}\n\\usepackage[T1]{fontenc}"
+                
+            if font_name == "arial":
+                result += "\n\\usepackage[scaled]{uarial}\n" +\
+                "\\renewcommand*\\familydefault{\\sfdefault}\n" +\
+                "\\usepackage[T1]{fontenc}"
+                
+            if font_name == "computer modern":
+                result += "\n\\usepackage[T1]{fontenc}"
+                
+            if font_name == "dejavu serif":
+                result += "\n\usepackage{DejaVuSerif}\n" +\
+                "\\usepackage[T1]{fontenc}"
         
         return result
     
@@ -136,11 +159,11 @@ class LatexBuilder(Builder):
         
         result += self.__generate_documentclass_declaration(document) 
         result += "\n"
+        result += "\n\usepackage[utf8]{inputenc}"
         result += self.__generate_geometry_package_reference(document.style)
         result += self.__generate_language_package_reference(
                     document.properties)
-        
-        result += "\n\usepackage[utf8]{inputenc}"
+        result += self.__generate_font_packages_reference(document.style)
         
         result += self.__generate_pagestyle_declaration(document.style)
         result += "\n\n\\begin{document}"
