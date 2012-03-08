@@ -65,7 +65,7 @@ class Document(DocumentTreeNode):
     
     def __init__(self):
         super(Document, self).__init__()
-        self.style = Style() # TODO assign default document style from StyleManager
+        self.style = StyleManager().styles['doc-default']
         self.properties = DocumentProperties()
         self.builder = None
         
@@ -82,6 +82,7 @@ class Document(DocumentTreeNode):
 class Paragraph(DocumentTreeNode):
     def __init__(self):
         super(Paragraph, self).__init__()
+        self.style = StyleManager().styles['par-default']
 
 
 class Span(DocumentTreeNode):
@@ -237,8 +238,37 @@ class FontEffect(object):
 
 
 class StyleManager(object):
-    #TODO
-    pass
-  
+    __shared_state = {}
+    styles = {}
+    
+    def __init__(self):
+        self.__dict__ = self.__shared_state
+        
+        
+style_manager = StyleManager()
 
+# default document style
+style = Style()
+style['page-numbering'] = True
+style['page-width'] = 213
+style['page-height'] = 297
+style['margin-top'] = 20
+style['margin-bottom'] = 10
+style['margin-left'] = 20
+style['margin-right'] = 20
+style['font-size'] = 12
+style['font-name'] = "Times New Roman"
+style['alignment'] = Alignment.LEFT
+style['text-indent'] = 20
+style['color'] = "#000000"
+style['background-color'] = "#ffffff"
+style_manager.styles['doc-default'] = style
+
+#default paragraph style
+style = Style()
+style['margin-top'] = 0
+style['margin-bottom'] = 0
+style['margin-left'] = 0
+style['margin-right'] = 0
+style_manager.styles['par-default'] = style
     
