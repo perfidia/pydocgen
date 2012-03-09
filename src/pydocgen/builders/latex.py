@@ -58,7 +58,7 @@ class LatexBuilder(Builder):
         
         optional_parameters = {}
         
-        style = document.style
+        style = document.effective_style
         prop = document.properties
         
         if (style.has_key("font-size")):
@@ -167,13 +167,16 @@ class LatexBuilder(Builder):
         result += self.__generate_documentclass_declaration(document) 
         result += "\n"
         result += "\n\\usepackage[utf8]{inputenc}"
-        result += self.__generate_geometry_package_reference(document.style)
+        result += self.__generate_geometry_package_reference(\
+                        document.effective_style)
         result += self.__generate_language_package_reference(
                     document.properties)
-        result += self.__generate_font_packages_reference(document.style)
+        result += self.__generate_font_packages_reference(\
+                        document.effective_style)
         result += self.__generate_enumitem_package_reference(document)
         
-        result += self.__generate_pagestyle_declaration(document.style)
+        result += self.__generate_pagestyle_declaration(\
+                        document.effective_style)
         result += "\n\n\\begin{document}"
         
         content = ""

@@ -30,7 +30,14 @@ class DocumentTreeNode(object):
     
     def __get_effective_style(self):
         #TODO
-        return self.style
+        
+        # below there is a temporary, "mock" implementation
+        result = self.style
+        
+        if (result is None):
+            result = Style() 
+        
+        return result
     
     builder = property(__get_builder, None)
     effective_style = property(__get_effective_style, None)
