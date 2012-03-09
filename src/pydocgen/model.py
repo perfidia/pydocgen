@@ -13,7 +13,10 @@ class DocumentTreeNode(object):
     def __init__(self):
         self.parent = None
         self.style = None
-        self.content = list() # of DocumentTreeNode
+        try:
+            self.content = [] # of DocumentTreeNode
+        except AttributeError:
+            pass
         
     def __iadd__(self, other):
         self.content.append(other)
