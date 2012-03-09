@@ -27,7 +27,7 @@ class DocumentTreeNode(object):
     
     def __get_effective_style(self):
         #TODO
-        return Style()
+        return self.style
     
     builder = property(__get_builder, None)
     effective_style = property(__get_effective_style, None)
@@ -65,7 +65,7 @@ class Document(DocumentTreeNode):
     
     def __init__(self):
         super(Document, self).__init__()
-        self.style = StyleManager().styles['doc-default']
+        self.style = StyleManager().get_style('doc-default')
         self.properties = DocumentProperties()
         self.builder = None
         
@@ -82,7 +82,7 @@ class Document(DocumentTreeNode):
 class Paragraph(DocumentTreeNode):
     def __init__(self):
         super(Paragraph, self).__init__()
-        self.style = StyleManager().styles['par-default']
+        self.style = StyleManager().get_style('par-default')
 
 
 class Span(DocumentTreeNode):
@@ -239,10 +239,16 @@ class FontEffect(object):
 
 class StyleManager(object):
     __shared_state = {}
-    styles = {}
+    __styles = {}
     
     def __init__(self):
         self.__dict__ = self.__shared_state
+        
+    def set_style(self, style_name, style):
+        self.__styles[style_name] = style
+        
+    def get_style(self, style_name):
+        return self.__styles[style_name].copy()
         
         
 style_manager = StyleManager()
@@ -262,7 +268,8 @@ style['alignment'] = Alignment.LEFT
 style['text-indent'] = 20
 style['color'] = "#000000"
 style['background-color'] = "#ffffff"
-style_manager.styles['doc-default'] = style
+style['list-style'] = ListStyle.BULLET
+style_manager.set_style('doc-default', style)
 
 #default paragraph style
 style = Style()
@@ -270,5 +277,5 @@ style['margin-top'] = 0
 style['margin-bottom'] = 0
 style['margin-left'] = 0
 style['margin-right'] = 0
-style_manager.styles['par-default'] = style
+style_manager.set_style('par-default', style)
     
