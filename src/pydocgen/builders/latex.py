@@ -39,14 +39,14 @@ class LatexBuilder(Builder):
     def __generate_parameters_list(self, dictionary, optional = True):
         result = ""
         
-        if optional:
-            begin_text = "["
-            end_text = "]"
-        else:
-            begin_text = "{"
-            end_text = "}"
-        
-        if (len(dictionary.keys()) > 0):
+        if len(dictionary) > 0:
+            if optional:
+                begin_text = "["
+                end_text = "]"
+            else:
+                begin_text = "{"
+                end_text = "}"
+            
             result += begin_text
             result += self.__generate_parameters_string(dictionary)            
             result += end_text
@@ -104,9 +104,8 @@ class LatexBuilder(Builder):
             options["includefoot"] = None
         
         if (len(options) > 0):
-            result = "\n\\usepackage"
-            result += self.__generate_parameters_list(options)
-            result += "{geometry}"
+            result = "\n\\usepackage%s{geometry}" %\
+            self.__generate_parameters_list(options)
         
         return result
     
@@ -152,6 +151,14 @@ class LatexBuilder(Builder):
         
         return result
     
+    def __generate_enumitem_package_reference(self, document):
+        result = ""
+        
+        if document.successor_isinstance(List):
+            result += "\n\\usepackage{enumitem}"
+        
+        return result
+    
     def generate_document(self, document):
         document.fill_parent_fields()
         
@@ -159,18 +166,19 @@ class LatexBuilder(Builder):
         
         result += self.__generate_documentclass_declaration(document) 
         result += "\n"
-        result += "\n\usepackage[utf8]{inputenc}"
+        result += "\n\\usepackage[utf8]{inputenc}"
         result += self.__generate_geometry_package_reference(document.style)
         result += self.__generate_language_package_reference(
                     document.properties)
         result += self.__generate_font_packages_reference(document.style)
+        result += self.__generate_enumitem_package_reference(document)
         
         result += self.__generate_pagestyle_declaration(document.style)
         result += "\n\n\\begin{document}"
         
         content = ""
         content = self.__append_content_code(content, document)
-            
+        
         if len(content) == 0:
             result += "\n\n\\begin{verbatim}\\end{verbatim}"
         else:
@@ -203,7 +211,67 @@ class LatexBuilder(Builder):
         return result
     
     def generate_list(self, lst):
-        return ""
+        result = ""
+        
+        if lst.effective_style.has_key('list-style'):
+            style = lst.effective_style['list-style']
+        else:
+            style = ListStyle.BULLET
+            
+        environment = ""
+        if style == ListStyle.BULLET:
+            environment = "itemize"
+        elif style == ListStyle.NUMBER:
+            environment = "enumerate"
+            
+        if len(environment) > 0:
+            parameters = {}
+            
+            #handling the "item-spacing" style
+            if lst.effective_style.has_key("item-spacing"):
+                parameters['itemsep'] = "%dpt" %\
+                        lst.effective_style['item-spacing']
+                parameters['parsep'] = "0pt"
+                
+            #handling the "item-indent" style
+            if lst.effective_style.has_key("item-indent"):
+                parameters['itemindent'] = "%dpt" %\
+                        lst.effective_style['item-indent']
+                
+            #handling the "margin-top" style
+            if lst.effective_style.has_key("margin-top"):
+                margin_top = max(lst.effective_style['margin-top'], 0)
+                parameters['topsep'] = "%dpt" % margin_top
+            else:
+                margin_top = 0
+                        
+            #handling the "margin-bottom" style
+            if lst.effective_style.has_key("margin-bottom"):
+                margin_bottom = max(lst.effective_style['margin-bottom'], 0)
+                margin_correction = margin_bottom - margin_top
+                
+            #handling the "margin-left" style
+            if lst.effective_style.has_key("margin-left"):
+                parameters['leftmargin'] = "%dpt" %\
+                        lst.effective_style['margin-left']
+                
+            #handling the "margin-right" style
+            if lst.effective_style.has_key("margin-right"):
+                parameters['rightmargin'] = "%dpt" %\
+                        lst.effective_style['margin-right']
+   
+            result += "\n\n\\begin{%s}%s" % (environment,\
+                        self.__generate_parameters_list(parameters))
+
+            for element in lst.content:
+                result += "\n\t\\item %s" % element.generate()
+            
+            result += "\n\\end{%s}" % environment
+            
+            if margin_correction != 0:
+                    result += "\n\\vspace{%dpt}" % margin_correction
+        
+        return result
     
     def generate_image(self, image):
         return ""

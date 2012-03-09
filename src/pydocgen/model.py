@@ -58,6 +58,35 @@ class DocumentTreeNode(object):
                 stack.pop()
                 if (len(stack) > 0):
                     curr_node = stack[-1]
+                    
+    def successor_isinstance(self, req_type):
+        result = False
+        stack = []
+        visited = {}
+        curr_node = self
+        
+        stack.append(curr_node)
+        
+        while len(stack) > 0:
+            first_child_not_visited = None
+            for i in xrange(0, len(curr_node.content)):
+                if (not visited.has_key(curr_node.content[i])):
+                    first_child_not_visited = curr_node.content[i]
+                    break
+             
+            if (first_child_not_visited is not None):
+                visited[first_child_not_visited] = True
+                stack.append(first_child_not_visited)
+                curr_node = first_child_not_visited
+            else:
+                if isinstance(curr_node, req_type):
+                    result = True
+                    break
+                stack.pop()
+                if (len(stack) > 0):
+                    curr_node = stack[-1]
+                    
+        return result
                 
     def generate(self):
         return self.builder.generate(self)
@@ -97,6 +126,7 @@ class Span(DocumentTreeNode):
 class List(DocumentTreeNode):
     def __init__(self):
         super(List, self).__init__()
+        self.style = StyleManager().get_style('list-default')
 
 
 class Sequence(object):
@@ -272,6 +302,8 @@ style['text-indent'] = 20
 style['color'] = "#000000"
 style['background-color'] = "#ffffff"
 style['list-style'] = ListStyle.BULLET
+style['item-spacing'] = 2
+style['item-indent'] = 12
 style_manager.set_style('doc-default', style)
 
 #default paragraph style
@@ -281,4 +313,12 @@ style['margin-bottom'] = 0
 style['margin-left'] = 0
 style['margin-right'] = 0
 style_manager.set_style('par-default', style)
+
+#default list style
+style = Style()
+style['margin-top'] = 0
+style['margin-bottom'] = 2
+style['margin-left'] = 30
+style['margin-right'] = 0
+style_manager.set_style('list-default', style)
     

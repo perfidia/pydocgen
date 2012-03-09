@@ -23,4 +23,12 @@ The following styles are supported for Span:
 	- font-effects: FontEffect | ...
 	- color: string (e.g. "#1234ff")
 	- background-color: string (e.g. "#1234ff")
-	
+
+The following styles are supported for List:
+	- list-style: ListStyle
+	- item-spacing: integer (pt)
+	- item-indent: integer (pt)
+	- margin-top: integer (pt)
+	- margin-bottom: integer (pt)
+	- margin-left: integer (pt)
+	- margin-right: integer (pt)
