@@ -246,6 +246,7 @@ class LatexBuilder(Builder):
                 margin_top = 0
                         
             #handling the "margin-bottom" style
+            margin_correction = 0
             if lst.effective_style.has_key("margin-bottom"):
                 margin_bottom = max(lst.effective_style['margin-bottom'], 0)
                 margin_correction = margin_bottom - margin_top
