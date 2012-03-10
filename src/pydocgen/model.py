@@ -98,6 +98,10 @@ class DocumentTreeNode(object):
     def generate(self):
         return self.builder.generate(self)
     
+    def is_style_element_set(self, style_element):
+        return (self.effective_style.has_key(style_element)) and\
+                (self.effective_style[style_element] is not None)
+    
 
 class Document(DocumentTreeNode):
     builder = None
@@ -294,48 +298,48 @@ class StyleManager(object):
     def __init__(self):
         self.__dict__ = self.__shared_state
         
-    def set_style(self, style_name, style):
-        self.__styles[style_name] = style
+    def set_style(self, style_name, _style):
+        self.__styles[style_name] = _style
         
     def get_style(self, style_name):
         return self.__styles[style_name].copy()
         
         
-style_manager = StyleManager()
+_style_manager = StyleManager()
 
-# default document style
-style = Style()
-style['page-numbering'] = True
-style['page-width'] = 213
-style['page-height'] = 297
-style['margin-top'] = 20
-style['margin-bottom'] = 10
-style['margin-left'] = 20
-style['margin-right'] = 20
-style['font-size'] = 12
-style['font-name'] = "Times New Roman"
-style['alignment'] = Alignment.LEFT
-style['text-indent'] = 20
-style['color'] = "#000000"
-style['background-color'] = "#ffffff"
-style['list-style'] = ListStyle.BULLET
-style['item-spacing'] = 2
-style['item-indent'] = 12
-style_manager.set_style('doc-default', style)
+# default document _style
+_style = Style()
+_style['page-numbering'] = True
+_style['page-width'] = 213
+_style['page-height'] = 297
+_style['margin-top'] = 20
+_style['margin-bottom'] = 10
+_style['margin-left'] = 20
+_style['margin-right'] = 20
+_style['font-size'] = 12
+_style['font-name'] = "Times New Roman"
+_style['alignment'] = Alignment.LEFT
+_style['text-indent'] = 20
+_style['color'] = "#000000"
+_style['background-color'] = "#ffffff"
+_style['list-_style'] = ListStyle.BULLET
+_style['item-spacing'] = 2
+_style['item-indent'] = 12
+_style_manager.set_style('doc-default', _style)
 
-#default paragraph style
-style = Style()
-style['margin-top'] = 0
-style['margin-bottom'] = 0
-style['margin-left'] = 0
-style['margin-right'] = 0
-style_manager.set_style('par-default', style)
+#default paragraph _style
+_style = Style()
+_style['margin-top'] = 0
+_style['margin-bottom'] = 0
+_style['margin-left'] = 0
+_style['margin-right'] = 0
+_style_manager.set_style('par-default', _style)
 
-#default list style
-style = Style()
-style['margin-top'] = 0
-style['margin-bottom'] = 2
-style['margin-left'] = 30
-style['margin-right'] = 0
-style_manager.set_style('list-default', style)
+#default list _style
+_style = Style()
+_style['margin-top'] = 0
+_style['margin-bottom'] = 2
+_style['margin-left'] = 30
+_style['margin-right'] = 0
+_style_manager.set_style('list-default', _style)
     
