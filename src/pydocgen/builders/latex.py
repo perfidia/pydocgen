@@ -199,6 +199,8 @@ class LatexBuilder(Builder):
         return result
     
     def generate_span(self, span):
+
+	
         result = ""
         result += span.text
         
