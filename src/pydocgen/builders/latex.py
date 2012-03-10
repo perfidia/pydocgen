@@ -1,6 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
-from pydocgen.model import List, BulletChar, ListStyle, Image, Alignment
+from pydocgen.model import List, BulletChar, ListStyle, Image, Alignment,\
+                            FontEffect
 from pydocgen.builders.common import Builder
 
 
@@ -48,12 +49,12 @@ def _generate_parameters_list(dictionary, optional = True):
     return result
 
 def _generate_rgb_from_hex(color):
-	result = {}
-	result['r'] = _hex2dec(color[1]+color[2])
-	result['g'] = _hex2dec(color[3]+color[4])
-	result['b'] = _hex2dec(color[5]+color[6])
-	return result
-	
+    result = {}
+    result['r'] = _hex2dec(color[1]+color[2])
+    result['g'] = _hex2dec(color[3]+color[4])
+    result['b'] = _hex2dec(color[5]+color[6])
+    return result
+
 def _hex2dec(s):
     n = int(s, 16)
     result = n / 255.00
