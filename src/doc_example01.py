@@ -26,9 +26,9 @@ span = Span("Phasellus tempor risus eget.")
 span.style = Style()
 span.style['font-name'] = "Computer Modern"
 span.style['font-size'] = 14
-span.style['font-effects'] = FontEffect.UNDERLINE
-span.style['color'] = "#1234ff"
-span.style['background-color'] = "#0000ff"
+span.style['font-effects'] = FontEffect.ITALIC
+span.style['color'] = "#1243ff"
+span.style['background-color'] = "#00ff00"
 	
 header = Header()
 header.sequence = headers_seq
@@ -36,10 +36,24 @@ header += span
 
 document += header
 
-span = Span("Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor. Curabitur convallis dolor ac massa sollicitudin dapibus. Phasellus nulla neque, vestibulum eget gravida vel,euismod eget lacus. Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor. Curabitur convallis dolor ac massa sollicitudin dapibus. Phasellus nulla neque, vestibulum eget gravida vel, euismod eget lacus.")
 paragraph = Paragraph()
+span = Span("Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor. Curabitur convallis dolor ac massa sollicitudin dapibus. Phasellus nulla neque, vestibulum eget gravida vel,euismod eget lacus. Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor. Curabitur convallis dolor ac massa sollicitudin dapibus. Phasellus nulla neque, vestibulum eget gravida vel, euismod eget lacus.")
+span.style = Style()
+span.style['font-name'] = "Computer Modern"
+span.style['font-size'] = 9
+span.style['font-effects'] = FontEffect.UNDERLINE
+span.style['color'] = "#1243ff"
+
 paragraph += span
 
+span = Span(" Times New Roman 17")
+span.style = Style()
+span.style['font-name'] = "Times New Roman"
+span.style['font-size'] = 17
+span.style['color'] = "#1243ff"
+span.style['background-color'] = "#0fb099"
+
+paragraph += span
 document += paragraph
 
 #second paragraph with a bullet list and a numeric list inside
@@ -96,11 +110,11 @@ list += paragraph
 document += list
 
 #TODO image
-image = Image()
-image.path = "image.png"
-image.caption = "This is an image."
+#image = Image()
+#image.path = "image.png"
+#image.caption = "This is an image."
 #
-document += image
+#document += image
 
 #third paragraph with a table
 header = Header()
@@ -110,7 +124,7 @@ header += span
 document += header
 
 
-document += table
+#document += table
 #...
 #TODO
 
