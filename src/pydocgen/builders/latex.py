@@ -213,6 +213,49 @@ class LatexBuilder(Builder):
         
         return result
     
+    def __get_list_level(self, lst):
+        level = 0
+        elem = lst
+        while elem.parent is not None:
+            elem = elem.parent
+            if isinstance(elem, List):
+                level += 1
+                
+        return level
+    
+    def __get_bullet_char_dict(self):
+        bullet_char_dict = {}
+        bullet_char_dict[BulletChar.ASTERISK] = r"$\ast$"
+        bullet_char_dict[BulletChar.BULLET] = r"$\bullet$"
+        bullet_char_dict[BulletChar.CDOT] = r"$\cdot$"
+        bullet_char_dict[BulletChar.CIRCLE] = r"$\circ$"
+        bullet_char_dict[BulletChar.DIAMOND] = r"$\diamond$"
+        bullet_char_dict[BulletChar.MEDIUM_HYPHEN] = r"--"
+        bullet_char_dict[BulletChar.LONG_HYPHEN] = r"---"
+        bullet_char_dict['#'] = r"\#"
+        bullet_char_dict['$'] = r"\$"
+        bullet_char_dict['%'] = r"\%"
+        bullet_char_dict['&'] = r"\&"
+        bullet_char_dict['~'] = r"\textasciitilde"
+        bullet_char_dict['_'] = r"\_"
+        bullet_char_dict['^'] = r"\textasciicircum"
+        bullet_char_dict['\\'] = r"\textbackslash"
+        bullet_char_dict['{'] = r"\{"
+        bullet_char_dict['}'] = r"\}"
+        return bullet_char_dict
+    
+    def __get_bullet_command(self, lst):
+        level = self.__get_list_level(lst)
+        
+        bullet_commands = ["labelitemi", "labelitemii", "labelitemii",\
+                           "labelitemiv"]
+        
+        result = None
+        if level < len(bullet_commands):
+            result = bullet_commands[level]
+            
+        return result
+    
     def generate_list(self, lst):
         result = ""
         
@@ -229,6 +272,8 @@ class LatexBuilder(Builder):
             
         if len(environment) > 0:
             parameters = {}
+            
+            result += "\n"
             
             #handling the "item-spacing" style
             if lst.effective_style.has_key("item-spacing"):
@@ -263,8 +308,27 @@ class LatexBuilder(Builder):
             if lst.effective_style.has_key("margin-right"):
                 parameters['rightmargin'] = "%dpt" %\
                         lst.effective_style['margin-right']
+            
+            #handling the "bullet-char" style
+            if lst.effective_style.has_key("bullet-char"):
+                bullet_char_command = self.__get_bullet_command(lst)
+                
+                if bullet_char_command is not None:
+                    bullet_char = None
+                    
+                    bullet_char_dict = self.__get_bullet_char_dict()
+                    bullet_char_style_val = lst.effective_style['bullet-char']
+                    
+                    if bullet_char_dict.has_key(bullet_char_style_val):
+                        bullet_char =  bullet_char_dict[bullet_char_style_val]
+                    elif isinstance(bullet_char_style_val, str):
+                        bullet_char = bullet_char_style_val
+                        
+                    if (bullet_char is not None):
+                        result += "\n\\renewcommand{%s}{%s}" %\
+                                ("\\" + bullet_char_command, bullet_char)
    
-            result += "\n\n\\begin{%s}%s" % (environment,\
+            result += "\n\\begin{%s}%s" % (environment,\
                         self.__generate_parameters_list(parameters))
 
             for element in lst.content:

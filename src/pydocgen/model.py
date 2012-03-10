@@ -275,6 +275,16 @@ class FontEffect(object):
     BOLD = 1
     ITALIC = 2
     UNDERLINE = 4
+    
+
+class BulletChar(object):
+    BULLET = 0
+    CDOT = 1
+    DIAMOND = 2
+    ASTERISK = 3
+    CIRCLE = 4
+    MEDIUM_HYPHEN = 5
+    LONG_HYPHEN = 6
 
 
 class StyleManager(object):
