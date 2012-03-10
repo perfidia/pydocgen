@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 from pydocgen.model import List, BulletChar, ListStyle, Image, Alignment
 from pydocgen.builders.common import Builder
@@ -47,6 +47,32 @@ def _generate_parameters_list(dictionary, optional = True):
     
     return result
 
+def _generate_rgb_from_hex(color):
+	result = {}
+	result['r'] = _hex2dec(color[1]+color[2])
+	result['g'] = _hex2dec(color[3]+color[4])
+	result['b'] = _hex2dec(color[5]+color[6])
+	return result
+	
+def _hex2dec(s):
+    n = int(s, 16)
+    result = n / 255.00
+    return str(result)[:3]
+    
+def _get_leading(number):
+    number = int(number *1.2)
+    return str(number)
+    
+def _get_font_family(font_name):
+    if font_name ==  "Times New Roman":
+        return r"ptm"
+    if font_name == "Arial":
+        return r"phv"
+    if font_name == "Computer Modern":
+        return r"cmr"
+    if font_name == "DejaVu Serif":
+        return r"dejavu"
+        
 def _append_content_code(result, element):
         for element in element.content:
             result += element.generate()
@@ -70,16 +96,64 @@ class LatexBuilder(Builder):
     
     def generate_paragraph(self, paragraph):
         result = "\n\n"
-        
+                
         result = _append_content_code(result, paragraph)
         
         return result
     
     def generate_span(self, span):
-        result = ""
-        result += span.text
         
+        result = ""
+        counter = 0;
+        font_changed = False
+        if span.effective_style.has_key('font-name'):
+            font_name = span.effective_style['font-name']
+            font_changed = True
+            counter += 1
+            result += r"{"
+            result += r"\fontfamily {" + _get_font_family(font_name) + r"} "
+        if span.effective_style.has_key('font-size'):
+            font_size = span.effective_style['font-size'] 
+            if not font_changed:
+                result += r"{"
+                counter += 1
+            result += r"\fontsize {" + str(font_size) + "}{" + _get_leading(font_size) + "}"    
+            font_changed = True
+        if font_changed:
+            result += r"\selectfont "
+        if span.effective_style.has_key('background-color'):
+            background_color = _generate_rgb_from_hex(span.effective_style['background-color'])
+            counter += 1
+            result += r"\colorbox [rgb] {";
+            result += background_color['r'] + ", "
+            result += background_color['g'] + ", "
+            result += background_color['b'] + "} {"
+            
+        if span.effective_style.has_key('color'):
+            font_color = _generate_rgb_from_hex(span.effective_style['color']) 
+            counter += 1
+            result += r"\color [rgb] {";
+            result += font_color['r'] + r", "
+            result += font_color['g'] + r", "
+            result += font_color['b'] + r"} {"
+        if span.effective_style.has_key('font-effects'):
+            font_effects = span.effective_style['font-effects']
+            if font_effects == FontEffect.BOLD:
+                counter += 1
+                result += r"\textbf {"
+            if font_effects == FontEffect.ITALIC:
+                counter += 1
+                result += r"\textit{"
+            if font_effects == FontEffect.UNDERLINE:
+                counter += 1
+                result += r"\underline{"
+
+
+        result += span.text
+        for _ in xrange(0, counter):
+            result += r"}"
         return result
+
     
     def generate_header(self, header):
         result = "\n\n\section{"
@@ -363,6 +437,7 @@ class _LatexDocumentBuilder(object):
         
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
+        result += "\n\\usepackage{color}"
         result += "\n\n\\begin{document}"
         
         content = ""
@@ -376,6 +451,29 @@ class _LatexDocumentBuilder(object):
         result += "\n\n\end{document}"
         
         return result
+    
+    def generate_paragraph(self, paragraph):
+        result = "\n\n"
+        
+        result = self.__append_content_code(result, paragraph)
+        
+        return result
+    
+    def generate_span(self, span):
+        result = ""
+        result += span.text
+        
+        return result
+    
+    def generate_header(self, header):
+        result = "\n\n\section{"
+        
+        result = self.__append_content_code(result, header)
+        
+        result += "}"
+        
+        return result
+
 
 class _LatexListBuilder(object):
     def __init__(self):
