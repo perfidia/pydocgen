@@ -33,3 +33,12 @@ The following styles are supported for List:
 	- margin-left: integer (pt)
 	- margin-right: integer (pt)
 	- bullet-char: BulletChar or char
+	
+The following styles are supported for Image:
+	- width: float (mm)
+	- height: float (mm)
+	- margin-top: integer (pt)
+	- margin-bottom: integer (pt)
+	- margin-left: integer (pt)
+	- margin-right: integer (pt)
+	- alignment: Alignment

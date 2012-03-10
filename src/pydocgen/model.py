@@ -165,7 +165,22 @@ class Image(NumberedObject):
     def __init__(self):
         super(Image, self).__init__()
         self.path = None
-        self.caption = None
+        
+    def __get_caption(self):
+        return self.content
+    
+    def __set_caption(self, caption):
+        if caption is None:
+            caption = []
+        elif (not isinstance(caption, list)) and\
+                    (not isinstance(caption, Span)):
+            raise TypeError("Caption needs to be a Span or list of Span!")
+        if isinstance(caption, list):
+            self.content = caption
+        else:
+            self.content = [caption]
+        
+    caption = property(__get_caption, __set_caption)
 
 
 class TCell(DocumentTreeNode):

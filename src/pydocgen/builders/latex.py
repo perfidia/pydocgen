@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pydocgen.model import *
+from pydocgen.model import List, BulletChar, ListStyle, Image, Alignment
 from pydocgen.builders.common import Builder
 
 
@@ -58,6 +58,7 @@ def _append_content_code(result, element):
 class LatexBuilder(Builder):
     def __init__(self):
         super(LatexBuilder, self).__init__()
+        self.__image_builder = _LatexImageBuilder()
         self.__list_builder = _LatexListBuilder()
         self.__document_builder = _LatexDocumentBuilder()
     
@@ -93,7 +94,7 @@ class LatexBuilder(Builder):
         return self.__list_builder.generate(lst)
     
     def generate_image(self, image):
-        return ""
+        return self.__image_builder.generate(image)
     
     def generate_table(self, table):
         return ""
@@ -101,17 +102,134 @@ class LatexBuilder(Builder):
 
 #helper builders
 
+class _LatexImageBuilder(object):
+    def generate(self, image):
+        result = ""
+        
+        parameters = {}
+        
+        pre = ""
+        post = ""
+        tab_indent_level = 1
+        margins_before = ""
+        margins_after = ""
+        caption = ""
+        captionsetup_parameters = {}
+        captionsetup = ""
+        
+        # handling the "width" style 
+        if image.is_style_element_set("width"):
+            parameters['width'] = "%.2fmm" % image.effective_style['width']
+            
+        # handling the "height" style 
+        if image.is_style_element_set("height"):
+            parameters['height'] = "%.2fmm" % image.effective_style['height']
+            
+        # handling the margins
+        if image.is_style_element_set("margin-top")\
+                    or image.is_style_element_set("margin-bottom")\
+                    or image.is_style_element_set("margin-left")\
+                    or image.is_style_element_set("margin-right"):
+            margin_top = 0
+            margin_bottom = 0
+            margin_left = 0
+            margin_right = 0
+            
+            if image.is_style_element_set("margin-top"):
+                margin_top = image.effective_style['margin-top']
+                
+            if image.is_style_element_set("margin-bottom"):
+                margin_bottom = image.effective_style['margin-bottom']
+                
+            if image.is_style_element_set("margin-left"):
+                margin_left = image.effective_style['margin-left']
+                
+            if image.is_style_element_set("margin-right"):
+                margin_right = image.effective_style['margin-right']
+                
+            if margin_top != 0:
+                margins_before += "\\vspace*{%.2fpt}" % margin_top
+            if margin_left != 0:
+                margins_before += "\\hspace*{%.2fpt}" % margin_left
+            if margin_right != 0:
+                margins_after += "\\hspace*{%.2fpt}" % margin_right
+            if margin_bottom != 0:
+                margins_after += "\\vspace*{%.2fpt}" % margin_bottom
+                
+            if (margin_left != 0) or (margin_right != 0):
+                captionsetup_parameters['margin'] = "{%.2fpt,%.2fpt}" %\
+                                (margin_left, margin_right)
+            
+             
+        # handling the "alignment" style 
+        if image.is_style_element_set("alignment"):
+            align_env = None 
+            if image.effective_style['alignment'] == Alignment.LEFT\
+                    or image.effective_style['alignment'] == Alignment.JUSTIFY:
+                align_env = "flushleft"
+                captionsetup_parameters['justification'] = "raggedright"
+            elif image.effective_style['alignment'] == Alignment.CENTER:
+                align_env = "center"
+                captionsetup_parameters['justification'] = "centering"
+            elif image.effective_style['alignment'] == Alignment.RIGHT:
+                align_env = "flushright"
+                captionsetup_parameters['justification'] = "raggedleft"
+            
+            if align_env is not None:
+                tabs = "\t" * tab_indent_level
+                pre += "\n%s\\begin{%s}" % (tabs, align_env)
+                post = ("\n%s\\end{%s}" % (tabs, align_env)) + post
+                tab_indent_level += 1
+                captionsetup_parameters['singlelinecheck'] = "false"
+                
+        if len(margins_before) > 0:
+            margins_before += "\n" + ("\t" * tab_indent_level)
+        if len(margins_after) > 0:
+            margins_after = "\n" + ("\t" * tab_indent_level) + margins_after
+        
+        # putting the caption
+        if len(image.caption) > 0:
+            caption_content = ""
+            for span in image.caption:
+                caption_content += span.generate()
+                
+            caption = "\n%s\caption{%s}" % ("\t" * tab_indent_level,\
+                                                         caption_content)
+            captionsetup = "\n%s\\captionsetup%s" %\
+                    (("\t" * (tab_indent_level - 1)),\
+                    _generate_parameters_list(captionsetup_parameters, False))
+            
+        result += "\n\n"
+        result += "\\begin{figure}[ht!]"
+        result += captionsetup
+        result += pre
+        result += "\n%s%s\\noindent\includegraphics%s{%s}%s%s" %\
+                    ("\t" * tab_indent_level,\
+                     margins_before,\
+                     _generate_parameters_list(parameters),\
+                     image.path,\
+                     caption,
+                     margins_after)
+        result += post
+        result += "\n\\end{figure}"
+        
+        return result
+
 class _LatexDocumentBuilder(object):
+    def __generate_package_reference(self, package_name, parameter_dict = {}):
+        parameters = _generate_parameters_list(parameter_dict)
+        return "\n\\usepackage%s{%s}" % (parameters, package_name)
+    
     def __generate_documentclass_declaration(self, document):
         result = "\\documentclass"
         
         optional_parameters = {}
         
-        _style = document.effective_style
+        style = document.effective_style
         prop = document.properties
         
-        if (_style.has_key("font-size")):
-            optional_parameters[str(_style["font-size"]) + "pt"] = None
+        if (style.has_key("font-size")):
+            optional_parameters[str(style["font-size"]) + "pt"] = None
         
         if (not prop.has_key("lang")) or (not prop['lang'].startswith('en-US')):
             optional_parameters["a4paper"] = None
@@ -122,34 +240,34 @@ class _LatexDocumentBuilder(object):
         
         return result
     
-    def __generate_geometry_package_reference(self, _style):
+    def __generate_geometry_package_reference(self, style):
         result = ""
         
         options = {}
         
-        if (_style.has_key("page-width")):
-            options["paperwidth"] = str(_style["page-width"]) + "mm"
+        if (style.has_key("page-width")):
+            options["paperwidth"] = str(style["page-width"]) + "mm"
             
-        if (_style.has_key("page-height")):
-            options["paperheight"] = str(_style["page-height"]) + "mm"
+        if (style.has_key("page-height")):
+            options["paperheight"] = str(style["page-height"]) + "mm"
             
-        if (_style.has_key("margin-top")):
-            options["top"] = str(_style["margin-top"]) + "mm"
+        if (style.has_key("margin-top")):
+            options["top"] = str(style["margin-top"]) + "mm"
             
-        if (_style.has_key("margin-bottom")):
-            options["bottom"] = str(_style["margin-bottom"]) + "mm"
+        if (style.has_key("margin-bottom")):
+            options["bottom"] = str(style["margin-bottom"]) + "mm"
             
-        if (_style.has_key("margin-left")):
+        if (style.has_key("margin-left")):
             options["asymmetric"] = None
-            options["left"] = str(_style["margin-left"]) + "mm"
+            options["left"] = str(style["margin-left"]) + "mm"
             
-        if (_style.has_key("margin-right")):
+        if (style.has_key("margin-right")):
             if not options.has_key("asymmetric"):
                 options["asymmetric"] = None
-            options["right"] = str(_style["margin-right"]) + "mm"
+            options["right"] = str(style["margin-right"]) + "mm"
             
-        if (_style.has_key("page-numbering")) \
-                    and (_style["page-numbering"] == True):
+        if (style.has_key("page-numbering")) \
+                    and (style["page-numbering"] == True):
             options["includefoot"] = None
         
         if (len(options) > 0):
@@ -158,11 +276,11 @@ class _LatexDocumentBuilder(object):
         
         return result
     
-    def __generate_pagestyle_declaration(self, _style):
+    def __generate_pagestyle_declaration(self, style):
         result = ""
         
-        if (not _style.has_key("page-numbering")) \
-                    or (_style["page-numbering"] == False):
+        if (not style.has_key("page-numbering")) \
+                    or (style["page-numbering"] == False):
             result = "\n\n\pagestyle{empty}"
         
         return result
@@ -173,9 +291,12 @@ class _LatexDocumentBuilder(object):
         if document_properties.has_key("lang"):
             lang = document_properties["lang"]
             if lang.startswith("pl"):
-                result += "\n\usepackage{polski}"
+                result += self.__generate_package_reference("polski")
         
         return result
+    
+    def __generate_fontenc_T1_reference(self):
+        return 
     
     def __generate_font_packages_reference(self, document_style):
         result = ""
@@ -184,19 +305,26 @@ class _LatexDocumentBuilder(object):
             font_name = document_style['font-name'].strip().lower()
             
             if font_name == "times new roman":
-                result += "\n\\usepackage{mathptmx}\n\\usepackage[T1]{fontenc}"
+                result += self.__generate_package_reference("mathptmx")
+                result += self.__generate_package_reference(\
+                                                "fontenc", {"T1": None})
                 
             if font_name == "arial":
-                result += "\n\\usepackage[scaled]{uarial}\n" +\
-                "\\renewcommand*\\familydefault{\\sfdefault}\n" +\
-                "\\usepackage[T1]{fontenc}"
+                result += self.__generate_package_reference(\
+                                                "uarial", {"scaled": None})
+                result += "\n\\renewcommand*\\familydefault{\\sfdefault}\n"
+                result += self.__generate_package_reference(\
+                                                "fontenc", {"T1": None})
                 
             if font_name == "computer modern":
-                result += "\n\\usepackage[T1]{fontenc}"
+                result += self.__generate_package_reference(\
+                                                "fontenc", {"T1": None})
                 
             if font_name == "dejavu serif":
-                result += "\n\usepackage{DejaVuSerif}\n" +\
-                "\\usepackage[T1]{fontenc}"
+                result += self.__generate_package_reference(\
+                                                                "DejaVuSerif")
+                result += self.__generate_package_reference(\
+                                                "fontenc", {"T1": None})
         
         return result
     
@@ -204,7 +332,16 @@ class _LatexDocumentBuilder(object):
         result = ""
         
         if document.successor_isinstance(List):
-            result += "\n\\usepackage{enumitem}"
+            result += self.__generate_package_reference("enumitem")
+        
+        return result
+    
+    def __generate_graphicx_package_reference(self, document):
+        result = ""
+        
+        if document.successor_isinstance(Image):
+            result += self.__generate_package_reference("graphicx")
+            result += self.__generate_package_reference("caption")
         
         return result
     
@@ -213,7 +350,8 @@ class _LatexDocumentBuilder(object):
         
         result += self.__generate_documentclass_declaration(document) 
         result += "\n"
-        result += "\n\\usepackage[utf8]{inputenc}"
+        result += self.__generate_package_reference(\
+                                                "inputenc", {"utf8": None})
         result += self.__generate_geometry_package_reference(\
                         document.effective_style)
         result += self.__generate_language_package_reference(
@@ -221,6 +359,7 @@ class _LatexDocumentBuilder(object):
         result += self.__generate_font_packages_reference(\
                         document.effective_style)
         result += self.__generate_enumitem_package_reference(document)
+        result += self.__generate_graphicx_package_reference(document)
         
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
@@ -316,15 +455,15 @@ class _LatexListBuilder(object):
     def generate(self, lst):
         result = ""
         
-        if lst.is_style_element_set('list-_style'):
-            _style = lst.effective_style['list-_style']
+        if lst.is_style_element_set('list-style'):
+            style = lst.effective_style['list-style']
         else:
-            _style = ListStyle.BULLET
+            style = ListStyle.BULLET
             
         environment = ""
-        if _style == ListStyle.BULLET:
+        if style == ListStyle.BULLET:
             environment = "itemize"
-        elif _style == ListStyle.NUMBER:
+        elif style == ListStyle.NUMBER:
             environment = "enumerate"
             
         if len(environment) > 0:
@@ -335,41 +474,41 @@ class _LatexListBuilder(object):
             if level == 0:
                 result += "\n"
             
-            #handling the "item-spacing" _style
+            #handling the "item-spacing" style
             if lst.is_style_element_set("item-spacing"):
                 parameters['itemsep'] = "%dpt" %\
                         lst.effective_style['item-spacing']
                 parameters['parsep'] = "0pt"
                 
-            #handling the "item-indent" _style
+            #handling the "item-indent" style
             if lst.is_style_element_set("item-indent"):
                 parameters['itemindent'] = "%dpt" %\
                         lst.effective_style['item-indent']
                 
-            #handling the "margin-top" _style
+            #handling the "margin-top" style
             if lst.is_style_element_set("margin-top"):
                 margin_top = max(lst.effective_style['margin-top'], 0)
                 parameters['topsep'] = "%dpt" % margin_top
             else:
                 margin_top = 0
                         
-            #handling the "margin-bottom" _style
+            #handling the "margin-bottom" style
             margin_correction = 0
             if lst.is_style_element_set("margin-bottom"):
                 margin_bottom = max(lst.effective_style['margin-bottom'], 0)
                 margin_correction = margin_bottom - margin_top
                 
-            #handling the "margin-left" _style
+            #handling the "margin-left" style
             if lst.is_style_element_set("margin-left"):
                 parameters['leftmargin'] = "%dpt" %\
                         lst.effective_style['margin-left']
                 
-            #handling the "margin-right" _style
+            #handling the "margin-right" style
             if lst.is_style_element_set("margin-right"):
                 parameters['rightmargin'] = "%dpt" %\
                         lst.effective_style['margin-right']
             
-            #handling the "bullet-char" _style
+            #handling the "bullet-char" style
             if lst.is_style_element_set("bullet-char"):
                 bullet_char_command = self.__get_bullet_command(lst)
                 
