@@ -188,5 +188,5 @@ if __name__ == '__main__':
     document.builder = LatexBuilder()
     document.generate_file("doc_example01.tex")
     
-    #document.builder = HtmlBuilder()
-    #document.generate_file("doc_example01.htm")
+    document.builder = HtmlBuilder()
+    document.generate_file("doc_example01.htm")

@@ -177,11 +177,11 @@ class Sequence(object):
     
     def get_numbers(self):
         seq = self
-        numbers = [str(seq.value)]
+        numbers = [str(seq.value - 1)]
         
         while seq.parent is not None:
             seq = seq.parent
-            numbers.append(str(seq.value))
+            numbers.append(str(seq.value - 1))
          
         return numbers
     
