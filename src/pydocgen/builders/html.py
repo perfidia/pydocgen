@@ -8,14 +8,15 @@ class HtmlBuilder(Builder):
         super(HtmlBuilder, self).__init__()
     
     def generate_document(self, document):
+    	MAIN_STYLE_FILENAME = 'style.css'
     	title = ''
 	body = ''
 	if 'title' in document.properties:
 		title = document.properties['title']
 	for element in document:
 		body += generate(element)
-	
-        return "<html><title>"+ title +"</title><body>"+ body  +"</body></html>"
+	self.generate_main_style(MAIN_STYLE_FILENAME)
+        return '<html><head>\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"' + MAIN_STYLE_FILENAME + '\" />\n<title>'+ title +'</title>\n\t</head>\n\t<body>\n'+ body  +'\n\t</body>\n</html>'
     
     def generate_paragraph(self, paragraph):
 	p = generate(p)
@@ -37,7 +38,10 @@ class HtmlBuilder(Builder):
 	    return '<ol>' + result + '</ol>'
     
     def generate_image(self, image):
-        return ""
+        return '<a src=\"'+ image.path + '\" alt=\"' + image.sequence.to_str() + '\" />'
     
     def generate_table(self, table):
         return ""
+        
+    def generate_main_style(self, filename):
+    	pass
