@@ -627,11 +627,15 @@ class _LatexListBuilder(object):
             result += "\n%s\\begin{%s}%s" % ("\t" * level, environment,\
                         _generate_parameters_list(parameters))
 
-            for element in lst.content:
+            for i in xrange(0, len(lst.content)):
+                element = lst.content[i]
                 item = ""
                 newline = ""
+                newline_beforeitem = ""
                 if not isinstance(element, List):
-                    item = "\\item"
+                    if i > 0 and lst.content[i-1].successor_isinstance(List):
+                        newline_beforeitem += "\n\n"
+                    item = "%s\\item" % newline_beforeitem
                     newline = "\n"
                 result += "%s\t%s%s %s" % (newline, "\t" * level, item,\
                             element.generate())
