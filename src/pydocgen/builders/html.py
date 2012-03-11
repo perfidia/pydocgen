@@ -8,19 +8,33 @@ class HtmlBuilder(Builder):
         super(HtmlBuilder, self).__init__()
     
     def generate_document(self, document):
-        return ""
+    	title = ''
+	body = ''
+	if 'title' in document.properties:
+		title = document.properties['title']
+	for element in document:
+		body += generate(element)
+	
+        return "<html><title>"+ title +"</title><body>"+ body  +"</body></html>"
     
     def generate_paragraph(self, paragraph):
-        return ""
+	p = generate(p)
+        return '<p>' + p + '</p>'
     
     def generate_span(self, span):
-        return ""
+        return '<span>' + s.text + '</span>'
     
     def generate_header(self, header):
-        return ""
+        return '<h1>' + header.sequence.value + '</h1>' 
     
     def generate_list(self, lst):
-        return ""
+	result  = ''
+	for item in lest.content:
+	    result += generate(lst.content)
+	if lst.style['list-style'] == ListStyle.BULLET:
+	    return '<ul>' + result + '</ul>'
+	else:
+	    return '<ol>' + result + '</ol>'
     
     def generate_image(self, image):
         return ""
