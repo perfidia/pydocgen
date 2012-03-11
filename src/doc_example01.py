@@ -19,7 +19,7 @@ document.style['margin-right'] = 20
 document.title = "doc_example01"
 
 headers_seq = Sequence()
-subheaders_seq = Sequence(99, headers_seq)
+subheaders_seq = Sequence(96, headers_seq)
 tables_seq = Sequence()
 
 #header
@@ -42,7 +42,7 @@ paragraph = Paragraph()
 paragraph.style = Style()
 paragraph.style['alignment'] =  Alignment.LEFT
 paragraph.style['text-indent'] = 8
-span = Span("Sed in purus dolor. Ut id mauris vel urna fringilla blandit.")
+span = Span("Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor.")
 span.style = Style()
 span.style['font-name'] = "Computer Modern"
 span.style['font-size'] = 9
@@ -72,9 +72,10 @@ document += header
 span = Span("Aliquam vehicula sem ut pede. Cras purus lectus, egestas eu, vehicula at, imperdiet sed, nibh. Morbi consectetuer luctus felis. Donec vitae nisi. Aliquam tincidunt feugiat elit. Duis sed elit ut turpis ullamcorper feugiat. Praesent pretium, mauris sed fermentum hendrerit, nulla lorem iaculis magna, pulvinar scelerisque urna tellus a justo. Suspendisse pulvinar massa in metus. Duis quis quam. Proin justo. Curabitur ac sapien. Nam erat. Praesent ut quam.")
 paragraph = Paragraph()
 paragraph.style = Style()
+paragraph.style['alignment'] = Alignment.CENTER
 paragraph.style['margin-top'] = 30
 paragraph.style['margin-bottom'] = 30
-paragraph.style['margin-left'] =  150
+paragraph.style['margin-left'] =  250
 paragraph.style['margin-right'] = 70
 paragraph += span
 document += paragraph
@@ -128,6 +129,15 @@ document += list
 #
 #document += image
 
+#header not numbered
+header = Header()
+header.style = Style()
+header.style['header-numbered'] = False
+header.sequence = headers_seq
+span = Span("And this is a not numbered header")
+header += span
+document += header
+
 #header 3
 header = Header()
 header.sequence = headers_seq
@@ -135,10 +145,17 @@ span = Span("And another header")
 header += span
 document += header
 
-#header 3.99
+#subheader
 header = Header()
 header.sequence = subheaders_seq
-span = Span("subsection")
+span = Span("Subheader")
+header += span
+document += header
+
+#subheader
+header = Header()
+header.sequence = subheaders_seq
+span = Span("Next subheader")
 header += span
 document += header
 

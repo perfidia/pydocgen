@@ -155,6 +155,8 @@ class List(DocumentTreeNode):
 
 
 class Sequence(object):
+    
+    
     def __init__(self, start_value = 1, parent = None):
         self.value = start_value
         self.parent = parent
@@ -172,6 +174,16 @@ class Sequence(object):
             result = str(seq.value) + separator + result
      
         return result
+    
+    def get_numbers(self):
+        seq = self
+        numbers = [str(seq.value)]
+        
+        while seq.parent is not None:
+            seq = seq.parent
+            numbers.append(str(seq.value))
+         
+        return numbers
     
     def get_level(self):
         seq = self
@@ -381,6 +393,7 @@ _style['background-color'] = "#ffffff"
 _style['list-_style'] = ListStyle.BULLET
 _style['item-spacing'] = 2
 _style['item-indent'] = 12
+_style['header-numbered'] = True
 _style_manager.set_style('doc-default', _style)
 
 #default paragraph _style

@@ -107,28 +107,76 @@ class _LatexHeaderBuilder(object):
     def generate(self, header):
         result = "\n\n"
         level = 0;
+        number = ""
     
         if header.sequence is not None:
-            if header.is_style_element_set("seq-number-sep"):
-                number = header.sequence.to_str(header.effective_style['seq-number-sep'])
-            else:
-                number = str(header.sequence)
             level = header.sequence.get_level()
-        
-        
-        if level == 0:
+            if level == 0:
+                result += r"\section*{"                
+            if level == 1:
+                result += r"\subsection*{"
+            if level == 2:
+                result += r"\subsubsection*{"
+            if level == 3:
+                result += r"\paragraph*{"
+            if level > 3:
+                result += r"\subparagraph*{"
+            if header.is_style_element_set("header-numbered"):
+                if header.effective_style['header-numbered']:
+
+                    if header.is_style_element_set("seq-number-sep"):
+                        number = header.sequence.to_str(header.effective_style['seq-number-sep'])
+                        result += number
+                        result += " \\hspace*{5pt} "
+                    else:
+                        numbers = header.sequence.get_numbers()
+                        result = "\n\n"
+                
+                        if level == 0:
+                            result += r"\setcounter{section}{" + numbers[0]+ r"}"
+                            result += '\n'
+                            result += r"\section{"                
+                        if level == 1:
+                            result += r"\setcounter{section}{" + numbers[1]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsection}{" + numbers[0]+ r"}"
+                            result += '\n'
+                            result += r"\subsection{"
+                        if level == 2:
+                            result += r"\setcounter{section}{" + numbers[2]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsection}{" + numbers[1]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsubsection}{" + numbers[0]+ r"}"
+                            result += '\n'
+                            result += r"\subsubsection{"
+                        if level == 3:
+                            result += r"\setcounter{section}{" + numbers[3]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsection}{" + numbers[2]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsubsection}{" + numbers[1]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{paragraph}{" + numbers[0]+ r"}"
+                            result += '\n'
+                            result += r"\paragraph{"
+                        if level > 3:
+                            result += r"\setcounter{section}{" + numbers[4]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsection}{" + numbers[3]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subsubsection}{" + numbers[2]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{paragraph}{" + numbers[1]+ r"}"
+                            result += '\n'
+                            result += r"\setcounter{subparagraph}{" + numbers[0]+ r"}"
+                            result += '\n'
+                            result += r"\subparagraph{"
+ 
+        else:    
             result += r"\section*{"
-        if level == 1:
-            result += r"\subsection*{"
-        if level == 2:
-            result += r"\subsubsection*{"
-        if level == 3:
-            result += r"\paragraph*{"
-        if level > 3:
-            result += r"\subparagraph*{"
+  
         
-        result += number
-        result += " \\hspace*{5pt} " 
         
         for element in header.content:
             result += element.generate()   
@@ -136,7 +184,11 @@ class _LatexHeaderBuilder(object):
         result += r"}"
         
         if header.sequence is not None:
-            header.sequence.advance()
+            if header.is_style_element_set("header-numbered"):
+                if header.effective_style['header-numbered']:
+                    header.sequence.advance()
+            else:    
+                header.sequence.advance()
             
         return result
     
