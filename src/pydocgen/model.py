@@ -32,15 +32,13 @@ class DocumentTreeNode(object):
         return node
             
     def __get_effective_style(self):
-        #TODO
-        
-        # below there is a temporary, "mock" implementation
-        result = self.style
-        
-        if (result is None):
-            result = Style() 
-        
-        return result
+        parent_style = Style()
+	if self.parent == None: # doc tree root
+	    return self.style if self.style else StyleManager().get_style('doc-default')
+	else:
+	    parent_style = self.parent.get_effective_style().copy()
+	parent_style.update(self.style) #Do not trying do this in one line
+	return parent_style		#dict's update method returns void!
     
     builder = property(__get_builder, None)
     effective_style = property(__get_effective_style, None)

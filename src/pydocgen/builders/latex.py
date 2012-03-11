@@ -48,35 +48,12 @@ def _generate_parameters_list(dictionary, optional = True):
     
     return result
 
-def _generate_rgb_from_hex(color):
-    result = {}
-    result['r'] = _hex2dec(color[1]+color[2])
-    result['g'] = _hex2dec(color[3]+color[4])
-    result['b'] = _hex2dec(color[5]+color[6])
-    return result
 
-def _hex2dec(s):
-    n = int(s, 16)
-    result = n / 255.00
-    return str(result)[:3]
-    
-def _get_leading(number):
-    number = int(number *1.2)
-    return str(number)
-    
-def _get_font_family(font_name):
-    if font_name ==  "Times New Roman":
-        return r"ptm"
-    if font_name == "Arial":
-        return r"phv"
-    if font_name == "Computer Modern":
-        return r"cmr"
-    if font_name == "DejaVu Serif":
-        return r"dejavu"
         
 def _append_content_code(result, element):
         for element in element.content:
             result += element.generate()
+            
         return result 
 
 
@@ -85,6 +62,8 @@ def _append_content_code(result, element):
 class LatexBuilder(Builder):
     def __init__(self):
         super(LatexBuilder, self).__init__()
+        self.__span_builder = _LatexSpanBuilder()
+        self.__paragraph_builder = _LatexParagraphBuilder()
         self.__image_builder = _LatexImageBuilder(self)
         self.__list_builder = _LatexListBuilder()
         self.__document_builder = _LatexDocumentBuilder(self.__image_builder)
@@ -95,65 +74,11 @@ class LatexBuilder(Builder):
         return self.__document_builder.generate(document)
     
     def generate_paragraph(self, paragraph):
-        result = "\n\n"
-                
-        result = _append_content_code(result, paragraph)
-        
-        return result
+        return self.__paragraph_builder.generate(paragraph)
+
     
     def generate_span(self, span):
-        
-        result = ""
-        counter = 0;
-        font_changed = False
-        if span.effective_style.has_key('font-name'):
-            font_name = span.effective_style['font-name']
-            font_changed = True
-            counter += 1
-            result += r"{"
-            result += r"\fontfamily {" + _get_font_family(font_name) + r"} "
-        if span.effective_style.has_key('font-size'):
-            font_size = span.effective_style['font-size'] 
-            if not font_changed:
-                result += r"{"
-                counter += 1
-            result += r"\fontsize {" + str(font_size) + "}{" + _get_leading(font_size) + "}"    
-            font_changed = True
-        if font_changed:
-            result += r"\selectfont "
-        if span.effective_style.has_key('background-color'):
-            background_color = _generate_rgb_from_hex(span.effective_style['background-color'])
-            counter += 1
-            result += r"\colorbox [rgb] {";
-            result += background_color['r'] + ", "
-            result += background_color['g'] + ", "
-            result += background_color['b'] + "} {"
-            
-        if span.effective_style.has_key('color'):
-            font_color = _generate_rgb_from_hex(span.effective_style['color']) 
-            counter += 1
-            result += r"\color [rgb] {";
-            result += font_color['r'] + r", "
-            result += font_color['g'] + r", "
-            result += font_color['b'] + r"} {"
-        if span.effective_style.has_key('font-effects'):
-            font_effects = span.effective_style['font-effects']
-            if font_effects == FontEffect.BOLD:
-                counter += 1
-                result += r"\textbf {"
-            if font_effects == FontEffect.ITALIC:
-                counter += 1
-                result += r"\textit{"
-            if font_effects == FontEffect.UNDERLINE:
-                counter += 1
-                result += r"\underline{"
-
-
-        result += span.text
-        for _ in xrange(0, counter):
-            result += r"}"
-        return result
-
+        return self.__span_builder.generate(span)
     
     def generate_header(self, header):
         result = "\n\n\section{"
@@ -175,6 +100,166 @@ class LatexBuilder(Builder):
 
 
 #helper builders
+
+class _LatexParagraphBuilder(object):
+    __last_indent = -1
+    def generate(self, paragraph):
+        result = "\n\n"
+        alignment = ""
+        margin_top = 0
+        margin_bottom = 0
+        margin_left = 0
+        margin_right = 0
+        text_indent = 0
+        justification_before = ""
+        justification_after = ""
+        begin_margin = ""
+        end_margin = ""
+        margins_before = ""
+        margins_after = ""
+        margins_changed = False;
+        
+        if paragraph.effective_style.has_key('alignment'):
+            alignment = paragraph.effective_style['alignment']
+        if paragraph.effective_style.has_key('margin-top'):
+            margin_top = paragraph.effective_style['margin-top']
+        if paragraph.effective_style.has_key('margin-bottom'):
+            margin_bottom = paragraph.effective_style['margin-bottom']
+        if paragraph.effective_style.has_key('margin-left'):
+            margin_left = paragraph.effective_style['margin-left']
+        if paragraph.effective_style.has_key('margin-right'):
+            margin_right = paragraph.effective_style['margin-right']
+        if paragraph.effective_style.has_key('text-indent'):
+            text_indent = paragraph.effective_style['text-indent']
+        if margin_top != 0:
+            margins_before += "\\vspace*{%.2fpt}" % margin_top
+        if margin_left != 0:
+            margins_changed = True
+            begin_margin += r"\begingroup"
+            begin_margin += "\n"
+            begin_margin += r"\leftskip "
+            begin_margin += "%.2fpt "  % margin_left
+            end_margin += r"\par"
+            end_margin += "\n"
+            end_margin += r"\endgroup"
+            end_margin += "\n"
+        if margin_right != 0:
+            if  not margins_changed:
+                begin_margin += r"\begingroup"
+                begin_margin += "\n"
+                end_margin += r"\par"
+                end_margin += "\n"
+                end_margin += r"\endgroup"
+                end_margin += "\n"
+                margins_changed = True
+            begin_margin += r"\rightskip "
+            begin_margin += " %.2fpt "  % margin_right
+        if margin_bottom != 0:
+            margins_after += "\\vspace*{%.2fpt}" % margin_bottom
+        if alignment != "":
+            if alignment == Alignment.LEFT :
+                justification_before += r"\begin{flushleft}" + "\n "
+                justification_after += "\n" + r"\end{flushleft}" + "\n "
+            if alignment == Alignment.RIGHT:
+                justification_before += r"\begin{flushright}" + "\n "
+                justification_after += "\n" + r"\end{flushright}" + "\n"
+            if alignment == Alignment.CENTER :
+                justification_before += r"\begin{center}" + "\n"
+                justification_after += "\n" + r"\end{center}" + "\n"
+        if  self.__last_indent != text_indent:
+            result += r"\setlength{\parindent}{" + str(text_indent) + r"pt}"
+            self.__last_indent = text_indent
+        
+        result += justification_before
+        result += margins_before
+        result += begin_margin
+        for element in paragraph.content:
+            result += element.generate()
+        result += end_margin
+        result += margins_after
+        result += justification_after
+        
+        
+        return result
+
+
+class _LatexSpanBuilder(object):
+    def generate(self, span):
+        result = ""
+        counter = 0;
+        font_changed = False
+        if span.effective_style.has_key('font-name'):
+            font_name = span.effective_style['font-name']
+            font_changed = True
+            counter += 1
+            result += r"{"
+            result += r"\fontfamily {" + self.__get_font_family(font_name) + r"} "
+        if span.effective_style.has_key('font-size'):
+            font_size = span.effective_style['font-size'] 
+            if not font_changed:
+                result += r"{"
+                counter += 1
+            result += r"\fontsize {" + str(font_size) + "}{" + self.__get_leading(font_size) + "}"    
+            font_changed = True
+        if font_changed:
+            result += r"\selectfont "
+        if span.effective_style.has_key('background-color'):
+            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
+            counter += 1
+            result += r"\colorbox [RGB] {";
+            result += background_color['r'] + ", "
+            result += background_color['g'] + ", "
+            result += background_color['b'] + "} {"
+            
+        if span.effective_style.has_key('color'):
+            font_color = self.__generate_rgb_from_hex(span.effective_style['color']) 
+            counter += 1
+            result += r"\color [RGB] {";
+            result += font_color['r'] + r", "
+            result += font_color['g'] + r", "
+            result += font_color['b'] + r"} {"
+        if span.effective_style.has_key('font-effects'):
+            font_effects = span.effective_style['font-effects']
+            if font_effects == FontEffect.BOLD:
+                counter += 1
+                result += r"\textbf {"
+            if font_effects == FontEffect.ITALIC:
+                counter += 1
+                result += r"\textit{"
+            if font_effects == FontEffect.UNDERLINE:
+                counter += 1
+                result += r"\underline{"
+
+
+        result += span.text
+        for _ in xrange(0, counter):
+            result += r"}"
+        return result
+        
+    def __generate_rgb_from_hex(self, color):
+        result = {}
+        result['r'] = str(self.__hex2dec(color[1]+color[2]))
+        result['g'] = str(self.__hex2dec(color[3]+color[4]))
+        result['b'] = str(self.__hex2dec(color[5]+color[6]))
+        return result
+
+    def __hex2dec(self, s):
+        return int(s, 16)
+       
+    def __get_leading(self, number):
+        number = int(number *1.2)
+        return str(number)
+    
+    def __get_font_family(self, font_name):
+        if font_name ==  "Times New Roman":
+            return r"ptm"
+        if font_name == "Arial":
+            return r"phv"
+        if font_name == "Computer Modern":
+            return r"cmr"
+        if font_name == "DejaVu Serif":
+            return r"dejavu"
+
 
 class _LatexImageBuilder(object):
     def __init__(self, main_builder):
@@ -572,18 +657,18 @@ class _LatexDocumentBuilder(object):
         
         return result
     
-    def generate_paragraph(self, paragraph):
-        result = "\n\n"
+    #def generate_paragraph(self, paragraph):
+    #    result = "\n\n"
         
-        result = self.__append_content_code(result, paragraph)
+    #    result = self.__append_content_code(result, paragraph)
         
-        return result
+    #    return result
     
-    def generate_span(self, span):
-        result = ""
-        result += span.text
+    #def generate_span(self, span):
+    #    result = ""
+    #    result += span.text
         
-        return result
+    #    return result
     
     def generate_header(self, header):
         result = "\n\n\section{"
