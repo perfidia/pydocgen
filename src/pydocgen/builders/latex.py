@@ -64,6 +64,7 @@ class LatexBuilder(Builder):
         super(LatexBuilder, self).__init__()
         self.__span_builder = _LatexSpanBuilder()
         self.__paragraph_builder = _LatexParagraphBuilder()
+        self.__header_builder = _LatexHeaderBuilder()
         self.__image_builder = _LatexImageBuilder(self)
         self.__list_builder = _LatexListBuilder()
         self.__document_builder = _LatexDocumentBuilder(self.__image_builder)
@@ -87,7 +88,7 @@ class LatexBuilder(Builder):
         
         result += "}"
         
-        return result
+        return self.__header_builder.generate(header)
     
     def generate_list(self, lst):
         return self.__list_builder.generate(lst)
@@ -100,6 +101,45 @@ class LatexBuilder(Builder):
 
 
 #helper builders
+
+class _LatexHeaderBuilder(object):
+    
+    def generate(self, header):
+        result = "\n\n"
+        level = 0;
+    
+        if header.sequence is not None:
+            if header.is_style_element_set("seq-number-sep"):
+                number = header.sequence.to_str(header.effective_style['seq-number-sep'])
+            else:
+                number = str(header.sequence)
+            level = header.sequence.get_level()
+        
+        
+        if level == 0:
+            result += r"\section*{"
+        if level == 1:
+            result += r"\subsection*{"
+        if level == 2:
+            result += r"\subsubsection*{"
+        if level == 3:
+            result += r"\paragraph*{"
+        if level > 3:
+            result += r"\subparagraph*{"
+        
+        result += number
+        result += " \\hspace*{5pt} " 
+        
+        for element in header.content:
+            result += element.generate()   
+        
+        result += r"}"
+        
+        if header.sequence is not None:
+            header.sequence.advance()
+            
+        return result
+    
 
 class _LatexParagraphBuilder(object):
     __last_indent = -1

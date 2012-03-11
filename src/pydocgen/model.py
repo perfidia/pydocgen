@@ -173,6 +173,16 @@ class Sequence(object):
      
         return result
     
+    def get_level(self):
+        seq = self
+        level = 0
+        
+        while seq.parent is not None:
+            seq = seq.parent
+            level += 1
+         
+        return level
+        
     def __str__(self):
         return self.to_str()
     
