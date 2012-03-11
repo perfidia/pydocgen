@@ -192,6 +192,7 @@ class _LatexImageBuilder(object):
         caption = ""
         captionsetup_parameters = {}
         captionsetup = ""
+        number_declaration = ""
         
         # handling the "width" style 
         if image.is_style_element_set("width"):
@@ -276,19 +277,36 @@ class _LatexImageBuilder(object):
             captionsetup = "\n%s\\captionsetup%s" %\
                     (("\t" * (tab_indent_level - 1)),\
                     _generate_parameters_list(captionsetup_parameters, False))
+                    
+            # handling the sequence
+            if image.sequence is not None:
+                if image.is_style_element_set("seq-number-sep"):
+                    number = image.sequence.to_str(image.\
+                                                effective_style['seq-number-sep'])
+                else:
+                    number = str(image.sequence)
+                    
+                number_declaration = "\n%s\\renewcommand{\\thefigure}{%s}" %\
+                            ("\t" * (tab_indent_level - 1), number)
+        
+        # advancing the sequence, if defined
+        if image.sequence is not None:
+            image.sequence.advance()
             
         result += "\n\n"
         result += "\\begin{figure}[ht!]"
+        result += number_declaration
         result += captionsetup
         result += pre
-        result += "\n%s%s\\includegraphics%s{%s}%s%s%s" %\
-                    ("\t" * tab_indent_level,
-                     margins_before,
-                     _generate_parameters_list(parameters),
-                     image.path,
-                     hspace_after,
-                     caption,
-                     margins_after)
+        result += "\n"
+        result += "\t" * tab_indent_level
+        result += margins_before
+        result += "\\includegraphics%s{%s}" %\
+                    (_generate_parameters_list(parameters),
+                     image.path)
+        result += hspace_after
+        result += caption 
+        result += margins_after
         result += post
         result += "\n\\end{figure}"
         
@@ -634,7 +652,7 @@ class _LatexListBuilder(object):
                 newline_beforeitem = ""
                 if not isinstance(element, List):
                     if i > 0 and lst.content[i-1].successor_isinstance(List):
-                        newline_beforeitem += "\n\n"
+                        newline_beforeitem += "\n"
                     item = "%s\\item" % newline_beforeitem
                     newline = "\n"
                 result += "%s\t%s%s %s" % (newline, "\t" * level, item,\

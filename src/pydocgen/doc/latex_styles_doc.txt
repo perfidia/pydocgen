@@ -42,3 +42,4 @@ The following styles are supported for Image:
 	- margin-left: integer (pt)
 	- margin-right: integer (pt)
 	- alignment: Alignment
+	- seq-number-sep: string (e.g. "." -> "2.1.1", "> " -> "2> 1> 1")
