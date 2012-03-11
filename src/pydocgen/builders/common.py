@@ -5,6 +5,7 @@ from pydocgen.model import Document, Paragraph, Span, Header, List, Image, Table
 class Builder(object):
     def generate(self, documentTreeNode):
         if isinstance(documentTreeNode, Document):
+            documentTreeNode.fill_parent_fields()
             return self.generate_document(documentTreeNode)
         if isinstance(documentTreeNode, Paragraph):
             return self.generate_paragraph(documentTreeNode)
