@@ -114,8 +114,12 @@ class _LatexParagraphBuilder(object):
         text_indent = 0
         justification_before = ""
         justification_after = ""
+        begin_margin = ""
+        end_margin = ""
         margins_before = ""
         margins_after = ""
+        margins_changed = False;
+        
         if paragraph.effective_style.has_key('alignment'):
             alignment = paragraph.effective_style['alignment']
         if paragraph.effective_style.has_key('margin-top'):
@@ -131,9 +135,26 @@ class _LatexParagraphBuilder(object):
         if margin_top != 0:
             margins_before += "\\vspace*{%.2fpt}" % margin_top
         if margin_left != 0:
-            margins_before += "\\hspace*{%.2fpt}" % margin_left
+            margins_changed = True
+            begin_margin += r"\begingroup"
+            begin_margin += "\n"
+            begin_margin += r"\leftskip "
+            begin_margin += "%.2fpt "  % margin_left
+            end_margin += r"\par"
+            end_margin += "\n"
+            end_margin += r"\endgroup"
+            end_margin += "\n"
         if margin_right != 0:
-            margins_after += "\\hspace*{%.2fpt}" % margin_right
+            if  not margins_changed:
+                begin_margin += r"\begingroup"
+                begin_margin += "\n"
+                end_margin += r"\par"
+                end_margin += "\n"
+                end_margin += r"\endgroup"
+                end_margin += "\n"
+                margins_changed = True
+            begin_margin += r"\rightskip "
+            begin_margin += " %.2fpt "  % margin_right
         if margin_bottom != 0:
             margins_after += "\\vspace*{%.2fpt}" % margin_bottom
         if alignment != "":
@@ -152,8 +173,10 @@ class _LatexParagraphBuilder(object):
         
         result += justification_before
         result += margins_before
+        result += begin_margin
         for element in paragraph.content:
             result += element.generate()
+        result += end_margin
         result += margins_after
         result += justification_after
         
