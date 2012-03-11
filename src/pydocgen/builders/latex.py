@@ -85,12 +85,11 @@ def _append_content_code(result, element):
 class LatexBuilder(Builder):
     def __init__(self):
         super(LatexBuilder, self).__init__()
-        self.__image_builder = _LatexImageBuilder()
+        self.__image_builder = _LatexImageBuilder(self)
         self.__list_builder = _LatexListBuilder()
-        self.__document_builder = _LatexDocumentBuilder()
+        self.__document_builder = _LatexDocumentBuilder(self.__image_builder)
     
     def generate_document(self, document):
-        document.fill_parent_fields()
         self.__list_builder.reset()
         
         return self.__document_builder.generate(document)
@@ -178,6 +177,10 @@ class LatexBuilder(Builder):
 #helper builders
 
 class _LatexImageBuilder(object):
+    def __init__(self, main_builder):
+        self.__format_number = 0
+        self.main_builder = main_builder
+    
     def generate(self, image):
         result = ""
         
@@ -274,9 +277,7 @@ class _LatexImageBuilder(object):
                 
             caption = "\n%s\caption{%s}" % ("\t" * tab_indent_level,\
                                                          caption_content)
-            captionsetup = "\n%s\\captionsetup%s" %\
-                    (("\t" * (tab_indent_level - 1)),\
-                    _generate_parameters_list(captionsetup_parameters, False))
+            
                     
             # handling the sequence
             if image.sequence is not None:
@@ -290,16 +291,11 @@ class _LatexImageBuilder(object):
                             ("\t" * (tab_indent_level - 1), number)
                             
             if image.is_style_element_set("caption-title"):
-                caption_title = image.effective_style['caption-title']
-                if isinstance(caption_title, str):
-                    caption_title = Span(caption_title)
-                if isinstance(caption_title, str):
-                    caption_title = [caption_title]
-                    
-                for element in caption_title:
-                    element.text = element.text.replace("\n", r"\\")
-                    
-                #captionsetup
+                captionsetup_parameters['format'] = image.caption_format_name
+                
+            captionsetup = "\n%s\\captionsetup%s" %\
+                    (("\t" * (tab_indent_level - 1)),\
+                    _generate_parameters_list(captionsetup_parameters, False))
         
         # advancing the sequence, if defined
         if image.sequence is not None:
@@ -323,21 +319,43 @@ class _LatexImageBuilder(object):
         
         return result
     
+    def __generate_new_format_name(self):
+        result =  "img%06d" % self.__format_number
+        self.__format_number += 1
+        return result
+    
     def __generate_caption_format(self, caption_title_style):
+        result = ""
         caption_title = caption_title_style
         if isinstance(caption_title, str):
             caption_title = Span(caption_title)
-        if isinstance(caption_title, str):
+        if isinstance(caption_title, Span):
             caption_title = [caption_title]
+        
+        thefigure_inserted = False
+        
+        for span in caption_title:
+            span.text = span.text.replace("\n", r"\\")
+            span.text = span.text.replace(" ", "\\ ")
+            if not thefigure_inserted:
+                try:
+                    span.text = span.text % "\\thefigure "
+                    thefigure_inserted = True
+                except TypeError:
+                    pass
             
-        for element in caption_title:
-            element.text = element.text.replace("\n", r"\\")
+            result += self.main_builder.generate_span(span)
+            
+        result += "#3"
+            
+        return result
     
-    def __generate_caption_formats(self, document):
-        result = False
+    def __generate_caption_formats_dict(self, document):
+        result = {}
         stack = []
         visited = {}
-        curr_node = self
+        curr_node = document
+        formats = {} # key: image, value: caption format
         
         stack.append(curr_node)
         
@@ -353,16 +371,46 @@ class _LatexImageBuilder(object):
                 stack.append(first_child_not_visited)
                 curr_node = first_child_not_visited
             else:
-                if isinstance(curr_node, req_type):
-                    result = True
-                    break
+                if (isinstance(curr_node, Image) and\
+                            (curr_node.is_style_element_set("caption-title"))):
+                    formats[curr_node] = self.__generate_caption_format(\
+                                curr_node.effective_style['caption-title'])
                 stack.pop()
                 if (len(stack) > 0):
                     curr_node = stack[-1]
+        
+        format_names = {} # key: caption format, value: caption format name
+        
+        for image in formats.keys():
+            caption_format = formats[image]
+            if not format_names.has_key(caption_format):
+                image.caption_format_name = self.__generate_new_format_name()
+                format_names[caption_format] = image.caption_format_name
+            else:
+                image.caption_format_name = format_names[caption_format]
+                
+        for item in format_names.items():
+            result[item[1]] = item[0]
                     
         return result
+    
+    def generate_custom_format_declarations(self, document):
+        result = ""
+        formats_dict = self.__generate_caption_formats_dict(document)
+        
+        if len(formats_dict) > 0:
+            result += "\n"
+            
+        for format_kv in formats_dict.items():
+            result += "\n\\DeclareCaptionFormat{%s}{%s}" % format_kv
+        
+        return result
+        
 
 class _LatexDocumentBuilder(object):
+    def __init__(self, image_builder):
+        self.__image_builder = image_builder
+        
     def __generate_package_reference(self, package_name, parameter_dict = {}):
         parameters = _generate_parameters_list(parameter_dict)
         return "\n\\usepackage%s{%s}" % (parameters, package_name)
@@ -504,6 +552,9 @@ class _LatexDocumentBuilder(object):
         result += self.__generate_enumitem_package_reference(document)
         result += self.__generate_graphicx_package_reference(document)
         result += "\n\\usepackage{color}"
+        
+        result += self.__image_builder.generate_custom_format_declarations(\
+                                                                    document)
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
         

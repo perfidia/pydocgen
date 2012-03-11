@@ -23,11 +23,14 @@ class DocumentTreeNode(object):
         return self
         
     def __get_builder(self):
+        return self.get_root().builder
+    
+    def get_root(self):
         node = self
         while node.parent is not None:
-            node = node.parent   
-        return node.builder
-    
+            node = node.parent  
+        return node
+            
     def __get_effective_style(self):
         #TODO
         
