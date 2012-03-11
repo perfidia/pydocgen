@@ -141,13 +141,26 @@ class List(DocumentTreeNode):
 
 
 class Sequence(object):
-    def __init__(self, start_value = 1):
-        self.value = start_value - 1
-        self.subsequence = None
+    def __init__(self, start_value = 1, parent = None):
+        self.value = start_value
+        self.parent = parent
         
-    def next_value(self):
+    def advance(self):
         self.value += 1
         return self.value
+    
+    def to_str(self, separator = "."):
+        seq = self
+        result = str(seq.value)
+        
+        while seq.parent is not None:
+            seq = seq.parent
+            result = str(seq.value) + separator + result
+     
+        return result
+    
+    def __str__(self):
+        return self.to_str()
     
 
 class NumberedObject(DocumentTreeNode):
