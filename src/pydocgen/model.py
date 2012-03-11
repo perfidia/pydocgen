@@ -31,14 +31,27 @@ class DocumentTreeNode(object):
             node = node.parent  
         return node
             
-    def __get_effective_style(self):
-        parent_style = Style()
-	if self.parent == None: # doc tree root
-	    return self.style if self.style else StyleManager().get_style('doc-default')
-	else:
-	    parent_style = self.parent.get_effective_style().copy()
-	parent_style.update(self.style) #Do not trying do this in one line
-	return parent_style		#dict's update method returns void!
+    def __get_effective_style(self):        
+# THIS DOESN'T WORK !!!
+#        parent_style = Style()
+#        if self.parent == None: # doc tree root
+#            return self.style if self.style else StyleManager().get_style('doc-default')
+#        else:
+#            parent_style = self.parent.get_effective_style().copy()
+#        parent_style.update(self.style) #Do not trying do this in one line
+#        return parent_style        #dict's update method returns void!
+
+# IT WAS THAT SIMPLE
+        path = []
+        node = self
+        while node is not None:
+            path = [node] + path
+            node = node.parent
+        style = Style()
+        for node in path:
+            if node.style is not None:
+                style.update(node.style)   
+        return style
     
     builder = property(__get_builder, None)
     effective_style = property(__get_effective_style, None)
