@@ -173,10 +173,14 @@ class Image(NumberedObject):
         if caption is None:
             caption = []
         elif (not isinstance(caption, list)) and\
-                    (not isinstance(caption, Span)):
-            raise TypeError("Caption needs to be a Span or list of Span!")
+                    (not isinstance(caption, Span)) and\
+                    (not isinstance(caption, str)):
+            raise TypeError("Caption needs to be a string, \
+                                        Span or list of Span!")
         if isinstance(caption, list):
             self.content = caption
+        if isinstance(caption, str):
+            self.content = [Span(caption)]
         else:
             self.content = [caption]
         

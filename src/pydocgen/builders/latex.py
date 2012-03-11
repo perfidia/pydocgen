@@ -188,6 +188,7 @@ class _LatexImageBuilder(object):
         tab_indent_level = 1
         margins_before = ""
         margins_after = ""
+        hspace_after = ""
         caption = ""
         captionsetup_parameters = {}
         captionsetup = ""
@@ -199,7 +200,28 @@ class _LatexImageBuilder(object):
         # handling the "height" style 
         if image.is_style_element_set("height"):
             parameters['height'] = "%.2fmm" % image.effective_style['height']
+        
+        # handling the "alignment" style 
+        if image.is_style_element_set("alignment"):
+            align_env = None 
+            if image.effective_style['alignment'] == Alignment.LEFT\
+                    or image.effective_style['alignment'] == Alignment.JUSTIFY:
+                align_env = "flushleft"
+                captionsetup_parameters['justification'] = "raggedright"
+            elif image.effective_style['alignment'] == Alignment.CENTER:
+                align_env = "center"
+                captionsetup_parameters['justification'] = "centering"
+            elif image.effective_style['alignment'] == Alignment.RIGHT:
+                align_env = "flushright"
+                captionsetup_parameters['justification'] = "raggedleft"
             
+            if align_env is not None:
+                tabs = "\t" * tab_indent_level
+                pre += "\n%s\\begin{%s}" % (tabs, align_env)
+                post = ("\n%s\\end{%s}" % (tabs, align_env)) + post
+                tab_indent_level += 1
+                captionsetup_parameters['singlelinecheck'] = "false"
+        
         # handling the margins
         if image.is_style_element_set("margin-top")\
                     or image.is_style_element_set("margin-bottom")\
@@ -227,38 +249,19 @@ class _LatexImageBuilder(object):
             if margin_left != 0:
                 margins_before += "\\hspace*{%.2fpt}" % margin_left
             if margin_right != 0:
-                margins_after += "\\hspace*{%.2fpt}" % margin_right
+                hspace_after += "\\hspace*{%.2fpt}" % margin_right
             if margin_bottom != 0:
                 margins_after += "\\vspace*{%.2fpt}" % margin_bottom
                 
             if (margin_left != 0) or (margin_right != 0):
                 captionsetup_parameters['margin'] = "{%.2fpt,%.2fpt}" %\
                                 (margin_left, margin_right)
+                captionsetup_parameters['oneside'] = None
             
-             
-        # handling the "alignment" style 
-        if image.is_style_element_set("alignment"):
-            align_env = None 
-            if image.effective_style['alignment'] == Alignment.LEFT\
-                    or image.effective_style['alignment'] == Alignment.JUSTIFY:
-                align_env = "flushleft"
-                captionsetup_parameters['justification'] = "raggedright"
-            elif image.effective_style['alignment'] == Alignment.CENTER:
-                align_env = "center"
-                captionsetup_parameters['justification'] = "centering"
-            elif image.effective_style['alignment'] == Alignment.RIGHT:
-                align_env = "flushright"
-                captionsetup_parameters['justification'] = "raggedleft"
-            
-            if align_env is not None:
-                tabs = "\t" * tab_indent_level
-                pre += "\n%s\\begin{%s}" % (tabs, align_env)
-                post = ("\n%s\\end{%s}" % (tabs, align_env)) + post
-                tab_indent_level += 1
-                captionsetup_parameters['singlelinecheck'] = "false"
-                
         if len(margins_before) > 0:
             margins_before += "\n" + ("\t" * tab_indent_level)
+        if len(hspace_after) > 0:
+            hspace_after = "\n" + ("\t" * tab_indent_level) + hspace_after
         if len(margins_after) > 0:
             margins_after = "\n" + ("\t" * tab_indent_level) + margins_after
         
@@ -278,11 +281,12 @@ class _LatexImageBuilder(object):
         result += "\\begin{figure}[ht!]"
         result += captionsetup
         result += pre
-        result += "\n%s%s\\noindent\includegraphics%s{%s}%s%s" %\
-                    ("\t" * tab_indent_level,\
-                     margins_before,\
-                     _generate_parameters_list(parameters),\
-                     image.path,\
+        result += "\n%s%s\\noindent\includegraphics%s{%s}%s%s%s" %\
+                    ("\t" * tab_indent_level,
+                     margins_before,
+                     _generate_parameters_list(parameters),
+                     image.path,
+                     hspace_after,
                      caption,
                      margins_after)
         result += post
@@ -370,9 +374,6 @@ class _LatexDocumentBuilder(object):
         
         return result
     
-    def __generate_fontenc_T1_reference(self):
-        return 
-    
     def __generate_font_packages_reference(self, document_style):
         result = ""
         
@@ -396,8 +397,7 @@ class _LatexDocumentBuilder(object):
                                                 "fontenc", {"T1": None})
                 
             if font_name == "dejavu serif":
-                result += self.__generate_package_reference(\
-                                                                "DejaVuSerif")
+                result += self.__generate_package_reference("DejaVuSerif")
                 result += self.__generate_package_reference(\
                                                 "fontenc", {"T1": None})
         
@@ -435,10 +435,10 @@ class _LatexDocumentBuilder(object):
                         document.effective_style)
         result += self.__generate_enumitem_package_reference(document)
         result += self.__generate_graphicx_package_reference(document)
-        
+        result += "\n\\usepackage{color}"
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
-        result += "\n\\usepackage{color}"
+        
         result += "\n\n\\begin{document}"
         
         content = ""
