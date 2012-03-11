@@ -43,3 +43,4 @@ The following styles are supported for Image:
 	- margin-right: integer (pt)
 	- alignment: Alignment
 	- seq-number-sep: string (e.g. "." -> "2.1.1", "> " -> "2> 1> 1")
+	- caption-title: string or Span or list of Span (e.g. "Picture %d:\n")

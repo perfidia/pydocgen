@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
 from pydocgen.model import List, BulletChar, ListStyle, Image, Alignment,\
-                            FontEffect
+                            FontEffect, Span
 from pydocgen.builders.common import Builder
 
 
@@ -288,6 +288,18 @@ class _LatexImageBuilder(object):
                     
                 number_declaration = "\n%s\\renewcommand{\\thefigure}{%s}" %\
                             ("\t" * (tab_indent_level - 1), number)
+                            
+            if image.is_style_element_set("caption-title"):
+                caption_title = image.effective_style['caption-title']
+                if isinstance(caption_title, str):
+                    caption_title = Span(caption_title)
+                if isinstance(caption_title, str):
+                    caption_title = [caption_title]
+                    
+                for element in caption_title:
+                    element.text = element.text.replace("\n", r"\\")
+                    
+                #captionsetup
         
         # advancing the sequence, if defined
         if image.sequence is not None:
@@ -298,8 +310,7 @@ class _LatexImageBuilder(object):
         result += number_declaration
         result += captionsetup
         result += pre
-        result += "\n"
-        result += "\t" * tab_indent_level
+        result += "\n" + ("\t" * tab_indent_level)
         result += margins_before
         result += "\\includegraphics%s{%s}" %\
                     (_generate_parameters_list(parameters),
@@ -310,6 +321,45 @@ class _LatexImageBuilder(object):
         result += post
         result += "\n\\end{figure}"
         
+        return result
+    
+    def __generate_caption_format(self, caption_title_style):
+        caption_title = caption_title_style
+        if isinstance(caption_title, str):
+            caption_title = Span(caption_title)
+        if isinstance(caption_title, str):
+            caption_title = [caption_title]
+            
+        for element in caption_title:
+            element.text = element.text.replace("\n", r"\\")
+    
+    def __generate_caption_formats(self, document):
+        result = False
+        stack = []
+        visited = {}
+        curr_node = self
+        
+        stack.append(curr_node)
+        
+        while len(stack) > 0:
+            first_child_not_visited = None
+            for i in xrange(0, len(curr_node.content)):
+                if (not visited.has_key(curr_node.content[i])):
+                    first_child_not_visited = curr_node.content[i]
+                    break
+             
+            if (first_child_not_visited is not None):
+                visited[first_child_not_visited] = True
+                stack.append(first_child_not_visited)
+                curr_node = first_child_not_visited
+            else:
+                if isinstance(curr_node, req_type):
+                    result = True
+                    break
+                stack.pop()
+                if (len(stack) > 0):
+                    curr_node = stack[-1]
+                    
         return result
 
 class _LatexDocumentBuilder(object):
