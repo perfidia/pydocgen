@@ -154,7 +154,7 @@ class Document(DocumentTreeNode):
 class Paragraph(DocumentTreeNode):
     def __init__(self):
         super(Paragraph, self).__init__()
-        self.style = StyleManager().get_style('par-default')
+        self.style = StyleManager().get_style('paragraph-default')
 
 
 class Span(DocumentTreeNode):
@@ -433,7 +433,7 @@ _style['margin-top'] = 0
 _style['margin-bottom'] = 0
 _style['margin-left'] = 0
 _style['margin-right'] = 0
-_style_manager.set_style('par-default', _style)
+_style_manager.set_style('paragraph-default', _style)
 
 #default list _style
 _style = Style()
