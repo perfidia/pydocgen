@@ -262,9 +262,9 @@ class Image(NumberedObject):
     caption = property(__get_caption, __set_caption)
 
 
-class TCell(DocumentTreeNode):
+class TableCell(DocumentTreeNode):
     def __init__(self):
-        super(TCell, self).__init__()
+        super(TableCell, self).__init__()
         self.rowspan = 1
         self.colspan = 1
 
@@ -275,7 +275,7 @@ class Table(NumberedObject):
     
     def __init__(self):
         super(Table, self).__init__()
-        self.__rows = [[TCell()]]
+        self.__rows = [[TableCell()]]
         self.__rowHeights = [self.__default_row_height]
         self.__columnWidths = [self.__default_column_width]
         self.border_width = 1
@@ -290,7 +290,7 @@ class Table(NumberedObject):
     def __create_row(self):
         row = []
         for _ in xrange(0, self.cols_num):
-            row.append(TCell())
+            row.append(TableCell())
         return row
     
     def get_cell(self, row, column):
@@ -314,7 +314,7 @@ class Table(NumberedObject):
         
     def insert_column(self, index):
         for row in self.__rows:
-            row.insert(index, TCell())
+            row.insert(index, TableCell())
         self.__columnWidths.insert(index, self.__default_column_width)
             
     def append_column(self):
@@ -327,7 +327,7 @@ class Table(NumberedObject):
             del self.__columnWidths[index]
         else:
             for row in self.__rows:
-                row[0] = TCell()
+                row[0] = TableCell()
             self.__columnWidths[0] = self.__default_column_width
             
     def get_row_height(self, index):
