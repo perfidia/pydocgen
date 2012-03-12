@@ -295,13 +295,13 @@ class _LatexSpanBuilder(object):
             font_changed = True
         if font_changed:
             result += r"\selectfont "
-        if span.effective_style.has_key('background-color'):
-            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
-            counter += 1
-            result += r"\colorbox [RGB] {";
-            result += background_color['r'] + ", "
-            result += background_color['g'] + ", "
-            result += background_color['b'] + "} {"
+#        if span.effective_style.has_key('background-color'):
+#            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
+#            counter += 1
+#            result += r"\colorbox [RGB] {";
+#            result += background_color['r'] + ", "
+#            result += background_color['g'] + ", "
+#            result += background_color['b'] + "} {"
             
         if span.effective_style.has_key('color'):
             font_color = self.__generate_rgb_from_hex(span.effective_style['color']) 
