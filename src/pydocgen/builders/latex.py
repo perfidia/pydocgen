@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
 from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, AlignmentProperty,\
-                            FontEffectProperty, Span
+                            FontEffectProperty, Span, PageOrientationProperty
 from pydocgen.builders.common import Builder
 
 
@@ -617,11 +617,16 @@ class _LatexDocumentBuilder(object):
         
         options = {}
         
-        if (style.has_key("page-width")):
-            options["paperwidth"] = str(style["page-width"]) + "mm"
+        if style.has_key("page-size"):
+            width = style['page-size'][0]
+            height = style['page-size'][1]                
+            options["paperwidth"] = ("%.2d" % width) + "mm"
+            options["paperheight"] = ("%.2d" % height) + "mm"
             
-        if (style.has_key("page-height")):
-            options["paperheight"] = str(style["page-height"]) + "mm"
+
+        if style.has_key('page-orientation') and style['page-orientation'] == \
+                        PageOrientationProperty.LANDSCAPE:
+            options['landscape'] = None
             
         if (style.has_key("margin-top")):
             options["top"] = str(style["margin-top"]) + "mm"

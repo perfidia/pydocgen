@@ -118,7 +118,8 @@ class DocumentTreeNode(object):
                 stack.append(first_child_not_visited)
                 curr_node = first_child_not_visited
             else:
-                if isinstance(curr_node, NumberedObject):
+                if isinstance(curr_node, NumberedObject) and\
+                                curr_node.sequence is not None:
                     curr_node.sequence.reset()
                 stack.pop()
                 if (len(stack) > 0):
@@ -390,6 +391,14 @@ class BulletCharProperty(Property):
     LONG_HYPHEN = 6
 
 
+class PageSizeProperty(Property):
+    A4 = (210, 297)
+    A5 = (148, 210)
+    B4 = (250, 353)
+    B5 = (176, 250)
+    LETTER = (215.9, 279.4)
+
+
 class StyleManager(object):
     __shared_state = {}
     __styles = {}
@@ -409,8 +418,8 @@ _style_manager = StyleManager()
 # default document _style
 _style = Style()
 _style['page-numbering'] = True
-_style['page-width'] = 213
-_style['page-height'] = 297
+_style['page-size'] = PageSizeProperty.A4
+_style['page-orientation'] = PageOrientationProperty.PORTRAIT
 _style['margin-top'] = 20
 _style['margin-bottom'] = 10
 _style['margin-left'] = 20
