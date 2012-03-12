@@ -6,7 +6,7 @@ from pydocgen.builders.html import HtmlBuilder
 
 document = Document()
 document.properties['lang'] = "pl"
-document.style['font-name'] = "DejaVu Serif"
+document.style['font-name'] = "Times New Roman"
 document.style['font-size'] = 11
 document.style['page-width'] = 200
 document.style['page-height'] = 300
@@ -30,7 +30,7 @@ span.style['font-size'] = 14
 span.style['font-effects'] = FontEffect.ITALIC
 span.style['color'] = "#1243ff"
 span.style['background-color'] = "#00ff00"
-	
+
 header = Header()
 header.sequence = headers_seq
 header += span
@@ -95,32 +95,32 @@ paragraph += span
 number_list += paragraph
 
 
-list = List()
-list.style = Style()
-list.style['list-style'] = ListStyle.BULLET
+lst = List()
+lst.style = Style()
+lst.style['list-style'] = ListStyle.BULLET
 span = Span("item1")
 paragraph = Paragraph()
 paragraph += span
-list += paragraph
+lst += paragraph
 
 span = Span("item2")
 paragraph = Paragraph()
 paragraph += span
-list += paragraph
+lst += paragraph
 
 span = Span("item3")
 paragraph = Paragraph()
 paragraph += span
 paragraph += number_list
-list += paragraph
+lst += paragraph
 
 span = Span("item4")
 paragraph = Paragraph()
 paragraph += span
-list += paragraph
+lst += paragraph
 
 
-document += list
+document += lst
 
 #TODO image
 #image = Image()

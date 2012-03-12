@@ -11,19 +11,20 @@ class HtmlBuilder(Builder):
     def generate_document(self, document):
         body = ''
         for element in document.content:
-            body += self.generate(element)
+            body += element.generate()
         self.generate_style_file(document.effective_style, self.CSS_STYLE_FN)
         result =''
         if 'lang' in document.properties:
             result += '<html lang=\"'+document.properties['lang']+'\">'
         else:
             result += '<html>\n'
-            result += '<head>\n'
-            result += '\t<title>'+ document.title +'</title>\n'
-            result += '\t<link rel=\"stylesheet\" type=\"text/css\" href=\".\\'+self.CSS_STYLE_FN+'\" />\n'
-            result += '</head>\n\n'
-            result += '<body>\n'+ body +'\n</body>\n</html>'
-            return result
+        result += '<head>\n'
+        if 'title' in document.properties:
+            result += '\t<title>' + document.properties['title'] + '</title>\n'
+        result += '\t<link rel=\"stylesheet\" type=\"text/css\" href=\".\\' + self.CSS_STYLE_FN + '\" />\n'
+        result += '</head>\n\n'
+        result += '<body>\n' + body + '\n</body>\n</html>'
+        return result
     
     def generate_paragraph(self, paragraph):
         p, tmp = '', None
@@ -40,10 +41,16 @@ class HtmlBuilder(Builder):
     def generate_header(self, header):
         content = ''
         if header.content:
-            for element in content:
+            for element in header.content:
                 if element:
                     content += element.generate()
-        return '\n\n<h1 '+self.generate_inline_style(header)+'>' + header.sequence.to_str() + content + '</h1>\n\n' 
+        
+        seq_number = ''
+        if header.sequence is not None:
+            seq_number = str(header.sequence)
+            header.sequence.advance()
+        
+        return '\n\n<h1 ' + self.generate_inline_style(header) + '>' + seq_number + " " + content + '</h1>\n\n' 
     
     def generate_list(self, lst):
         result, tmp  = '', None
@@ -128,4 +135,4 @@ class HtmlBuilder(Builder):
                     else:
                         css += key + ': ' + str(style[key]) + 'pt;'
             css += '\"'
-            return css 
+        return css 

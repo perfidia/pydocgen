@@ -285,7 +285,9 @@ class _LatexSpanBuilder(object):
             font_changed = True
             counter += 1
             result += r"{"
-            result += r"\fontfamily {" + self.__get_font_family(font_name) + r"} "
+            font_family = self.__get_font_family(font_name)
+            if font_family is not None:
+                result += r"\fontfamily {" + font_family + r"} "
         if span.effective_style.has_key('font-size'):
             font_size = span.effective_style['font-size'] 
             if not font_changed:
@@ -349,8 +351,6 @@ class _LatexSpanBuilder(object):
             return r"phv"
         if font_name == "Computer Modern":
             return r"cmr"
-        if font_name == "DejaVu Serif":
-            return r"dejavu"
 
 
 class _LatexImageBuilder(object):
@@ -686,11 +686,6 @@ class _LatexDocumentBuilder(object):
                                                 "fontenc", {"T1": None})
                 
             if font_name == "computer modern":
-                result += self.__generate_package_reference(\
-                                                "fontenc", {"T1": None})
-                
-            if font_name == "dejavu serif":
-                result += self.__generate_package_reference("DejaVuSerif")
                 result += self.__generate_package_reference(\
                                                 "fontenc", {"T1": None})
         
