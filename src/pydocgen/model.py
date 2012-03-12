@@ -98,6 +98,31 @@ class DocumentTreeNode(object):
                     curr_node = stack[-1]
                     
         return result
+    
+    def reset_sequences(self):
+        stack = []
+        visited = {}
+        curr_node = self
+        
+        stack.append(curr_node)
+        
+        while len(stack) > 0:
+            first_child_not_visited = None
+            for i in xrange(0, len(curr_node.content)):
+                if (not visited.has_key(curr_node.content[i])):
+                    first_child_not_visited = curr_node.content[i]
+                    break
+             
+            if (first_child_not_visited is not None):
+                visited[first_child_not_visited] = True
+                stack.append(first_child_not_visited)
+                curr_node = first_child_not_visited
+            else:
+                if isinstance(curr_node, NumberedObject):
+                    curr_node.sequence.reset()
+                stack.pop()
+                if (len(stack) > 0):
+                    curr_node = stack[-1]
                 
     def generate(self):
         return self.builder.generate(self)
@@ -133,7 +158,7 @@ class Paragraph(DocumentTreeNode):
 
 
 class Span(DocumentTreeNode):
-    def __init__(self, text = None):
+    def __init__(self, text=None):
         super(Span, self).__init__()
         self.text = text
         
@@ -145,17 +170,16 @@ class List(DocumentTreeNode):
 
 
 class Sequence(object):
-    
-    
-    def __init__(self, start_value = 1, parent = None):
-        self.value = start_value
+    def __init__(self, start_value=1, parent=None):
+        self.__start_value = start_value
+        self.__value = start_value
         self.parent = parent
         
     def advance(self):
-        self.value += 1
-        return self.value
+        self.__value += 1
+        return self.__value
     
-    def to_str(self, separator = "."):
+    def to_str(self, separator="."):
         seq = self
         result = str(seq.value)
         
@@ -164,6 +188,16 @@ class Sequence(object):
             result = str(seq.value) + separator + result
      
         return result
+    
+    def __set_value(self, value):
+        self.__start_value = value;
+        self.__value = value
+        
+    def __get_value(self):
+        return self.__value
+    
+    def reset(self):
+        self.__value = self.__start_value
     
     def get_numbers(self):
         seq = self
@@ -187,6 +221,8 @@ class Sequence(object):
         
     def __str__(self):
         return self.to_str()
+    
+    value = property(__get_value, __set_value)
     
 
 class NumberedObject(DocumentTreeNode):

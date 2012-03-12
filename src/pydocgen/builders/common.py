@@ -6,6 +6,7 @@ class Builder(object):
     def generate(self, documentTreeNode):
         if isinstance(documentTreeNode, Document):
             documentTreeNode.fill_parent_fields()
+            documentTreeNode.reset_sequences()
             return self.generate_document(documentTreeNode)
         if isinstance(documentTreeNode, Paragraph):
             return self.generate_paragraph(documentTreeNode)
