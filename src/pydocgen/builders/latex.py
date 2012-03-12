@@ -603,7 +603,7 @@ class _LatexDocumentBuilder(object):
         if (style.has_key("font-size")):
             optional_parameters[str(style["font-size"]) + "pt"] = None
         
-        if (not prop.has_key("lang")) or (not prop['lang'].startswith('en-US')):
+        if (not prop.has_key("language")) or (not prop['language'].startswith('en-US')):
             optional_parameters["a4paper"] = None
         
         result += _generate_parameters_list(optional_parameters)
@@ -660,8 +660,8 @@ class _LatexDocumentBuilder(object):
     def __generate_language_package_reference(self, document_properties):
         result = ""
         
-        if document_properties.has_key("lang"):
-            lang = document_properties["lang"]
+        if document_properties.has_key("language"):
+            lang = document_properties["language"]
             if lang.startswith("pl"):
                 result += self.__generate_package_reference("polski")
         

@@ -14,8 +14,8 @@ class HtmlBuilder(Builder):
             body += element.generate()
         self.generate_style_file(document.effective_style, self.CSS_STYLE_FN)
         result =''
-        if 'lang' in document.properties:
-            result += '<html lang=\"'+document.properties['lang']+'\">'
+        if 'language' in document.properties:
+            result += '<html lang=\"' + document.properties['language'] + '\">'
         else:
             result += '<html>\n'
         result += '<head>\n'

@@ -1,4 +1,4 @@
 The following document properties are supported:
 	- title: string
 	- keywords: list of string
-	- lang: string (e.g. "pl")
+	- language: string (e.g. "pl")

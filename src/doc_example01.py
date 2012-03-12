@@ -5,7 +5,7 @@ from pydocgen.builders.latex import LatexBuilder
 from pydocgen.builders.html import HtmlBuilder
 
 document = Document()
-document.properties['lang'] = "pl"
+document.properties['language'] = "pl"
 document.style['font-name'] = "Times New Roman"
 document.style['font-size'] = 11
 document.style['page-width'] = 200
