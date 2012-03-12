@@ -46,7 +46,7 @@ class HtmlBuilder(Builder):
                     content += element.generate()
         
         seq_number = ''
-        if header.sequence is not None:
+        if header.sequence is not None and header.is_style_element_set('header-numbered') and header.effective_style['header-numbered']:
             seq_number = str(header.sequence)
             header.sequence.advance()
         
