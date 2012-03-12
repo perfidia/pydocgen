@@ -620,8 +620,8 @@ class _LatexDocumentBuilder(object):
         if style.has_key("page-size"):
             width = style['page-size'][0]
             height = style['page-size'][1]                
-            options["paperwidth"] = ("%.2d" % width) + "mm"
-            options["paperheight"] = ("%.2d" % height) + "mm"
+            options["paperwidth"] = ("%.2f" % width) + "mm"
+            options["paperheight"] = ("%.2f" % height) + "mm"
             
 
         if style.has_key('page-orientation') and style['page-orientation'] == \
