@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
-from pydocgen.model import List, BulletChar, ListStyle, Image, Alignment,\
-                            FontEffect, Span
+from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, AlignmentProperty,\
+                            FontEffectProperty, Span
 from pydocgen.builders.common import Builder
 
 
@@ -249,13 +249,13 @@ class _LatexParagraphBuilder(object):
         if margin_bottom != 0:
             margins_after += "\\vspace*{%.2fpt}" % margin_bottom
         if alignment != "":
-            if alignment == Alignment.LEFT :
+            if alignment == AlignmentProperty.LEFT :
                 justification_before += r"\begin{flushleft}" + "\n "
                 justification_after += "\n" + r"\end{flushleft}" + "\n "
-            if alignment == Alignment.RIGHT:
+            if alignment == AlignmentProperty.RIGHT:
                 justification_before += r"\begin{flushright}" + "\n "
                 justification_after += "\n" + r"\end{flushright}" + "\n"
-            if alignment == Alignment.CENTER :
+            if alignment == AlignmentProperty.CENTER :
                 justification_before += r"\begin{center}" + "\n"
                 justification_after += "\n" + r"\end{center}" + "\n"
         if  self.__last_indent != text_indent:
@@ -314,13 +314,13 @@ class _LatexSpanBuilder(object):
             result += font_color['b'] + r"} {"
         if span.effective_style.has_key('font-effects'):
             font_effects = span.effective_style['font-effects']
-            if font_effects == FontEffect.BOLD:
+            if font_effects == FontEffectProperty.BOLD:
                 counter += 1
                 result += r"\textbf {"
-            if font_effects == FontEffect.ITALIC:
+            if font_effects == FontEffectProperty.ITALIC:
                 counter += 1
                 result += r"\textit{"
-            if font_effects == FontEffect.UNDERLINE:
+            if font_effects == FontEffectProperty.UNDERLINE:
                 counter += 1
                 result += r"\underline{"
 
@@ -385,14 +385,14 @@ class _LatexImageBuilder(object):
         # handling the "alignment" style 
         if image.is_style_element_set("alignment"):
             align_env = None 
-            if image.effective_style['alignment'] == Alignment.LEFT\
-                    or image.effective_style['alignment'] == Alignment.JUSTIFY:
+            if image.effective_style['alignment'] == AlignmentProperty.LEFT\
+                    or image.effective_style['alignment'] == AlignmentProperty.JUSTIFY:
                 align_env = "flushleft"
                 captionsetup_parameters['justification'] = "raggedright"
-            elif image.effective_style['alignment'] == Alignment.CENTER:
+            elif image.effective_style['alignment'] == AlignmentProperty.CENTER:
                 align_env = "center"
                 captionsetup_parameters['justification'] = "centering"
-            elif image.effective_style['alignment'] == Alignment.RIGHT:
+            elif image.effective_style['alignment'] == AlignmentProperty.RIGHT:
                 align_env = "flushright"
                 captionsetup_parameters['justification'] = "raggedleft"
             
@@ -786,13 +786,13 @@ class _LatexListBuilder(object):
     
     def __get_bullet_char_dict(self):
         bullet_char_dict = {}
-        bullet_char_dict[BulletChar.ASTERISK] = r"$\ast$"
-        bullet_char_dict[BulletChar.BULLET] = r"$\bullet$"
-        bullet_char_dict[BulletChar.CDOT] = r"$\cdot$"
-        bullet_char_dict[BulletChar.CIRCLE] = r"$\circ$"
-        bullet_char_dict[BulletChar.DIAMOND] = r"$\diamond$"
-        bullet_char_dict[BulletChar.MEDIUM_HYPHEN] = r"\textbf{--}"
-        bullet_char_dict[BulletChar.LONG_HYPHEN] = r"\textbf{---}"
+        bullet_char_dict[BulletCharProperty.ASTERISK] = r"$\ast$"
+        bullet_char_dict[BulletCharProperty.BULLET] = r"$\bullet$"
+        bullet_char_dict[BulletCharProperty.CDOT] = r"$\cdot$"
+        bullet_char_dict[BulletCharProperty.CIRCLE] = r"$\circ$"
+        bullet_char_dict[BulletCharProperty.DIAMOND] = r"$\diamond$"
+        bullet_char_dict[BulletCharProperty.MEDIUM_HYPHEN] = r"\textbf{--}"
+        bullet_char_dict[BulletCharProperty.LONG_HYPHEN] = r"\textbf{---}"
         bullet_char_dict['#'] = r"\#"
         bullet_char_dict['$'] = r"\$"
         bullet_char_dict['%'] = r"\%"
@@ -833,8 +833,8 @@ class _LatexListBuilder(object):
                                 "\\" + command, char)
     
     def __generate_default_bullet_char_declaration(self, lst):
-        default_bullet_chars = [BulletChar.BULLET, BulletChar.MEDIUM_HYPHEN,\
-                                BulletChar.ASTERISK, BulletChar.CDOT]
+        default_bullet_chars = [BulletCharProperty.BULLET, BulletCharProperty.MEDIUM_HYPHEN,\
+                                BulletCharProperty.ASTERISK, BulletCharProperty.CDOT]
         
         level = self.__get_list_level(lst)
         
@@ -848,12 +848,12 @@ class _LatexListBuilder(object):
         if lst.is_style_element_set('list-style'):
             style = lst.effective_style['list-style']
         else:
-            style = ListStyle.BULLET
+            style = ListStyleProperty.BULLET
             
         environment = ""
-        if style == ListStyle.BULLET:
+        if style == ListStyleProperty.BULLET:
             environment = "itemize"
-        elif style == ListStyle.NUMBER:
+        elif style == ListStyleProperty.NUMBER:
             environment = "enumerate"
             
         if len(environment) > 0:

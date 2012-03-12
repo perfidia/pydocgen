@@ -351,31 +351,36 @@ class Table(NumberedObject):
     rows_num = property(__get_rows_num, None)
     cols_num = property(__get_cols_num, None)
     content = property(__get_content, None)
+    
 
-class ListStyle(object):
+class Property(object):
+    pass
+
+
+class ListStyleProperty(Property):
     BULLET = 0
     NUMBER = 1
     
     
-class Alignment(object):
+class AlignmentProperty(Property):
     LEFT = 0
     CENTER = 1
     RIGHT = 2
     JUSTIFY = 3
     
     
-class PageOrientation(object):
+class PageOrientationProperty(Property):
     PORTRAIT = 0
     LANDSCAPE = 1
     
     
-class FontEffect(object):
+class FontEffectProperty(Property):
     BOLD = 1
     ITALIC = 2
     UNDERLINE = 4
     
 
-class BulletChar(object):
+class BulletCharProperty(Property):
     BULLET = 0
     CDOT = 1
     DIAMOND = 2
@@ -412,11 +417,11 @@ _style['margin-left'] = 20
 _style['margin-right'] = 20
 _style['font-size'] = 12
 _style['font-name'] = "Times New Roman"
-_style['alignment'] = Alignment.LEFT
+_style['alignment'] = AlignmentProperty.LEFT
 _style['text-indent'] = 20
 _style['color'] = "#000000"
 _style['background-color'] = "#ffffff"
-_style['list-_style'] = ListStyle.BULLET
+_style['list-_style'] = ListStyleProperty.BULLET
 _style['item-spacing'] = 2
 _style['item-indent'] = 12
 _style['header-numbered'] = True

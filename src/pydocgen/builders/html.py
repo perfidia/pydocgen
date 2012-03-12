@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pydocgen.model import ListStyle, Alignment, FontEffect, Style # wildcard imports are bad :)
+from pydocgen.model import ListStyleProperty, AlignmentProperty, FontEffectProperty, Style # wildcard imports are bad :)
 from pydocgen.builders.common import Builder
 
 class HtmlBuilder(Builder):
@@ -58,7 +58,7 @@ class HtmlBuilder(Builder):
             tmp = self.generate(item)
             if tmp:
                 result += '\n<li '+self.generate_inline_style(tmp)+'>'+ tmp +'</li>\n'
-        if lst.style['list-style'] == ListStyle.BULLET:
+        if lst.style['list-style'] == ListStyleProperty.BULLET:
             return '\n<ul '+self.generate_inline_style(lst)+'>\n' + result + '\n</ul>\n'
         else:
             return '\n<ol '+self.generate_inline_style(lst)+'>\n' + result + '\n</ol>\n'
@@ -81,11 +81,11 @@ class HtmlBuilder(Builder):
                     if key == 'font-name':
                         css += 'font-family: ' + style[key] + ';\n'
                     elif key == 'alignment':
-                        css += 'text-align: '+{Alignment.LEFT:'left',Alignment.CENTER:'center',Alignment.RIGHT:'right',Alignment.JUSTIFY:'justify'}.get(style[key])+';\n'
+                        css += 'text-align: '+{AlignmentProperty.LEFT:'left',AlignmentProperty.CENTER:'center',AlignmentProperty.RIGHT:'right',AlignmentProperty.JUSTIFY:'justify'}.get(style[key])+';\n'
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
                     elif key == 'font-effect':
-                        css += 'font-style: '+{FontEffect.BOLD:'bold',FontEffect.ITALIC:'italic',FontEffect.UNDERLINE:'oblique'}.get(style[key])+';\n'
+                        css += 'font-style: '+{FontEffectProperty.BOLD:'bold',FontEffectProperty.ITALIC:'italic',FontEffectProperty.UNDERLINE:'oblique'}.get(style[key])+';\n'
                     elif key == 'item-spacing':
                         css += 'border-spacing: '+str(style[key])+'pt '+str(style[key])+'pt;\n letter-spacing: '+str(style[key])+'pt;\n word-spacing: '+str(style[key])+'pt;\n';
                     elif key == 'item-indent':
@@ -121,11 +121,11 @@ class HtmlBuilder(Builder):
                     if key == 'font-name':
                         css += 'font-family: ' + style[key] + ';'
                     elif key == 'alignment':
-                        css += 'text-align: '+{Alignment.LEFT:'left',Alignment.CENTER:'center',Alignment.RIGHT:'right',Alignment.JUSTIFY:'justify'}.get(style[key])+';'
+                        css += 'text-align: '+{AlignmentProperty.LEFT:'left',AlignmentProperty.CENTER:'center',AlignmentProperty.RIGHT:'right',AlignmentProperty.JUSTIFY:'justify'}.get(style[key])+';'
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
                     elif key == 'font-effect':
-                        css += 'font-style: '+{FontEffect.BOLD:'bold',FontEffect.ITALIC:'italic',FontEffect.UNDERLINE:'oblique'}.get(style[key])+';'
+                        css += 'font-style: '+{FontEffectProperty.BOLD:'bold',FontEffectProperty.ITALIC:'italic',FontEffectProperty.UNDERLINE:'oblique'}.get(style[key])+';'
                     elif key == 'item-spacing':
                         css += 'border-spacing: '+str(style[key])+'pt '+str(style[key])+'pt; letter-spacing: '+str(style[key])+'pt; word-spacing: '+str(style[key])+'pt;';
                     elif key == 'item-indent':
