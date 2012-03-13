@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 
 class DocumentProperties(dict):
+    """A class used for storing document properties. The common property names 
+    are: "title", "keywords", "language".
+    """
+    
     pass
 
-
 class Style(dict):
+    """A class representing the element style.
+    """
+    
     def __init__(self):
         self.name = None
-        
 
 class DocumentTreeNode(object):
+    """An abstract class containing the functionality common to all 
+    document tree nodes (elements).
+    """
+    
     def __init__(self):
         self.parent = None
         self.style = None
@@ -131,9 +140,11 @@ class DocumentTreeNode(object):
     def is_style_element_set(self, style_element):
         return (self.effective_style.has_key(style_element)) and\
                 (self.effective_style[style_element] is not None)
-    
 
 class Document(DocumentTreeNode):
+    """A class representing the document.
+    """
+    
     builder = None
     
     def __init__(self):
@@ -150,27 +161,35 @@ class Document(DocumentTreeNode):
             output_file.close()
         else:
             raise Exception("The document has no builder!")
-        
-        
+
 class Paragraph(DocumentTreeNode):
+    """A class representing the paragraph.
+    """
+    
     def __init__(self):
         super(Paragraph, self).__init__()
         self.style = StyleManager().get_style('paragraph-default')
 
-
 class Span(DocumentTreeNode):
+    """A class representing the span.
+    """
+    
     def __init__(self, text=None):
         super(Span, self).__init__()
         self.text = text
-        
 
 class List(DocumentTreeNode):
+    """A class representing the list.
+    """
+    
     def __init__(self):
         super(List, self).__init__()
         self.style = StyleManager().get_style('list-default')
 
-
 class Sequence(object):
+    """A class representing the sequence.
+    """
+    
     def __init__(self, start_value=1, parent=None):
         self.__start_value = start_value
         self.__value = start_value
@@ -224,20 +243,27 @@ class Sequence(object):
         return self.to_str()
     
     value = property(__get_value, __set_value)
-    
 
 class NumberedObject(DocumentTreeNode):
+    """An abstract class which is a base for all document elements that are 
+    numbered by using a sequence.
+    """
+    
     def __init__(self):
         super(NumberedObject, self).__init__()
         self.sequence = None
-        
-        
+
 class Header(NumberedObject):
+    """A class representing the header.
+    """
+    
     def __init__(self):
         super(Header, self).__init__()
 
-
 class Image(NumberedObject):
+    """A class representing the image.
+    """
+    
     def __init__(self):
         super(Image, self).__init__()
         self.path = None
@@ -262,15 +288,20 @@ class Image(NumberedObject):
         
     caption = property(__get_caption, __set_caption)
 
-
 class TableCell(DocumentTreeNode):
+    """A class representing a cell of the table. It is used internally by the
+    Table class.
+    """
+    
     def __init__(self):
         super(TableCell, self).__init__()
         self.rowspan = 1
         self.colspan = 1
 
-
 class Table(NumberedObject):
+    """A class representing the table.
+    """
+    
     __default_row_height = 20
     __default_column_width = 100
     
@@ -352,36 +383,54 @@ class Table(NumberedObject):
     rows_num = property(__get_rows_num, None)
     cols_num = property(__get_cols_num, None)
     content = property(__get_content, None)
-    
 
 class Property(object):
+    """An abstract class which is a base for some special, predefined properties
+    of document elements stored in a style.
+    """
+    
     pass
 
-
 class ListStyleProperty(Property):
+    """A class representing the "font-style" property of the list style.
+    """
+    
     BULLET = 0
     NUMBER = 1
-    
-    
+
 class AlignmentProperty(Property):
+    """A class representing the "alignment" property of the document element 
+    style.
+    """
+    
     LEFT = 0
     CENTER = 1
     RIGHT = 2
     JUSTIFY = 3
-    
-    
+
 class PageOrientationProperty(Property):
+    """A class representing the "page-orientation" property of the document 
+    style.
+    """
+    
     PORTRAIT = 0
     LANDSCAPE = 1
-    
-    
+
 class FontEffectProperty(Property):
+    """A class representing the font effect of the span which is set by the
+    "font-effects" style property. A few style effects can be combined and 
+    assigned to the style by using the bitwise OR operation.
+    """
+    
     BOLD = 1
     ITALIC = 2
     UNDERLINE = 4
-    
 
 class BulletCharProperty(Property):
+    """A class representing a special value of the "bullet-char" property of 
+    the list style.
+    """
+    
     BULLET = 0
     CDOT = 1
     DIAMOND = 2
@@ -390,16 +439,25 @@ class BulletCharProperty(Property):
     MEDIUM_HYPHEN = 5
     LONG_HYPHEN = 6
 
-
 class PageSizeProperty(Property):
+    """A class containing some predefined values of the "page-size" property of 
+    the document style.    
+    """
+    
     A4 = (210, 297)
     A5 = (148, 210)
     B4 = (250, 353)
     B5 = (176, 250)
     LETTER = (215.9, 279.4)
 
-
 class StyleManager(object):
+    """A style manager class which uses the Borg pattern to preserve its 
+    state. 
+    
+    The style manager is used to store a dictionary of standard, predefined 
+    styles identified by their name. 
+    """
+    
     __shared_state = {}
     __styles = {}
     
@@ -411,11 +469,12 @@ class StyleManager(object):
         
     def get_style(self, style_name):
         return self.__styles[style_name].copy()
-        
-        
+
+# Below there are standard styles defined.
+
 _style_manager = StyleManager()
 
-# default document _style
+# default document style
 _style = Style()
 _style['page-numbering'] = True
 _style['page-size'] = PageSizeProperty.A4
@@ -436,7 +495,7 @@ _style['item-indent'] = 12
 _style['header-numbered'] = True
 _style_manager.set_style('doc-default', _style)
 
-#default paragraph _style
+#default paragraph style
 _style = Style()
 _style['margin-top'] = 0
 _style['margin-bottom'] = 0
@@ -444,7 +503,7 @@ _style['margin-left'] = 0
 _style['margin-right'] = 0
 _style_manager.set_style('paragraph-default', _style)
 
-#default list _style
+#default list style
 _style = Style()
 _style['margin-top'] = 0
 _style['margin-bottom'] = 2
