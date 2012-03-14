@@ -1,3 +1,6 @@
+Style properties supported by the LaTeX builder
+===============================================
+
 The following styles are supported for Document:
 	- page-numbering: bool
 	- page-width: integer,integer tuple (mm,mm)
