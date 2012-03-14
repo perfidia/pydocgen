@@ -11,19 +11,58 @@ class Style(dict):
     """A class representing the element style.
     """
     
-    def __init__(self):
-        self.name = None
+    def __init__(self, other=None):
+        if other is not None:
+            self.update(other)
+        
+    def __iadd__(self, other):
+        if isinstance(other, ListStyleProperty):
+            self['list-style'] = other
+        elif isinstance(other, AlignmentProperty):
+            self['alignment'] = other
+        elif isinstance(other, PageOrientationProperty):
+            self['page-orientation'] = other
+        elif isinstance(other, FontEffectProperty):
+            if ("font-effect"  not in self) or (self['font-effect'] is None):
+                self['font-effect'] = other
+            else:
+                self['font-effect'] += other
+        elif isinstance(other, BulletCharProperty):
+            self['bullet-char'] = other
+        elif isinstance(other, PageSizeProperty):
+            self['page-size'] = other
+        else:
+            raise TypeError("Adding the property of this type is not \
+                            supported!")
+        
+        return self
+    
+    def __isub__(self, other):
+        if isinstance(other, FontEffectProperty):
+            if ("font-effect" in self) and (self['font-effect'] is not None):
+                self['font-effect'] -= other
+        else:
+            raise TypeError("Subtracting the property of this type is not \
+                            supported!")
 
 class DocumentTreeNode(object):
     """An abstract class containing the functionality common to all 
     document tree nodes (elements).
     """
     
-    def __init__(self):
+    def __init__(self, content=None):
+        if content is None:
+            content = []
         self.parent = None
-        self.style = None
+        self.style = Style()
         try:
-            self.content = [] # of DocumentTreeNode
+            self.content = content
+            if isinstance(self.content, str):
+                span = Span()
+                span.text = self.content
+                self.content = span
+            if isinstance(self.content, DocumentTreeNode):
+                self.content = [self.content]
         except AttributeError:
             pass
         
@@ -147,8 +186,10 @@ class Document(DocumentTreeNode):
     
     builder = None
     
-    def __init__(self):
-        super(Document, self).__init__()
+    def __init__(self, content=None):
+        if content is None:
+            content = []
+        super(Document, self).__init__(content)
         self.style = StyleManager().get_style('doc-default')
         self.properties = DocumentProperties()
         self.builder = None
@@ -161,14 +202,31 @@ class Document(DocumentTreeNode):
             output_file.close()
         else:
             raise Exception("The document has no builder!")
+        
+    def __iadd__(self, other):
+        if isinstance(other, str):
+            other = Span(other)
+        if isinstance(other, Span):
+            other = Paragraph(other)
+
+        return super(Document, self).__iadd__(other)
+        
 
 class Paragraph(DocumentTreeNode):
     """A class representing the paragraph.
     """
     
-    def __init__(self):
-        super(Paragraph, self).__init__()
+    def __init__(self, content=None):
+        if content is None:
+            content = []
+        super(Paragraph, self).__init__(content)
         self.style = StyleManager().get_style('paragraph-default')
+        
+    def __iadd__(self, other):
+        if isinstance(other, str):
+            other = Span(other)
+
+        return super(Paragraph, self).__iadd__(other)
 
 class Span(DocumentTreeNode):
     """A class representing the span.
@@ -182,8 +240,10 @@ class List(DocumentTreeNode):
     """A class representing the list.
     """
     
-    def __init__(self):
-        super(List, self).__init__()
+    def __init__(self, content=None):
+        if content is None:
+            content = []
+        super(List, self).__init__(content)
         self.style = StyleManager().get_style('list-default')
 
 class Sequence(object):
@@ -249,23 +309,28 @@ class NumberedObject(DocumentTreeNode):
     numbered by using a sequence.
     """
     
-    def __init__(self):
-        super(NumberedObject, self).__init__()
-        self.sequence = None
+    def __init__(self, content=None, sequence=None):
+        if content is None:
+            content = []
+        super(NumberedObject, self).__init__(content)
+        self.sequence = sequence
 
 class Header(NumberedObject):
     """A class representing the header.
     """
     
-    def __init__(self):
-        super(Header, self).__init__()
+    def __init__(self, content=None, sequence=None):
+        if content is None:
+            content = []
+        super(Header, self).__init__(content, sequence)
+        self.sequence 
 
 class Image(NumberedObject):
     """A class representing the image.
     """
     
-    def __init__(self):
-        super(Image, self).__init__()
+    def __init__(self, sequence=None):
+        super(Image, self).__init__(sequence=sequence)
         self.path = None
         
     def __get_caption(self):
@@ -305,8 +370,8 @@ class Table(NumberedObject):
     __default_row_height = 20
     __default_column_width = 100
     
-    def __init__(self):
-        super(Table, self).__init__()
+    def __init__(self, sequence=None):
+        super(Table, self).__init__(sequence=sequence)
         self.__rows = [[TableCell()]]
         self.__rowHeights = [self.__default_row_height]
         self.__columnWidths = [self.__default_column_width]
@@ -388,67 +453,107 @@ class Property(object):
     """An abstract class which is a base for some special, predefined properties
     of document elements stored in a style.
     """
-    
-    pass
+    def __init__(self, value):
+        self.value = value
+        
+    def __eq__(self, other):
+        return self.value == other.value
 
 class ListStyleProperty(Property):
-    """A class representing the "font-style" property of the list style.
+    """A class representing the "list-style" property of the list style.
     """
-    
-    BULLET = 0
-    NUMBER = 1
+    BULLET = None
+    NUMBER = None
+        
+ListStyleProperty.BULLET = ListStyleProperty(0)
+ListStyleProperty.NUMBER = ListStyleProperty(1)
 
 class AlignmentProperty(Property):
     """A class representing the "alignment" property of the document element 
     style.
     """
-    
-    LEFT = 0
-    CENTER = 1
-    RIGHT = 2
-    JUSTIFY = 3
+    LEFT = None
+    CENTER = None
+    RIGHT = None
+    JUSTIFY = None
+
+AlignmentProperty.LEFT = AlignmentProperty(0)
+AlignmentProperty.CENTER = AlignmentProperty(1)
+AlignmentProperty.RIGHT = AlignmentProperty(2)
+AlignmentProperty.JUSTIFY = AlignmentProperty(3)
 
 class PageOrientationProperty(Property):
     """A class representing the "page-orientation" property of the document 
     style.
     """
-    
-    PORTRAIT = 0
-    LANDSCAPE = 1
+    PORTRAIT = None
+    LANDSCAPE = None
+
+PageOrientationProperty.PORTRAIT = PageOrientationProperty(0)
+PageOrientationProperty.LANDSCAPE = PageOrientationProperty(1)
 
 class FontEffectProperty(Property):
     """A class representing the font effect of the span which is set by the
-    "font-effects" style property. A few style effects can be combined and 
-    assigned to the style by using the bitwise OR operation.
+    "font-effect" style property. A few style effects can be combined and 
+    assigned to the style by adding few FontEffectProperty objects 
+    ("+" operator).
     """
+    BOLD = None
+    ITALIC = None
+    UNDERLINE = None
     
-    BOLD = 1
-    ITALIC = 2
-    UNDERLINE = 4
+    def __add__(self, other):
+        return FontEffectProperty(self.value | other.value)
+    
+    def __iadd__(self, other):
+        self.value |= other.value
+        return self
+    
+    def __isub__(self, other):
+        self.value &= ~(other.value)
+        
+    def __contains__(self, font_effect):
+        return bool(self.value & font_effect.value)
+    
+FontEffectProperty.BOLD = FontEffectProperty(1)
+FontEffectProperty.ITALIC = FontEffectProperty(2)
+FontEffectProperty.UNDERLINE = FontEffectProperty(4)
 
 class BulletCharProperty(Property):
     """A class representing a special value of the "bullet-char" property of 
     the list style.
     """
-    
-    BULLET = 0
-    CDOT = 1
-    DIAMOND = 2
-    ASTERISK = 3
-    CIRCLE = 4
-    MEDIUM_HYPHEN = 5
-    LONG_HYPHEN = 6
+    BULLET = None
+    CDOT = None
+    DIAMOND = None
+    ASTERISK = None
+    CIRCLE = None
+    MEDIUM_HYPHEN = None
+    LONG_HYPHEN = None
+
+BulletCharProperty.BULLET = BulletCharProperty(0)
+BulletCharProperty.CDOT = BulletCharProperty(1)
+BulletCharProperty.DIAMOND = BulletCharProperty(2)
+BulletCharProperty.ASTERISK = BulletCharProperty(3)
+BulletCharProperty.CIRCLE = BulletCharProperty(4)
+BulletCharProperty.MEDIUM_HYPHEN = BulletCharProperty(5)
+BulletCharProperty.LONG_HYPHEN = BulletCharProperty(6)
 
 class PageSizeProperty(Property):
     """A class containing some predefined values of the "page-size" property of 
     the document style.    
     """
-    
-    A4 = (210, 297)
-    A5 = (148, 210)
-    B4 = (250, 353)
-    B5 = (176, 250)
-    LETTER = (215.9, 279.4)
+    A4 = None
+    A5 = None
+    B4 = None
+    B5 = None
+    LETTER = None
+
+PageSizeProperty.A4 = PageSizeProperty((210, 297))
+PageSizeProperty.A5 = PageSizeProperty((148, 210))
+PageSizeProperty.B4 = PageSizeProperty((250, 353))
+PageSizeProperty.B5 = PageSizeProperty((176, 250))
+PageSizeProperty.LETTER = PageSizeProperty((215.9, 279.4))
 
 class StyleManager(object):
     """A style manager class which uses the Borg pattern to preserve its 
@@ -468,7 +573,7 @@ class StyleManager(object):
         self.__styles[style_name] = _style
         
     def get_style(self, style_name):
-        return self.__styles[style_name].copy()
+        return Style(self.__styles[style_name])
 
 # Below there are standard styles defined.
 
@@ -486,7 +591,7 @@ _style['margin-right'] = 20
 _style['font-size'] = 12
 _style['font-name'] = "Times New Roman"
 _style['alignment'] = AlignmentProperty.LEFT
-_style['text-indent'] = 20
+_style['text-indent'] = 0
 _style['color'] = "#000000"
 _style['background-color'] = "#ffffff"
 _style['list-_style'] = ListStyleProperty.BULLET

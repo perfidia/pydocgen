@@ -1,4 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
+import pydocgen.model
 
 from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, AlignmentProperty,\
                             FontEffectProperty, Span, PageOrientationProperty
@@ -249,7 +250,7 @@ class _LatexParagraphBuilder(object):
         if margin_bottom != 0:
             margins_after += "\\vspace*{%.2fpt}" % margin_bottom
         if alignment != "":
-            if alignment == AlignmentProperty.LEFT :
+            if alignment == AlignmentProperty.LEFT:
                 justification_before += r"\begin{flushleft}" + "\n "
                 justification_after += "\n" + r"\end{flushleft}" + "\n "
             if alignment == AlignmentProperty.RIGHT:
@@ -312,15 +313,15 @@ class _LatexSpanBuilder(object):
             result += font_color['r'] + r", "
             result += font_color['g'] + r", "
             result += font_color['b'] + r"} {"
-        if span.effective_style.has_key('font-effects'):
-            font_effects = span.effective_style['font-effects']
-            if font_effects == FontEffectProperty.BOLD:
+        if span.effective_style.has_key('font-effect'):
+            font_effects = span.effective_style['font-effect']
+            if FontEffectProperty.BOLD in font_effects:
                 counter += 1
                 result += r"\textbf {"
-            if font_effects == FontEffectProperty.ITALIC:
+            if FontEffectProperty.ITALIC in font_effects:
                 counter += 1
                 result += r"\textit{"
-            if font_effects == FontEffectProperty.UNDERLINE:
+            if FontEffectProperty.UNDERLINE in font_effects:
                 counter += 1
                 result += r"\underline{"
 
@@ -618,8 +619,8 @@ class _LatexDocumentBuilder(object):
         options = {}
         
         if style.has_key("page-size"):
-            width = style['page-size'][0]
-            height = style['page-size'][1]                
+            width = style['page-size'].value[0]
+            height = style['page-size'].value[1]
             options["paperwidth"] = ("%.2f" % width) + "mm"
             options["paperheight"] = ("%.2f" % height) + "mm"
             
