@@ -458,6 +458,9 @@ class Property(object):
         
     def __eq__(self, other):
         return self.value == other.value
+    
+    def __hash__(self):
+        return hash(self.value)
 
 class ListStyleProperty(Property):
     """A class representing the "list-style" property of the list style.
