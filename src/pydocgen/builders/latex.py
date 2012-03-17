@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import pydocgen.model
 
 from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, AlignmentProperty,\
@@ -210,6 +210,7 @@ class _LatexParagraphBuilder(object):
         end_margin = ""
         margins_before = ""
         margins_after = ""
+        colorbox = ""
         margins_changed = False;
         
         if paragraph.effective_style.has_key('alignment'):
@@ -249,6 +250,16 @@ class _LatexParagraphBuilder(object):
             begin_margin += " %.2fpt "  % margin_right
         if margin_bottom != 0:
             margins_after += "\\vspace*{%.2fpt}" % margin_bottom
+            
+        if span.effective_style.has_key('background-color'):
+            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
+            counter += 1
+            result += r"{\definecolor{spancolor}{RGB}{"
+            result += background_color['r'] + ", "
+            result += background_color['g'] + ", "
+            result += background_color['b'] + "} "
+            result += r"\sethlcolor{spancolor}\texthl{"
+                
         if alignment != "":
             if alignment == AlignmentProperty.LEFT:
                 justification_before += r"\begin{flushleft}" + "\n "
@@ -266,6 +277,7 @@ class _LatexParagraphBuilder(object):
         result += justification_before
         result += margins_before
         result += begin_margin
+        result += colorbox
         for element in paragraph.content:
             result += element.generate()
         result += end_margin
@@ -298,13 +310,14 @@ class _LatexSpanBuilder(object):
             font_changed = True
         if font_changed:
             result += r"\selectfont "
-#        if span.effective_style.has_key('background-color'):
-#            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
-#            counter += 1
-#            result += r"\colorbox [RGB] {";
-#            result += background_color['r'] + ", "
-#            result += background_color['g'] + ", "
-#            result += background_color['b'] + "} {"
+        if span.effective_style.has_key('background-color'):
+            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
+            counter += 1
+			result += r"{\definecolor{spancolor}{RGB}{"
+			result += background_color['r'] + ", "
+            result += background_color['g'] + ", "
+            result += background_color['b'] + "} "
+			result += r"\sethlcolor{spancolor}\texthl{"
             
         if span.effective_style.has_key('color'):
             font_color = self.__generate_rgb_from_hex(span.effective_style['color']) 
