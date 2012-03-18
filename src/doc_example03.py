@@ -2,6 +2,7 @@
 
 from pydocgen.model import *
 from pydocgen.builders.latex import LatexBuilder
+from pydocgen.builders.html import HtmlBuilder
 
 document = Document()
 document.style += AlignmentProperty.JUSTIFY
@@ -245,3 +246,6 @@ document += paragraph
 
 document.builder = LatexBuilder()
 document.generate_file("doc_example03.tex")
+
+document.builder = HtmlBuilder();
+document.generate_file("doc_example03.htm")
