@@ -164,7 +164,6 @@ cell = table.get_cell(0, 0)
 cell.colspan = 2
 span = Span("Placerat ac commodo arcu adipiscing")
 span.style['font-effect'] = (FontEffectProperty.UNDERLINE + FontEffectProperty.BOLD)
-span.style['background-color'] = "#ffffff"
 cell.content += [span]
 cell.style['alignment'] = AlignmentProperty.CENTER
 cell.style.update(graybgcellstyle)

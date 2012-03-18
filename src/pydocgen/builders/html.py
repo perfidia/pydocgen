@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pydocgen.model import ListStyleProperty, AlignmentProperty, FontEffectProperty, Image, Style, Table # wildcard imports are bad :)
+from pydocgen.model import ListStyleProperty, AlignmentProperty, FontEffectProperty, Image, Style, Table
 from pydocgen.builders.common import Builder
 
 class HtmlBuilder(Builder):
@@ -13,7 +13,7 @@ class HtmlBuilder(Builder):
         for element in document.content:
             body += str(self.generate(element))
         self.generate_style_file(document.effective_style, self.CSS_STYLE_FN)
-        result =''
+        result = ''
         if 'language' in document.properties:
             result += '<html lang=\"' + document.properties['language'] + '\">'
         else:
@@ -33,10 +33,10 @@ class HtmlBuilder(Builder):
                 tmp = self.generate(element)
                 if tmp :
                     p += tmp
-        return '\n<p '+self.__generate_style_from_dict(paragraph)+'>\n\t' + p + '\n</p>\n'
+        return '\n<p ' + self.__generate_style_from_dict(paragraph) + '>\n\t' + p + '\n</p>\n'
     
     def generate_span(self, span):
-        return '<span '+self.__generate_style_from_dict(span)+'>' + span.text + '</span>'
+        return '<span ' + self.__generate_style_from_dict(span) + '>' + span.text + '</span>'
     
     def generate_header(self, header):
         content = ''
@@ -61,49 +61,49 @@ class HtmlBuilder(Builder):
         return '\n\n<h1 ' + self.__generate_style_from_dict(header) + '>' + seq_number + " " + content + '</h1>\n\n' 
     
     def generate_list(self, lst):
-        result, tmp  = '', None
+        result, tmp = '', None
         for item in lst.content:
             tmp = self.generate(item)
             if tmp:
-                result += '\n<li '+self.generate_inline_style(tmp)+'>'+ tmp +'</li>\n'
+                result += '\n<li ' + self.generate_inline_style(tmp) + '>' + tmp + '</li>\n'
         if 'list-style' in lst.style.keys() and lst.style['list-style'] == ListStyleProperty.NUMBER:
-            return '\n<ol '+self.generate_inline_style(lst)+'>\n' + result + '\n</ol>\n'
+            return '\n<ol ' + self.generate_inline_style(lst) + '>\n' + result + '\n</ol>\n'
         elif 'list-style' in lst.style.keys() and lst.style['list-style'] == ListStyleProperty.BULLET:
-            return '\n<ul '+self.generate_inline_style(lst)+'>\n' + result + '\n</ul>\n'
+            return '\n<ul ' + self.generate_inline_style(lst) + '>\n' + result + '\n</ul>\n'
         else:
-            return '\n<ul '+self.generate_inline_style(lst)+'>\n' + result + '\n</ul>\n'
+            return '\n<ul ' + self.generate_inline_style(lst) + '>\n' + result + '\n</ul>\n'
         #lst.style['list-style'] = ListStyleProperty.NUMBER
         
     def generate_table(self, table):
-        result = '\n\n<table border=\"1\" '+self.__generate_style_from_dict(table)+'>'
-        for i in xrange(0, table.rows_num ):
+        result = '\n\n<table border=\"1\" ' + self.__generate_style_from_dict(table) + '>'
+        for i in xrange(0, table.rows_num):
             result += '\n<tr>\n' #style? no!
-            for j in xrange(0, table.cols_num ):
+            for j in xrange(0, table.cols_num):
                 colspan_code = ''
-                if table.get_cell(i,j).colspan is not None and table.get_cell(i,j).colspan > 1:
-                    colspan_code = ' colspan=\"'+str(table.get_cell(i,j).colspan)+'\" ';  
-                result += '\n<td '+colspan_code+ self.__generate_style_from_dict(table.get_cell(i, j)) + '>'
+                if table.get_cell(i, j).colspan is not None and table.get_cell(i, j).colspan > 1:
+                    colspan_code = ' colspan=\"' + str(table.get_cell(i, j).colspan) + '\" ';  
+                result += '\n<td ' + colspan_code + self.__generate_style_from_dict(table.get_cell(i, j)) + '>'
                 for k in table.get_cell(i, j).content:
-                    result += self.generate( k ) 
+                    result += self.generate(k) 
                 result += '</td>'
             result += '\n</tr>\n'
-        return  result  + '\n</table>\n\n'
+        return  result + '\n</table>\n\n'
         
     def generate_style_file(self, style, fn):
         css = 'body {\n'
         if style != None:
             for key in style.keys():
-                if key in ('margin-top', 'margin-bottom', 'margin-left', 'margin-right','font-size','font-name','alignment','text-indent','color','background-color','list-_style','item-spacing','item-indent'):
+                if key in ('margin-top', 'margin-bottom', 'margin-left', 'margin-right', 'font-size', 'font-name', 'alignment', 'text-indent', 'color', 'background-color', 'list-_style', 'item-spacing', 'item-indent'):
                     if key == 'font-name':
                         css += 'font-family: ' + style[key] + ';\n'
                     elif key == 'alignment':
-                        css += 'text-align: '+{AlignmentProperty.LEFT:'left',AlignmentProperty.CENTER:'center',AlignmentProperty.RIGHT:'right',AlignmentProperty.JUSTIFY:'justify'}.get(style[key])+';\n'
+                        css += 'text-align: ' + {AlignmentProperty.LEFT:'left', AlignmentProperty.CENTER:'center', AlignmentProperty.RIGHT:'right', AlignmentProperty.JUSTIFY:'justify'}.get(style[key]) + ';\n'
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
                     elif key == 'font-effect':
-                        css += 'font-style: '+{FontEffectProperty.BOLD:'bold',FontEffectProperty.ITALIC:'italic',FontEffectProperty.UNDERLINE:'oblique'}.get(style[key])+';\n'
+                        css += 'font-style: ' + {FontEffectProperty.BOLD:'bold', FontEffectProperty.ITALIC:'italic', FontEffectProperty.UNDERLINE:'oblique'}.get(style[key]) + ';\n'
                     elif key == 'item-spacing':
-                        css += 'border-spacing: '+str(style[key])+'pt '+str(style[key])+'pt;\n letter-spacing: '+str(style[key])+'pt;\n word-spacing: '+str(style[key])+'pt;\n';
+                        css += 'border-spacing: ' + str(style[key]) + 'pt ' + str(style[key]) + 'pt;\n';
                     elif key == 'item-indent':
                         pass #css += 'text-indent: ' + str(style[key]) + 'pt;\n'
                     elif key == 'background-color' or key == 'color':
@@ -120,17 +120,7 @@ class HtmlBuilder(Builder):
 
 
     def generate_image(self, image):
-        image_width_code = image.style.get('width', None) 
-        if image_width_code :
-            image_width_code = 'width=\"'+str(image_width_code)+'\"'
-        else:
-            image_width_code = ''
-        image_height_code = image.style.get('height')
-        if image_height_code : 
-            image_height_code = 'height=\"'+str(image_height_code)+'\"'
-        else:
-            image_height_code = '' 
-        return '<div+'+self.__generate_style_from_dict(image)+'><img src=\"' + image.path + '\" '+self.__generate_style_from_dict(image)+' '+image_height_code+' '+image_width_code+'/></div>'
+        return '<div ' + self.__generate_style_from_dict(image) + '><img src=\"' + image.path + '\" ' + self.__generate_style_from_dict(image) + '/></div>'
     
     def generate_inline_style(self, elem):
         result = ''
@@ -156,19 +146,23 @@ class HtmlBuilder(Builder):
                         if isinstance(elem, Image) or isinstance(elem, Table):
                             css += 'display: block; margin-left: auto; margin-right: auto; '
                         else:
-                            css += 'text-align: '+ {AlignmentProperty.LEFT:'left',AlignmentProperty.CENTER:'center',AlignmentProperty.RIGHT:'right',AlignmentProperty.JUSTIFY:'justify'}.get(style[key])+';'
+                            css += 'text-align: ' + {AlignmentProperty.LEFT:'left', AlignmentProperty.CENTER:'center', AlignmentProperty.RIGHT:'right', AlignmentProperty.JUSTIFY:'justify'}.get(style[key]) + ';'
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
                     elif key == 'font-effect':
-                        css += {FontEffectProperty.BOLD:'font-weight: bold',FontEffectProperty.ITALIC:'font-style: italic',FontEffectProperty.UNDERLINE:'text-decoration: underline', 'text-decoration': str(style[key])}.get(style[key], 'text-decoration: '+str(style[key]))+';'
+                        css += {FontEffectProperty.BOLD:'font-weight: bold', FontEffectProperty.ITALIC:'font-style: italic', FontEffectProperty.UNDERLINE:'text-decoration: underline', 'text-decoration': str(style[key])}.get(style[key], 'text-decoration: ' + str(style[key])) + ';'
                     elif key == 'item-spacing':
-                        css += 'border-spacing: '+str(style[key])+'pt '+str(style[key])+'pt; letter-spacing: '+str(style[key])+'pt; word-spacing: '+str(style[key])+'pt;';
+                        css += 'border-spacing: ' + str(style[key]) + 'pt ' + str(style[key]) + 'pt;';
                     elif key == 'item-indent':
                         pass #css += 'text-indent: ' + str(style[key]) + 'pt;\n'
                     elif key == 'background-color' or key == 'color':
                         css += key + ': ' + style[key] + ';'
                     elif key == 'border-width' : 
                         css += 'border-style: solid; border-width: ' + str(style[key]) + 'pt;'
+                    elif key == 'width' : 
+                        css += 'width: ' + str(style[key]) + 'mm;'
+                    elif key == 'height' : 
+                        css += 'height: ' + str(style[key]) + 'mm;'
                     else:
                         if not isinstance(elem, Table) and key in ('marign-left', 'margin-right'): 
                             css += key + ': ' + str(style[key]) + 'pt;'
