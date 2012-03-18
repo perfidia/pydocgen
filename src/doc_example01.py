@@ -156,6 +156,10 @@ document += header
 header = Header()
 header.sequence = subheaders_seq
 span = Span("Next subheader")
+span.style = Style()
+span.style['color'] = "#ff0000"
+span.style['background-color'] = "#0fb099"
+
 header += span
 document += header
 

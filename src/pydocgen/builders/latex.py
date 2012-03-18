@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-import pydocgen.model
+﻿# -*- coding: utf-8 -*-
 
 from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, AlignmentProperty,\
                             FontEffectProperty, Span, PageOrientationProperty
@@ -57,18 +56,39 @@ def _append_content_code(result, element):
             
         return result 
 
+def _generate_rgb_from_hex(color):
+    result = {}
+    result['r'] = str(_hex2dec(color[1]+color[2]))
+    result['g'] = str(_hex2dec(color[3]+color[4]))
+    result['b'] = str(_hex2dec(color[5]+color[6]))
 
+    return result
+
+def _hex2dec(s):
+    return int(s, 16)   
+
+    
+def _compare_rgb_colors(color1, color2):
+    if color1['r'] != color2['r']:
+        return False
+    if color1['g'] != color2['g']:
+        return False
+    if color1['b'] != color2['b']:
+        return False
+    return True
 # main builder
 
 class LatexBuilder(Builder):
     def __init__(self):
         super(LatexBuilder, self).__init__()
+        self.__float_generator = _FloatGenerator(self)
         self.__span_builder = _LatexSpanBuilder()
         self.__paragraph_builder = _LatexParagraphBuilder()
         self.__header_builder = _LatexHeaderBuilder()
-        self.__image_builder = _LatexImageBuilder(self)
+        self.__image_builder = _LatexImageBuilder(self.__float_generator)
         self.__list_builder = _LatexListBuilder()
-        self.__document_builder = _LatexDocumentBuilder(self.__image_builder)
+        self.__document_builder = _LatexDocumentBuilder(self.__float_generator)
+        
     
     def generate_document(self, document):
         self.__list_builder.reset()
@@ -211,7 +231,7 @@ class _LatexParagraphBuilder(object):
         margins_before = ""
         margins_after = ""
         colorbox = ""
-        margins_changed = False;
+        counter = 0
         
         if paragraph.effective_style.has_key('alignment'):
             alignment = paragraph.effective_style['alignment']
@@ -225,41 +245,7 @@ class _LatexParagraphBuilder(object):
             margin_right = paragraph.effective_style['margin-right']
         if paragraph.effective_style.has_key('text-indent'):
             text_indent = paragraph.effective_style['text-indent']
-        if margin_top != 0:
-            margins_before += "\\vspace*{%.2fpt}" % margin_top
-        if margin_left != 0:
-            margins_changed = True
-            begin_margin += r"\begingroup"
-            begin_margin += "\n"
-            begin_margin += r"\leftskip "
-            begin_margin += "%.2fpt "  % margin_left
-            end_margin += r"\par"
-            end_margin += "\n"
-            end_margin += r"\endgroup"
-            end_margin += "\n"
-        if margin_right != 0:
-            if  not margins_changed:
-                begin_margin += r"\begingroup"
-                begin_margin += "\n"
-                end_margin += r"\par"
-                end_margin += "\n"
-                end_margin += r"\endgroup"
-                end_margin += "\n"
-                margins_changed = True
-            begin_margin += r"\rightskip "
-            begin_margin += " %.2fpt "  % margin_right
-        if margin_bottom != 0:
-            margins_after += "\\vspace*{%.2fpt}" % margin_bottom
             
-        if span.effective_style.has_key('background-color'):
-            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
-            counter += 1
-            result += r"{\definecolor{spancolor}{RGB}{"
-            result += background_color['r'] + ", "
-            result += background_color['g'] + ", "
-            result += background_color['b'] + "} "
-            result += r"\sethlcolor{spancolor}\texthl{"
-                
         if alignment != "":
             if alignment == AlignmentProperty.LEFT:
                 justification_before += r"\begin{flushleft}" + "\n "
@@ -272,27 +258,76 @@ class _LatexParagraphBuilder(object):
                 justification_after += "\n" + r"\end{center}" + "\n"
         if  self.__last_indent != text_indent:
             result += r"\setlength{\parindent}{" + str(text_indent) + r"pt}"
-            self.__last_indent = text_indent
+            self.__last_indent = text_indent  
+            
+        if margin_top != 0:
+            margins_before += "\\vspace*{%.2fpt}" % margin_top
+        margin_sides = margin_left + margin_right
+        begin_margin += r"{"
+        if margin_sides != 0:
+            begin_margin += r"\addtolength{\textwidth}{-"
+            begin_margin += "%.2fpt} "  % margin_sides
+        begin_margin += r"\begingroup "
+            
+        end_margin += r"\par"
+        end_margin += "\n"
+        end_margin += r"\endgroup} "
+        if margin_left != 0:
+            begin_margin += "\leftskip "
+            begin_margin += "%.2fpt " % margin_left
+        begin_margin += r" \noindent " 
+        if margin_bottom != 0:
+            margins_after += "\\vspace*{%.2fpt}" % margin_bottom
+            
+        #if paragraph.effective_style.has_key('background-color'):
+        #    background_color = _generate_rgb_from_hex(paragraph.effective_style['background-color'])
+        #    counter += 1
+        #    colorbox += r"{\colorbox [RGB] {"
+        #    colorbox += background_color['r'] + ", "
+        #    colorbox += background_color['g'] + ", "
+        #    colorbox += background_color['b'] + "} "
+                      
+
         
-        result += justification_before
+
         result += margins_before
         result += begin_margin
         result += colorbox
+        result += r"{\parbox {\textwidth}"
+        result += r"{"
+        result += justification_before
         for element in paragraph.content:
             result += element.generate()
+        result += justification_after
+        result += r"}"
+        result += r"}"
+        for _ in xrange(0, counter):
+            result += r"}"   
         result += end_margin
         result += margins_after
-        result += justification_after
         
         
         return result
+        
 
 
 class _LatexSpanBuilder(object):
+    __default_color = {'r': '255', 'g': '255', 'b': '255'}
     def generate(self, span):
         result = ""
+        highlight = ""
         counter = 0;
         font_changed = False
+        if span.effective_style.has_key('background-color'):
+            background_color = _generate_rgb_from_hex(span.effective_style['background-color'])
+            if not _compare_rgb_colors(background_color, self.__default_color):            
+                counter += 2
+                result += r"{\protect\definecolor {spancolor}{RGB}{"
+                result += background_color['r'] + ", "
+                result += background_color['g'] + ", "
+                result += background_color['b'] + "} "
+                result += r"\protect\sethlcolor {spancolor}"               
+                highlight += r"\texthl{"
         if span.effective_style.has_key('font-name'):
             font_name = span.effective_style['font-name']
             font_changed = True
@@ -310,17 +345,8 @@ class _LatexSpanBuilder(object):
             font_changed = True
         if font_changed:
             result += r"\selectfont "
-        if span.effective_style.has_key('background-color'):
-            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
-            counter += 1
-			result += r"{\definecolor{spancolor}{RGB}{"
-			result += background_color['r'] + ", "
-            result += background_color['g'] + ", "
-            result += background_color['b'] + "} "
-			result += r"\sethlcolor{spancolor}\texthl{"
-            
         if span.effective_style.has_key('color'):
-            font_color = self.__generate_rgb_from_hex(span.effective_style['color']) 
+            font_color = _generate_rgb_from_hex(span.effective_style['color']) 
             counter += 1
             result += r"\color [RGB] {";
             result += font_color['r'] + r", "
@@ -337,22 +363,12 @@ class _LatexSpanBuilder(object):
             if FontEffectProperty.UNDERLINE in font_effects:
                 counter += 1
                 result += r"\underline{"
-
-
+        
+        result += highlight
         result += span.text
         for _ in xrange(0, counter):
             result += r"}"
         return result
-        
-    def __generate_rgb_from_hex(self, color):
-        result = {}
-        result['r'] = str(self.__hex2dec(color[1]+color[2]))
-        result['g'] = str(self.__hex2dec(color[3]+color[4]))
-        result['b'] = str(self.__hex2dec(color[5]+color[6]))
-        return result
-
-    def __hex2dec(self, s):
-        return int(s, 16)
        
     def __get_leading(self, number):
         number = int(number *1.2)
@@ -366,16 +382,26 @@ class _LatexSpanBuilder(object):
         if font_name == "Computer Modern":
             return r"cmr"
 
-
-class _LatexImageBuilder(object):
-    def __init__(self, main_builder):
-        self.__format_number = 0
-        self.main_builder = main_builder
+       
+    def __get_leading(self, number):
+        number = int(number *1.2)
+        return str(number)
     
-    def generate(self, image):
-        result = ""
+    def __get_font_family(self, font_name):
+        if font_name ==  "Times New Roman":
+            return r"ptm"
+        if font_name == "Arial":
+            return r"phv"
+        if font_name == "Computer Modern":
+            return r"cmr"
+
+class _FloatGenerator(object):
+    def __init__(self, main_builder):
+        self.__format_numbers = {}
+        self.main_builder = main_builder
         
-        parameters = {}
+    def generate_float(self, element, float_name, number_command, inner_part):
+        result = ""
         
         pre = ""
         post = ""
@@ -387,26 +413,18 @@ class _LatexImageBuilder(object):
         captionsetup_parameters = {}
         captionsetup = ""
         number_declaration = ""
-        
-        # handling the "width" style 
-        if image.is_style_element_set("width"):
-            parameters['width'] = "%.2fmm" % image.effective_style['width']
             
-        # handling the "height" style 
-        if image.is_style_element_set("height"):
-            parameters['height'] = "%.2fmm" % image.effective_style['height']
-        
         # handling the "alignment" style 
-        if image.is_style_element_set("alignment"):
+        if element.is_style_element_set("alignment"):
             align_env = None 
-            if image.effective_style['alignment'] == AlignmentProperty.LEFT\
-                    or image.effective_style['alignment'] == AlignmentProperty.JUSTIFY:
+            if element.effective_style['alignment'] == AlignmentProperty.LEFT\
+                    or element.effective_style['alignment'] == AlignmentProperty.JUSTIFY:
                 align_env = "flushleft"
                 captionsetup_parameters['justification'] = "raggedright"
-            elif image.effective_style['alignment'] == AlignmentProperty.CENTER:
+            elif element.effective_style['alignment'] == AlignmentProperty.CENTER:
                 align_env = "center"
                 captionsetup_parameters['justification'] = "centering"
-            elif image.effective_style['alignment'] == AlignmentProperty.RIGHT:
+            elif element.effective_style['alignment'] == AlignmentProperty.RIGHT:
                 align_env = "flushright"
                 captionsetup_parameters['justification'] = "raggedleft"
             
@@ -418,26 +436,26 @@ class _LatexImageBuilder(object):
                 captionsetup_parameters['singlelinecheck'] = "false"
         
         # handling the margins
-        if image.is_style_element_set("margin-top")\
-                    or image.is_style_element_set("margin-bottom")\
-                    or image.is_style_element_set("margin-left")\
-                    or image.is_style_element_set("margin-right"):
+        if element.is_style_element_set("margin-top")\
+                    or element.is_style_element_set("margin-bottom")\
+                    or element.is_style_element_set("margin-left")\
+                    or element.is_style_element_set("margin-right"):
             margin_top = 0
             margin_bottom = 0
             margin_left = 0
             margin_right = 0
             
-            if image.is_style_element_set("margin-top"):
-                margin_top = image.effective_style['margin-top']
+            if element.is_style_element_set("margin-top"):
+                margin_top = element.effective_style['margin-top']
                 
-            if image.is_style_element_set("margin-bottom"):
-                margin_bottom = image.effective_style['margin-bottom']
+            if element.is_style_element_set("margin-bottom"):
+                margin_bottom = element.effective_style['margin-bottom']
                 
-            if image.is_style_element_set("margin-left"):
-                margin_left = image.effective_style['margin-left']
+            if element.is_style_element_set("margin-left"):
+                margin_left = element.effective_style['margin-left']
                 
-            if image.is_style_element_set("margin-right"):
-                margin_right = image.effective_style['margin-right']
+            if element.is_style_element_set("margin-right"):
+                margin_right = element.effective_style['margin-right']
                 
             if margin_top != 0:
                 margins_before += "\\vspace*{%.2fpt}" % margin_top
@@ -449,7 +467,7 @@ class _LatexImageBuilder(object):
                 margins_after += "\\vspace*{%.2fpt}" % margin_bottom
                 
             if (margin_left != 0) or (margin_right != 0):
-                captionsetup_parameters['margin'] = "{%.2fpt,%.2fpt}" %\
+                captionsetup_parameters['margin'] = "{%.2fpt,%.2fpt}" % \
                                 (margin_left, margin_right)
                 captionsetup_parameters['oneside'] = None
             
@@ -461,61 +479,62 @@ class _LatexImageBuilder(object):
             margins_after = "\n" + ("\t" * tab_indent_level) + margins_after
         
         # putting the caption
-        if len(image.caption) > 0:
+        if len(element.caption) > 0:
             caption_content = ""
-            for span in image.caption:
+            for span in element.caption:
                 caption_content += span.generate()
                 
-            caption = "\n%s\caption{%s}" % ("\t" * tab_indent_level,\
+            caption = "\n%s\caption{%s}" % ("\t" * tab_indent_level, \
                                                          caption_content)
-            
-                    
+
             # handling the sequence
-            if image.sequence is not None:
-                if image.is_style_element_set("seq-number-sep"):
-                    number = image.sequence.to_str(image.\
-                                                effective_style['seq-number-sep'])
+            if element.sequence is not None:
+                if element.is_style_element_set("seq-number-sep"):
+                    number = element.sequence.to_str(element.\
+                                            effective_style['seq-number-sep'])
                 else:
-                    number = str(image.sequence)
+                    number = str(element.sequence)
                     
-                number_declaration = "\n%s\\renewcommand{\\thefigure}{%s}" %\
-                            ("\t" * (tab_indent_level - 1), number)
+                number_declaration = "\n%s\\renewcommand{\\%s}{%s}" % \
+                            ("\t" * (tab_indent_level - 1), number_command, \
+                             number)
                             
-            if image.is_style_element_set("caption-title"):
-                captionsetup_parameters['format'] = image.caption_format_name
+            if element.is_style_element_set("caption-title"):
+                captionsetup_parameters['format'] = element.caption_format_name
                 
-            captionsetup = "\n%s\\captionsetup%s" %\
-                    (("\t" * (tab_indent_level - 1)),\
+            captionsetup = "\n%s\\captionsetup%s" % \
+                    (("\t" * (tab_indent_level - 1)), \
                     _generate_parameters_list(captionsetup_parameters, False))
         
         # advancing the sequence, if defined
-        if image.sequence is not None:
-            image.sequence.advance()
+        if element.sequence is not None:
+            element.sequence.advance()
             
         result += "\n\n"
-        result += "\\begin{figure}[ht!]"
+        result += "\\begin{%s}[ht!]" % float_name
         result += number_declaration
         result += captionsetup
         result += pre
         result += "\n" + ("\t" * tab_indent_level)
         result += margins_before
-        result += "\\includegraphics%s{%s}" %\
-                    (_generate_parameters_list(parameters),
-                     image.path)
+        result += inner_part
         result += hspace_after
         result += caption 
         result += margins_after
         result += post
-        result += "\n\\end{figure}"
+        result += "\n\\end{%s}" % float_name
         
         return result
-    
-    def __generate_new_format_name(self):
-        result =  "img%06d" % self.__format_number
-        self.__format_number += 1
+        
+    def __generate_new_format_name(self, format_prefix):
+        if format_prefix not in self.__format_numbers:
+            self.__format_numbers[format_prefix] = 0
+        
+        result = "%s%06d" % (format_prefix, self.__format_numbers[format_prefix])
+        self.__format_numbers[format_prefix] += 1
         return result
     
-    def __generate_caption_format(self, caption_title_style):
+    def __generate_caption_format(self, caption_title_style, number_command):
         result = ""
         caption_title = caption_title_style
         if isinstance(caption_title, str):
@@ -530,7 +549,7 @@ class _LatexImageBuilder(object):
             span.text = span.text.replace(" ", "\\ ")
             if not thefigure_inserted:
                 try:
-                    span.text = span.text % "\\thefigure "
+                    span.text = span.text % "\\%s " % number_command
                     thefigure_inserted = True
                 except TypeError:
                     pass
@@ -541,7 +560,8 @@ class _LatexImageBuilder(object):
             
         return result
     
-    def __generate_caption_formats_dict(self, document):
+    def __generate_caption_formats_dict(self, document, number_command, \
+                                         format_prefix, dest_type):
         result = {}
         stack = []
         visited = {}
@@ -562,10 +582,11 @@ class _LatexImageBuilder(object):
                 stack.append(first_child_not_visited)
                 curr_node = first_child_not_visited
             else:
-                if (isinstance(curr_node, Image) and\
+                if (isinstance(curr_node, dest_type) and\
                             (curr_node.is_style_element_set("caption-title"))):
                     formats[curr_node] = self.__generate_caption_format(\
-                                curr_node.effective_style['caption-title'])
+                                curr_node.effective_style['caption-title'], \
+                                number_command)
                 stack.pop()
                 if (len(stack) > 0):
                     curr_node = stack[-1]
@@ -575,7 +596,8 @@ class _LatexImageBuilder(object):
         for image in formats.keys():
             caption_format = formats[image]
             if not format_names.has_key(caption_format):
-                image.caption_format_name = self.__generate_new_format_name()
+                image.caption_format_name = self.__generate_new_format_name(\
+                                                                format_prefix)
                 format_names[caption_format] = image.caption_format_name
             else:
                 image.caption_format_name = format_names[caption_format]
@@ -585,9 +607,11 @@ class _LatexImageBuilder(object):
                     
         return result
     
-    def generate_custom_format_declarations(self, document):
+    def generate_custom_format_declarations(self, document, number_command, \
+                                             caption_prefix, dest_type):
         result = ""
-        formats_dict = self.__generate_caption_formats_dict(document)
+        formats_dict = self.__generate_caption_formats_dict(document,
+                                    number_command, caption_prefix, dest_type)
         
         if len(formats_dict) > 0:
             result += "\n"
@@ -596,11 +620,35 @@ class _LatexImageBuilder(object):
             result += "\n\\DeclareCaptionFormat{%s}{%s}" % format_kv
         
         return result
+
+class _LatexImageBuilder(object):
+    def __init__(self, float_generator):
+        self.__float_generator = float_generator
+    
+    def generate(self, image):
+        result = ""
         
+        parameters = {}
+        
+        # handling the "width" style 
+        if image.is_style_element_set("width"):
+            parameters['width'] = "%.2fmm" % image.effective_style['width']
+            
+        # handling the "height" style 
+        if image.is_style_element_set("height"):
+            parameters['height'] = "%.2fmm" % image.effective_style['height']
+       
+        inner_part = "\\includegraphics%s{%s}" % \
+                    (_generate_parameters_list(parameters),
+                     image.path)
+        result += self.__float_generator.generate_float(image, "figure",
+                                                        "thefigure", inner_part)
+        
+        return result    
 
 class _LatexDocumentBuilder(object):
-    def __init__(self, image_builder):
-        self.__image_builder = image_builder
+    def __init__(self, float_generator):
+        self.__float_generator = float_generator
         
     def __generate_package_reference(self, package_name, parameter_dict = {}):
         parameters = _generate_parameters_list(parameter_dict)
@@ -743,9 +791,10 @@ class _LatexDocumentBuilder(object):
         result += self.__generate_enumitem_package_reference(document)
         result += self.__generate_graphicx_package_reference(document)
         result += "\n\\usepackage{color}"
+        result += "\n\\usepackage{soul}"
         
-        result += self.__image_builder.generate_custom_format_declarations(\
-                                                                    document)
+        result += self.__float_generator.generate_custom_format_declarations(\
+                            document, "thefigure", "img", Image)
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
         
@@ -762,19 +811,6 @@ class _LatexDocumentBuilder(object):
         result += "\n\n\end{document}"
         
         return result
-    
-    #def generate_paragraph(self, paragraph):
-    #    result = "\n\n"
-        
-    #    result = self.__append_content_code(result, paragraph)
-        
-    #    return result
-    
-    #def generate_span(self, span):
-    #    result = ""
-    #    result += span.text
-        
-    #    return result
     
     def generate_header(self, header):
         result = "\n\n\section{"
@@ -957,4 +993,4 @@ class _LatexListBuilder(object):
                             margin_correction)
         
         return result
-    
+
