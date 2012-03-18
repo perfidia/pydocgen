@@ -1,0 +1,389 @@
+===============================================
+LaTeX Builder Documentation
+===============================================
+
+Supported document properties
+===============================================
+
+-----------------------------------------------
+language
+-----------------------------------------------
+Language of the document. The property affects hyphenation rules used in the output document.
+
+**Type:** str
+**Supported values:** "pl-PL", "en-US"
+
+
+Supported style properties
+==============================================
+
+----------------------------------------------
+*Document* style properties
+----------------------------------------------
+
+page-numbering
+----------------------------------------------
+Visibility of the page numbers.
+
+**Type:** bool
+
+page-size
+----------------------------------------------
+Size of the page. The first value is width, the second is height.
+
+| **Type:** (int,int) tuple
+| **Units:** mm
+
+margin-top
+----------------------------------------------
+Top margin of the page.
+
+| **Type:** int
+| **Units:** mm
+
+margin-bottom
+----------------------------------------------
+Bottom margin of the page.
+
+| **Type:** int
+| **Units:** mm
+
+margin-left
+----------------------------------------------
+Left margin of the page.
+
+| **Type:** int
+| **Units:** mm
+
+margin-right
+----------------------------------------------
+Right margin of the page.
+
+| **Type:** int
+| **Units:** mm
+
+font-size
+----------------------------------------------
+Default font size for the document.
+
+| **Type:** int
+| **Units:** pt
+
+font-name
+----------------------------------------------
+Name of the document default font.
+
+| **Type:** str
+| **Supported values:** "Arial", "Computer Modern", "Courier", "Times New Roman"
+
+----------------------------------------------
+*Paragraph* style properties
+----------------------------------------------
+
+alignment
+----------------------------------------------
+Alignment of the paragraph text.
+
+| **Type:** AlignmentProperty
+| **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT, AlignmentProperty.JUSTIFY
+
+text-indent
+----------------------------------------------
+Indent of first line of the paragraph.
+
+| **Type:** int
+| **Units:** pt
+
+margin-top
+----------------------------------------------
+Space above the paragraph.
+
+| **Type:** int
+| **Units:** pt
+
+margin-bottom
+----------------------------------------------
+Space below the paragraph.
+
+| **Type:** int
+| **Units:** pt
+
+margin-left
+----------------------------------------------
+Space on the left side of the paragraph.
+
+| **Type:** int
+| **Units:** pt
+
+margin-right
+----------------------------------------------
+Space on the right side of the paragraph.
+
+| **Type:** int
+| **Units:** pt
+
+----------------------------------------------
+*Span* style properties
+----------------------------------------------
+
+font-name
+----------------------------------------------
+Name of the span's font.
+
+| **Type:** str
+| **Supported values:** "Arial", "Computer Modern", "Courier", "Times New Roman"
+
+font-size
+----------------------------------------------
+Size of the span's font.
+
+| **Type:** int
+| **Units:** pt
+
+font-effect
+----------------------------------------------
+An effect associated with the span's font. Effect consists of one or more primitive effects: FontEffectProperty.BOLD, FontEffectProperty.ITALIC, FontEffectProperty.UNDERLINE.
+
+| **Type:** FontEffectProperty
+
+color
+----------------------------------------------
+Color of the span's font. The value should be hex color code, e.g. "#c0c0c0".
+
+| **Type:** str
+
+background-color
+----------------------------------------------
+Color of the span's highlight. The value should be hex color code, e.g. "#c0c0c0".
+
+| **Type:** str
+
+----------------------------------------------
+*Header* style properties
+----------------------------------------------
+
+seq-number-sep
+----------------------------------------------
+Separator of the subsection number. For example, if the separator is ".", the number could look like this: "2.1.1". If the separator is "> ", the number will be like "2> 1> 1". 
+
+| **Type:** str
+
+header-numbered
+----------------------------------------------
+Visibility of the section number. When the number is not visible, the value of the sequence is not incremented.
+
+| **Type:** bool
+
+margin-top
+----------------------------------------------
+Space above the header.
+
+| **Type:** int
+| **Units:** pt
+
+margin-bottom
+----------------------------------------------
+Space below the header.
+
+| **Type:** int
+| **Units:** pt
+
+----------------------------------------------
+*List* style properties
+----------------------------------------------
+
+list-style
+----------------------------------------------
+Style of the list.
+
+| **Type:** ListStyleProperty
+| **Supported values:** ListStyleProperty.BULLET, ListStyleProperty.NUMBER
+
+item-spacing
+----------------------------------------------
+Space between the list items.
+
+| **Type:** int
+| **Units:** pt
+
+item-indent
+----------------------------------------------
+Indent of the list items.
+
+| **Type:** int
+| **Units:** pt
+
+margin-top
+----------------------------------------------
+Space above the list.
+
+| **Type:** int
+| **Units:** pt
+
+margin-bottom
+----------------------------------------------
+Space below the list.
+
+| **Type:** int
+| **Units:** pt
+
+margin-left
+----------------------------------------------
+Space on the left side of the list.
+
+| **Type:** int
+| **Units:** pt
+
+margin-right
+----------------------------------------------
+Space on the right side of the list.
+
+| **Type:** int
+| **Units:** pt
+
+bullet-char
+----------------------------------------------
+Character used as the enumeration symbol. The value can be either BulletCharProperty or string containing custom character or sequence of characters.
+
+| **Type:** BulletCharProperty, str
+| **Supported values:** BulletCharProperty.BULLET, BulletCharProperty.CDOT, BulletCharProperty.DIAMOND, BulletCharProperty.ASTERISK, BulletCharProperty.CIRCLE, BulletCharProperty.MEDIUM_HYPHEN, BulletCharProperty.LONG_HYPHEN, (string)
+
+----------------------------------------------
+*Image* style properties
+----------------------------------------------
+
+width
+----------------------------------------------
+Width of the image. If only one of the image dimensions is specified (width or height), the image is scaled to preserve aspect ratio.
+
+| **Type:** float
+| **Units:** mm
+
+height
+----------------------------------------------
+Height of the image. If only one of the image dimensions is specified (width or height), the image is scaled to preserve aspect ratio.
+
+| **Type:** float
+| **Units:** mm
+
+margin-top
+----------------------------------------------
+Space above the image.
+
+| **Type:** int
+| **Units:** pt
+
+margin-bottom
+----------------------------------------------
+Space below the image.
+
+| **Type:** int
+| **Units:** pt
+
+margin-left
+----------------------------------------------
+Space on the left side of the image.
+
+| **Type:** int
+| **Units:** pt
+
+margin-right
+----------------------------------------------
+Space on the right side of the image.
+
+| **Type:** int
+| **Units:** pt
+
+alignment
+----------------------------------------------
+Alignment of image on the page.
+
+| **Type:** AlignmentProperty
+| **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT
+
+seq-number-sep
+----------------------------------------------
+Separator of the multilevel image number. For example, if the separator is ".", the number could look like this: "2.1.1". If the separator is "> ", the number will be like "2> 1> 1". 
+
+| **Type:** str
+
+caption-title
+----------------------------------------------
+Title of the image caption. "%s" may be used as an image number placeholder, e.g. "Picture %s: "
+
+| **Type:** str
+
+----------------------------------------------
+*Table* style properties
+----------------------------------------------
+
+margin-top
+----------------------------------------------
+Space above the table.
+
+| **Type:** int
+| **Units:** pt
+
+margin-bottom
+----------------------------------------------
+Space below the table.
+
+| **Type:** int
+| **Units:** pt
+
+margin-left
+----------------------------------------------
+Space on the left side of the table.
+
+| **Type:** int
+| **Units:** pt
+
+margin-right
+----------------------------------------------
+Space on the right side of the table.
+
+| **Type:** int
+| **Units:** pt
+
+alignment
+----------------------------------------------
+Alignment of table on the page.
+
+| **Type:** AlignmentProperty
+| **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT
+
+border-width
+----------------------------------------------
+Width of the table rules.
+
+| **Type:** int
+| **Units:** pt
+
+seq-number-sep
+----------------------------------------------
+Separator of the multilevel image number. For example, if the separator is ".", the number could look like this: "2.1.1". If the separator is "> ", the number will be like "2> 1> 1". 
+
+| **Type:** str
+
+caption-title
+----------------------------------------------
+Title of the image caption. "%s" may be used as a table number placeholder, e.g. "Table %s. "
+
+| **Type:** str
+
+----------------------------------------------
+*TableCell* style properties
+----------------------------------------------
+
+alignment
+----------------------------------------------
+Alignment of the content within the cell.
+
+| **Type:** AlignmentProperty
+| **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT
+
+background-color
+----------------------------------------------
+Color of the cell background. The value should be hex color code, e.g. "#c0c0c0".
+
+| **Type:** str
