@@ -46,9 +46,17 @@ class HtmlBuilder(Builder):
                     content += element.generate()
         
         seq_number = ''
-        if header.sequence is not None and header.is_style_element_set('header-numbered') and header.effective_style['header-numbered']:
-            seq_number = str(header.sequence)
-            header.sequence.advance()
+        if header.sequence is not None:
+            if header.is_style_element_set('header-numbered'):
+                if header.effective_style['header-numbered']:
+                    if element.is_style_element_set("seq-number-sep"):
+                        seq_number = element.sequence.to_str(header.\
+                                            effective_style['seq-number-sep'])
+                    else:
+                        seq_number = str(header.sequence)
+                    header.sequence.advance()
+            else:
+                header.sequence.advance()
         
         return '\n\n<h1 ' + self.__generate_style_from_dict(header) + '>' + seq_number + " " + content + '</h1>\n\n' 
     

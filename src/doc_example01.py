@@ -23,7 +23,8 @@ headers_seq = Sequence()
 
 #sequence starting with number 96, being a child of headers_seq
 subheaders_seq = Sequence(96, headers_seq)
-
+subsubheaders_seq = Sequence(7, subheaders_seq)
+par_seq = Sequence(1, subsubheaders_seq)
 
 #header 1
 span = Span("First header")
@@ -146,7 +147,26 @@ span = Span("Subheader")
 header += span
 document += header
 
+#subheader 3.96.7
+header = Header()
+header.sequence = subsubheaders_seq
+span = Span("Subsubheader")
+header += span
+document += header
 
+#subheader 3.96.8
+header = Header()
+header.sequence = subsubheaders_seq
+span = Span("Subsubheader")
+header += span
+document += header
+
+#subheader 3.96.8.1
+header = Header()
+header.sequence = par_seq
+span = Span("Subsubheader")
+header += span
+document += header
 
 #subheader 3.97
 header = Header()
