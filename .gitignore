@@ -2,3 +2,6 @@
 *.htm
 *.lex
 *.css
+.project
+.pydevproject
+.settings/*
