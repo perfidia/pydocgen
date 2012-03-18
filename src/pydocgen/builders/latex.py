@@ -279,17 +279,14 @@ class _LatexParagraphBuilder(object):
         if margin_bottom != 0:
             margins_after += "\\vspace*{%.2fpt}" % margin_bottom
             
-        #if paragraph.effective_style.has_key('background-color'):
-        #    background_color = _generate_rgb_from_hex(paragraph.effective_style['background-color'])
-        #    counter += 1
-        #    colorbox += r"{\colorbox [RGB] {"
-        #    colorbox += background_color['r'] + ", "
-        #    colorbox += background_color['g'] + ", "
-        #    colorbox += background_color['b'] + "} "
+        if paragraph.effective_style.has_key('background-color'):
+            background_color = _generate_rgb_from_hex(paragraph.effective_style['background-color'])
+            counter += 1
+            colorbox += r"{\colorbox [RGB] {"
+            colorbox += background_color['r'] + ", "
+            colorbox += background_color['g'] + ", "
+            colorbox += background_color['b'] + "} "
                       
-
-        
-
         result += margins_before
         result += begin_margin
         result += colorbox
@@ -312,7 +309,6 @@ class _LatexParagraphBuilder(object):
 
 
 class _LatexSpanBuilder(object):
-    __default_color = {'r': '255', 'g': '255', 'b': '255'}
     def generate(self, span):
         result = ""
         highlight = ""
@@ -320,14 +316,13 @@ class _LatexSpanBuilder(object):
         font_changed = False
         if span.effective_style.has_key('background-color'):
             background_color = _generate_rgb_from_hex(span.effective_style['background-color'])
-            if not _compare_rgb_colors(background_color, self.__default_color):            
-                counter += 2
-                result += r"{\protect\definecolor {spancolor}{RGB}{"
-                result += background_color['r'] + ", "
-                result += background_color['g'] + ", "
-                result += background_color['b'] + "} "
-                result += r"\protect\sethlcolor {spancolor}"               
-                highlight += r"\texthl{"
+            counter += 2
+            result += r"{\protect\definecolor {spancolor}{RGB}{"
+            result += background_color['r'] + ", "
+            result += background_color['g'] + ", "
+            result += background_color['b'] + "} "
+            result += r"\protect\sethlcolor {spancolor}"
+            highlight += r"\texthl{"
         if span.effective_style.has_key('font-name'):
             font_name = span.effective_style['font-name']
             font_changed = True
@@ -341,7 +336,7 @@ class _LatexSpanBuilder(object):
             if not font_changed:
                 result += r"{"
                 counter += 1
-            result += r"\fontsize {" + str(font_size) + "}{" + self.__get_leading(font_size) + "}"    
+            result += r"\fontsize {" + str(font_size) + "}{" + self.__get_leading(font_size) + "}"
             font_changed = True
         if font_changed:
             result += r"\selectfont "

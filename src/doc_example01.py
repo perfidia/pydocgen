@@ -85,39 +85,30 @@ number_list = List()
 number_list.style = Style()
 number_list.style['list-style'] = ListStyleProperty.NUMBER
 span = Span("inside1")
-paragraph = Paragraph()
-paragraph += span
-number_list += paragraph
+number_list += span
 
 span = Span("inside2")
-paragraph = Paragraph()
-paragraph += span
-number_list += paragraph
+number_list += span
 
 
 lst = List()
 lst.style = Style()
 lst.style['list-style'] = ListStyleProperty.BULLET
 span = Span("item1")
-paragraph = Paragraph()
-paragraph += span
-lst += paragraph
+lst += span
 
 span = Span("item2")
-paragraph = Paragraph()
-paragraph += span
-lst += paragraph
+
+lst += span
 
 span = Span("item3")
-paragraph = Paragraph()
-paragraph += span
-paragraph += number_list
-lst += paragraph
+lst += span
+lst += number_list
+
 
 span = Span("item4")
-paragraph = Paragraph()
-paragraph += span
-lst += paragraph
+
+lst += span
 
 
 document += lst
@@ -177,6 +168,20 @@ paragraph.style['margin-top'] = 30
 paragraph.style['margin-bottom'] = 30
 paragraph.style['margin-left'] =  50
 paragraph.style['margin-right'] = 70
+paragraph += span
+document += paragraph
+
+
+#paragraph right alignment
+span = Span("Text Text text 1234567890 asdg kjjsnfb ekrhgrmfg tr grt gtrw e gtwtr  ergt")
+span.style = Style()
+span.style['font-name'] = "Times New Roman"
+span.style['font-size'] = 11
+span.style['color'] = "#ffff00"
+paragraph = Paragraph()
+paragraph.style = Style()
+paragraph.style['alignment'] = AlignmentProperty.RIGHT
+paragraph.style['background-color'] = "#ff0000"
 paragraph += span
 document += paragraph
 
