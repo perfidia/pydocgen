@@ -75,7 +75,7 @@ image = Image("ppwi.png")
 image.style['alignment'] = AlignmentProperty.CENTER
 image.style['width'] = 66
 image.caption = "To jest rysunek na środku"
-document += image
+#document += image
 
 #paragraph centered with margins set
 span = Span("Aliquam vehicula sem ut pede. Cras purus lectus, egestas eu, vehicula at, imperdiet sed, nibh. Morbi consectetuer luctus felis. Donec vitae nisi. Aliquam tincidunt feugiat elit. Duis sed elit ut turpis ullamcorper feugiat. Praesent pretium, mauris sed fermentum hendrerit, nulla lorem iaculis magna, pulvinar scelerisque urna tellus a justo. Suspendisse pulvinar massa in metus. Duis quis quam. Proin justo. Curabitur ac sapien. Nam erat. Praesent ut quam.")
@@ -197,7 +197,7 @@ image = Image("ppwi.png")
 image.style['alignment'] = AlignmentProperty.RIGHT
 image.style['width'] = 66
 image.caption = "To jest rysunek"
-document += image
+#document += image
 
 
 table = Table(5, 2)
@@ -265,4 +265,4 @@ if __name__ == '__main__':
     document.generate_file("doc_example01.tex")
     
     document.builder = HtmlBuilder()
-    #document.generate_file("doc_example01.htm")
+    document.generate_file("doc_example01.htm")

@@ -87,6 +87,9 @@ def _compare_rgb_colors(color1, color2):
 # main builder
 
 class LatexBuilder(Builder):
+    """A class whish is a general builder responsible for creating and managing\
+    all component builders.
+    """
     def __init__(self):
         super(LatexBuilder, self).__init__()
         self.__float_generator = _FloatGenerator(self)
@@ -133,6 +136,8 @@ class LatexBuilder(Builder):
 #helper builders
 
 class _LatexHeaderBuilder(object):
+    """A class responsible for creating and handling headers.
+    """
     def __top_space(self, header):
         if header.is_style_element_set("margin-top"):
             return "\\vspace{%dpt}" % header.effective_style['margin-top']
@@ -254,6 +259,8 @@ class _LatexHeaderBuilder(object):
     
 
 class _LatexParagraphBuilder(object):
+    """A class responsible for creating and handling paragraphs.
+    """
     def generate(self, paragraph):
         result = "\n\n"
         alignment = ""
@@ -355,6 +362,8 @@ class _LatexParagraphBuilder(object):
 
 
 class _LatexSpanBuilder(object):
+    """A class responsible for creating and handling spans.
+    """
     def generate(self, span):
         result = ""
         highlight = ""
@@ -434,6 +443,8 @@ class _LatexSpanBuilder(object):
             return r"pcr"
 
 class _FloatGenerator(object):
+    """A class responsible for generating code for captions and float environments
+    """
     def __init__(self, main_builder):
         self.__format_numbers = {}
         self.main_builder = main_builder
@@ -681,6 +692,8 @@ class _FloatGenerator(object):
         return result
 
 class _LatexImageBuilder(object):
+    """A class repsponsible for generating code connected with image.
+    """
     def __init__(self, float_generator):
         self.__float_generator = float_generator
     
@@ -706,6 +719,8 @@ class _LatexImageBuilder(object):
         return result
     
 class _LatexTableBuilder(object):
+    """A class repsponsible for generating code connected with table.
+    """
     def __init__(self, float_generator):
         self.__float_generator = float_generator
     
@@ -818,6 +833,8 @@ class _LatexTableBuilder(object):
         return result    
 
 class _LatexDocumentBuilder(object):
+    """A class responsible for generating a whole latex document.
+    """
     def __init__(self, float_generator):
         self.__float_generator = float_generator
         
@@ -1024,6 +1041,8 @@ class _LatexDocumentBuilder(object):
 
 
 class _LatexListBuilder(object):
+    """A class repsponsible for generating code connected with lists.
+    """
     def __init__(self):
         self.reset()
 
