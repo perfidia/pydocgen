@@ -62,9 +62,14 @@ def _hex2dec(s):
 
 def _generate_rgb_from_hex(color):
     result = {}
-    result['r'] = str(_hex2dec(color[1] + color[2]))
-    result['g'] = str(_hex2dec(color[3] + color[4]))
-    result['b'] = str(_hex2dec(color[5] + color[6]))
+    if (color != ""):
+        result['r'] = str(_hex2dec(color[1] + color[2]))
+        result['g'] = str(_hex2dec(color[3] + color[4]))
+        result['b'] = str(_hex2dec(color[5] + color[6]))
+    else:
+        result['r'] = "255"
+        result['g'] = "255"
+        result['b'] = "255"
     return result
 
 def _generate_color(hex_color):

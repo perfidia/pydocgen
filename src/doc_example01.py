@@ -4,12 +4,12 @@ from pydocgen.model import *
 from pydocgen.builders.latex import LatexBuilder
 from pydocgen.builders.html import HtmlBuilder
 
+#creating document with specific properties and styles
 document = Document()
 document.properties['language'] = "pl"
 document.style['font-name'] = "Times New Roman"
 document.style['font-size'] = 11
-document.style['page-width'] = 200
-document.style['page-height'] = 300
+document.style['page-size'] = PageSizeProperty.A4
 document.style['page-numbering'] = True
 document.style['margin-top'] = 40
 document.style['margin-bottom'] = 20
@@ -18,11 +18,14 @@ document.style['margin-right'] = 20
 
 document.title = "doc_example01"
 
+#creating sequences
 headers_seq = Sequence()
-subheaders_seq = Sequence(96, headers_seq)
-tables_seq = Sequence()
 
-#header
+#sequence starting with number 96, being a child of headers_seq
+subheaders_seq = Sequence(96, headers_seq)
+
+
+#header 1
 span = Span("First header")
 span.style = Style()
 span.style['font-name'] = "Computer Modern"
@@ -61,14 +64,20 @@ span.style['background-color'] = "#0fb099"
 paragraph += span
 document += paragraph
 
-#header
+#header 2
 header = Header()
 header.sequence = headers_seq
 span = Span("Second header")
 header += span
 document += header
 
-#paragraph
+image = Image("ppwi.png")
+image.style['alignment'] = AlignmentProperty.CENTER
+image.style['width'] = 66
+image.caption = "To jest rysunek na środku"
+document += image
+
+#paragraph centered with margins set
 span = Span("Aliquam vehicula sem ut pede. Cras purus lectus, egestas eu, vehicula at, imperdiet sed, nibh. Morbi consectetuer luctus felis. Donec vitae nisi. Aliquam tincidunt feugiat elit. Duis sed elit ut turpis ullamcorper feugiat. Praesent pretium, mauris sed fermentum hendrerit, nulla lorem iaculis magna, pulvinar scelerisque urna tellus a justo. Suspendisse pulvinar massa in metus. Duis quis quam. Proin justo. Curabitur ac sapien. Nam erat. Praesent ut quam.")
 paragraph = Paragraph()
 paragraph.style = Style()
@@ -113,14 +122,8 @@ lst += span
 
 document += lst
 
-#TODO image
-#image = Image()
-#image.path = "image.png"
-#image.caption = "This is an image."
-#
-#document += image
 
-#header not numbered
+#a not numbered header
 header = Header()
 header.style = Style()
 header.style['header-numbered'] = False
@@ -136,14 +139,16 @@ span = Span("And another header")
 header += span
 document += header
 
-#subheader
+#subheader 3.96
 header = Header()
 header.sequence = subheaders_seq
 span = Span("Subheader")
 header += span
 document += header
 
-#subheader
+
+
+#subheader 3.97
 header = Header()
 header.sequence = subheaders_seq
 span = Span("Next subheader")
@@ -153,6 +158,8 @@ span.style['background-color'] = "#0fb099"
 
 header += span
 document += header
+
+
 
 #paragraph right alignment
 span = Span("Text Text text 1234567890 asdg kjjsnfb ekrhgrmfg tr grt gtrw e gtwtr  ergt")
@@ -186,9 +193,69 @@ paragraph += span
 document += paragraph
 
 
-#document += table
-#...
-#TODO
+image = Image("ppwi.png")
+image.style['alignment'] = AlignmentProperty.RIGHT
+image.style['width'] = 66
+image.caption = "To jest rysunek"
+document += image
+
+
+table = Table(5, 2)
+
+cellstyle = Style()
+cellstyle['background-color'] = "#ff00ce"
+cellstyle['font-effect'] = FontEffectProperty.ITALIC
+
+cell = table.get_cell(0, 0)
+cell.colspan = 2
+span = Span("cell")
+span.style['font-effect'] = (FontEffectProperty.UNDERLINE + FontEffectProperty.BOLD)
+span.style['background-color'] = "#ffffff"
+cell.content += [span]
+cell.style['alignment'] = AlignmentProperty.CENTER
+cell.style.update(cellstyle)
+
+cell = table.get_cell(1, 0)
+cell.style['alignment'] = AlignmentProperty.JUSTIFY
+cell.colspan = 2
+span = Span("In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
+span.style = Style()
+span.style['background-color'] = "#00ff00"
+cell.content += [span]
+cell.style.update(cellstyle)
+
+cell = table.get_cell(2, 0)
+span = Span("In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
+span.style = Style()
+span.style['background-color'] = "#1111cc"
+cell.content += [span]
+cell.style.update(cellstyle)
+
+
+cell = table.get_cell(3, 0)
+span = Span("CeLL")
+cell.content += [span]
+cell.style.update(cellstyle)
+
+cell = table.get_cell(3, 1)
+span = Span("123455.98")
+cell.content += [span]
+cell.style.update(cellstyle)
+
+cell = table.get_cell(4, 0)
+span = Span("table cell")
+cell.content += [span]
+cell.style.update(cellstyle)
+cell.style['font-name'] = "Computer Modern"
+
+
+
+
+
+table.set_column_width(0, 120)
+table.set_column_width(1, 30)
+
+document += table
 
 
 # here we generate the document
@@ -198,4 +265,4 @@ if __name__ == '__main__':
     document.generate_file("doc_example01.tex")
     
     document.builder = HtmlBuilder()
-    document.generate_file("doc_example01.htm")
+    #document.generate_file("doc_example01.htm")
