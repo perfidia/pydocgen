@@ -276,8 +276,7 @@ class Sequence(object):
         
         while seq.parent is not None:
             seq = seq.parent
-            result = str(seq.value) + separator + result
-     
+            result = str(seq.value - 1) + separator + result
         return result
     
     def __set_value(self, value):
