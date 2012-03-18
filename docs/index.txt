@@ -11,10 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
-   document_properties
-   html_styles
-   latex_styles
    model_reference
+   latex_builder
+   html_builder
+
+   
 
 
 

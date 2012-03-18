@@ -1,2 +1,0 @@
-Style properties supported by the HTML builder
-==============================================
