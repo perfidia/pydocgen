@@ -139,7 +139,7 @@ class HtmlBuilder(Builder):
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
                     elif key == 'font-effect':
-                        css += {FontEffectProperty.BOLD:'font-weight: bold',FontEffectProperty.ITALIC:'font-style: italic',FontEffectProperty.UNDERLINE:'text-decoration: underline'}.get(style[key])+';'
+                        css += {FontEffectProperty.BOLD:'font-weight: bold',FontEffectProperty.ITALIC:'font-style: italic',FontEffectProperty.UNDERLINE:'text-decoration: underline', 'text-decoration': str(style[key])}.get(style[key], 'text-decoration: '+str(style[key]))+';'
                     elif key == 'item-spacing':
                         css += 'border-spacing: '+str(style[key])+'pt '+str(style[key])+'pt; letter-spacing: '+str(style[key])+'pt; word-spacing: '+str(style[key])+'pt;';
                     elif key == 'item-indent':
