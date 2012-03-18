@@ -329,7 +329,7 @@ class _LatexSpanBuilder(object):
             result += r"{\protect\definecolor {spancolor}{RGB}{"
             result += background_color['r'] + ", "
             result += background_color['g'] + ", "
-            result += background_color['b'] + "} "
+            result += background_color['b'] + "}"
             result += r"\protect\sethlcolor {spancolor}"
             highlight += r"\texthl{"
         if span.effective_style.has_key('font-name'):
@@ -339,7 +339,7 @@ class _LatexSpanBuilder(object):
             result += r"{"
             font_family = self.__get_font_family(font_name)
             if font_family is not None:
-                result += r"\fontfamily {" + font_family + r"} "
+                result += r"\fontfamily {" + font_family + r"}"
         if span.effective_style.has_key('font-size'):
             font_size = span.effective_style['font-size'] 
             if not font_changed:
@@ -391,7 +391,16 @@ class _FloatGenerator(object):
         self.__format_numbers = {}
         self.main_builder = main_builder
         
-    def generate_float(self, element, float_name, number_command, inner_part):
+    def generate_caption(self, element, tab_indent_level=0):
+        caption_content = ""
+        for span in element.caption:
+            caption_content += span.generate()
+            
+        return "\n%s\caption{%s}" % ("\t" * tab_indent_level, \
+                                                         caption_content)
+        
+    def generate_float(self, element, float_name, number_command, inner_part, 
+                       include_float_env_cmd = True, include_caption = True):
         result = ""
         
         pre = ""
@@ -471,12 +480,8 @@ class _FloatGenerator(object):
         
         # putting the caption
         if (element.caption is not None) and (len(element.caption) > 0):
-            caption_content = ""
-            for span in element.caption:
-                caption_content += span.generate()
-                
-            caption = "\n%s\caption{%s}" % ("\t" * tab_indent_level, \
-                                                         caption_content)
+            if include_caption:           
+                caption = self.generate_caption(element, tab_indent_level)
 
             # handling the sequence
             if element.sequence is not None:
@@ -502,7 +507,12 @@ class _FloatGenerator(object):
             element.sequence.advance()
             
         result += "\n\n"
-        result += "\\begin{%s}[ht!]" % float_name
+        
+        if include_float_env_cmd:
+            result += "\\begin{%s}[ht!]" % float_name
+        else:
+            result += "{"
+        
         result += number_declaration
         result += captionsetup
         result += pre
@@ -510,10 +520,17 @@ class _FloatGenerator(object):
         result += margins_before
         result += inner_part
         result += hspace_after
-        result += caption 
+        
+        if include_caption: 
+            result += caption
+             
         result += margins_after
         result += post
-        result += "\n\\end{%s}" % float_name
+        
+        if include_float_env_cmd:
+            result += "\n\\end{%s}" % float_name
+        else:
+            result += "}"
         
         return result
         
@@ -654,8 +671,21 @@ class _LatexTableBuilder(object):
         if table.is_style_element_set("border-width"):
             inner_part += "\\setlength{\\arrayrulewidth}{%dpt}" % \
                 table.effective_style['border-width']
+                
+        optional_params = {}
         
-        inner_part += "\\begin{tabular}{%s}\n\hline" % columns_def
+        if (table.is_style_element_set("alignment")):
+            table_alignment_property = table.effective_style['alignment']
+            
+            if table_alignment_property == AlignmentProperty.LEFT:
+                optional_params['l'] = None
+            elif table_alignment_property == AlignmentProperty.CENTER:
+                optional_params['c'] = None
+            elif table_alignment_property == AlignmentProperty.RIGHT:
+                optional_params['r'] = None        
+        
+        inner_part += "\\begin{longtable}%s{%s}\n\hline" % \
+                    (_generate_parameters_list(optional_params) , columns_def)
         
         for row in xrange(0, table.rows_num):
             skip_cols = 0
@@ -665,7 +695,6 @@ class _LatexTableBuilder(object):
                     continue
                 
                 cell = table.get_cell(row, col)
-                col_width = table.get_column_width(col)
                 
                 alignment = None
                 if len(cell.content) > 0:
@@ -688,23 +717,21 @@ class _LatexTableBuilder(object):
                     element_code = element_code.replace("\n\n", \
                                                         "")
                     
-                    #inner_part += "\\vspace{-\\tabcolsep}"
-                    
                     colspan = min(cell.colspan, table.cols_num - col)
-
+                    
                     if col == 0:
                         left_rule = "|"
                     else:
                         left_rule = ""
-                        
-                    
                         
                     if colspan > 1:
                         sum_width = 0
                         for i in xrange(col, col + colspan):
                             sum_width += table.get_column_width(i)
                         skip_cols = colspan - 1
-                        inner_part += "\\multicolumn{%d}{%sp{%dmm+%d\\tabcolsep+\\arrayrulewidth}|}{" % (colspan, left_rule, sum_width, colspan)
+                        inner_part += ("\\multicolumn{%d}{%sp{%dmm+%d" + \
+                        "\\tabcolsep+\\arrayrulewidth}|}{") % (colspan, \
+                                        left_rule, sum_width, colspan)
                         
                     # handling the "alignment" style property
                     if alignment is not None:
@@ -729,10 +756,13 @@ class _LatexTableBuilder(object):
             
             inner_part += "\\tabularnewline\\hline\n"
         
-        inner_part += "\n\\end{tabular}"
+        if (table.caption is not None) and (len(table.caption) > 0):
+            inner_part += self.__float_generator.generate_caption(table)
+        
+        inner_part += "\n\\end{longtable}"
         
         result += self.__float_generator.generate_float(table, "table",
-                                                        "thetable", inner_part)
+                                        "thetable", inner_part, False, False)
                                                         
         return result    
 
@@ -872,6 +902,7 @@ class _LatexDocumentBuilder(object):
         if document.successor_isinstance(Table):
             result += self.__generate_package_reference("calc")
             result += self.__generate_package_reference("colortbl")
+            result += self.__generate_package_reference("longtable")
         
         return result
     
