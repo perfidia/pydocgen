@@ -71,7 +71,10 @@ class HtmlBuilder(Builder):
         for i in xrange(0, table.rows_num ):
             result += '\n<tr>\n' #style? no!
             for j in xrange(0, table.cols_num ):
-                result += '\n<td ' + self.__generate_style_from_dict(table.get_cell(i, j)) + '>'
+                colspan_code = ''
+                if table.get_cell(i,j).colspan is not None and table.get_cell(i,j).colspan > 1:
+                    colspan_code = ' colspan=\"'+str(table.get_cell(i,j).colspan)+'\" ';  
+                result += '\n<td '+colspan_code+ self.__generate_style_from_dict(table.get_cell(i, j)) + '>'
                 for k in table.get_cell(i, j).content:
                     result += self.generate( k ) 
                 result += '</td>'
