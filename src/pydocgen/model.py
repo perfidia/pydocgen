@@ -250,6 +250,12 @@ class List(DocumentTreeNode):
             content = []
         super(List, self).__init__(content)
         self.style = StyleManager().get_style('list-default')
+        
+    def __iadd__(self, other):
+        if isinstance(other, str):
+            other = Span(other)
+
+        return super(List, self).__iadd__(other)
 
 class Sequence(object):
     """A class representing the sequence.
@@ -636,6 +642,10 @@ _style_manager.set_style('doc-default', _style)
 #default header style
 _style = Style()
 _style['border-width'] = 0
+_style['margin-top'] = 0
+_style['margin-bottom'] = 0
+_style['margin-left'] = 0
+_style['margin-right'] = 0
 _style_manager.set_style('header-default', _style)
 
 #default paragraph style
