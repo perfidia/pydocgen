@@ -17,7 +17,10 @@ document += paragraph
 
 document += Header("Phasellus tempor risus eget.", section_seq)
 
-document += "Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor. Curabitur convallis dolor ac massa sollicitudin dapibus. Phasellus nulla neque, vestibulum eget gravida vel, euismod eget lacus."
+paragraph = Paragraph("Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor. Curabitur convallis dolor ac massa sollicitudin dapibus. Phasellus nulla neque, vestibulum eget gravida vel, euismod eget lacus.")
+paragraph.style['text-indent'] = 18
+
+document += paragraph
 
 span = Span("Lorem ipsum:")
 span.style += FontEffectProperty.BOLD
@@ -159,7 +162,10 @@ graybgcellstyle['font-effect'] = FontEffectProperty.BOLD
 cell = table.get_cell(0, 0)
 cell.colspan = 2
 span = Span("Placerat ac commodo arcu adipiscing")
+span.style['font-effect'] = (FontEffectProperty.UNDERLINE + FontEffectProperty.BOLD)
+span.style['background-color'] = "#ffffff"
 cell.content += [span]
+cell.style['alignment'] = AlignmentProperty.CENTER
 cell.style.update(graybgcellstyle)
 
 cell = table.get_cell(1, 0)

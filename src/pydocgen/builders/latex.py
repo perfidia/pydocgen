@@ -67,14 +67,9 @@ def _generate_rgb_from_hex(color):
     result['b'] = str(_hex2dec(color[5] + color[6]))
     return result
 
-
 def _generate_color(hex_color):
     rgb_dict = _generate_rgb_from_hex(hex_color)
     return "[RGB]{%s,%s,%s}" % (rgb_dict['r'], rgb_dict['g'], rgb_dict['b'])
-    
-    return result
- 
-
     
 def _compare_rgb_colors(color1, color2):
     if color1['r'] != color2['r']:
@@ -133,6 +128,13 @@ class LatexBuilder(Builder):
 #helper builders
 
 class _LatexHeaderBuilder(object):
+    def __top_space(self, header):
+        if header.is_style_element_set("margin-top"):
+            return "\\vspace{%dpt}" % header.effective_style['margin-top']
+        
+    def __bottom_space(self, header):
+        if header.is_style_element_set("margin-bottom"):
+            return "\\vspace{%dpt}" % header.effective_style['margin-bottom']
     
     def generate(self, header):
         result = "\n\n"
@@ -141,6 +143,9 @@ class _LatexHeaderBuilder(object):
     
         if header.sequence is not None:
             level = header.sequence.get_level()
+            
+            result += self.__top_space(header)
+            
             if level == 0:
                 result += r"\section*{"                
             if level == 1:
@@ -155,51 +160,69 @@ class _LatexHeaderBuilder(object):
                 if header.effective_style['header-numbered']:
 
                     if header.is_style_element_set("seq-number-sep"):
-                        number = header.sequence.to_str(header.effective_style['seq-number-sep'])
+                        number = header.sequence.to_str(header.\
+                                            effective_style['seq-number-sep'])
                         result += number
                         result += " \\hspace*{5pt} "
                     else:
                         numbers = header.sequence.get_numbers()
                         result = "\n\n"
+                        
+                        result += self.__top_space(header)
                 
                         if level == 0:
-                            result += r"\setcounter{section}{" + numbers[0]+ r"}"
+                            result += r"\setcounter{section}{" + \
+                             numbers[0] + r"}"
                             result += '\n'
                             result += r"\section{"                
                         if level == 1:
-                            result += r"\setcounter{section}{" + numbers[1]+ r"}"
+                            result += r"\setcounter{section}{" + \
+                                                            numbers[1] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsection}{" + numbers[0]+ r"}"
+                            result += r"\setcounter{subsection}{" + \
+                                                            numbers[0] + r"}"
                             result += '\n'
                             result += r"\subsection{"
                         if level == 2:
-                            result += r"\setcounter{section}{" + numbers[2]+ r"}"
+                            result += r"\setcounter{section}{" + \
+                                                            numbers[2] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsection}{" + numbers[1]+ r"}"
+                            result += r"\setcounter{subsection}{" + \
+                                                            numbers[1] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsubsection}{" + numbers[0]+ r"}"
+                            result += r"\setcounter{subsubsection}{" + \
+                                                            numbers[0] + r"}"
                             result += '\n'
                             result += r"\subsubsection{"
                         if level == 3:
-                            result += r"\setcounter{section}{" + numbers[3]+ r"}"
+                            result += r"\setcounter{section}{" + \
+                                                            numbers[3] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsection}{" + numbers[2]+ r"}"
+                            result += r"\setcounter{subsection}{" + \
+                                                            numbers[2] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsubsection}{" + numbers[1]+ r"}"
+                            result += r"\setcounter{subsubsection}{" + \
+                                                            numbers[1] + r"}"
                             result += '\n'
-                            result += r"\setcounter{paragraph}{" + numbers[0]+ r"}"
+                            result += r"\setcounter{paragraph}{" + \
+                                                            numbers[0] + r"}"
                             result += '\n'
                             result += r"\paragraph{"
                         if level > 3:
-                            result += r"\setcounter{section}{" + numbers[4]+ r"}"
+                            result += r"\setcounter{section}{" + \
+                                                            numbers[4] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsection}{" + numbers[3]+ r"}"
+                            result += r"\setcounter{subsection}{" + \
+                                                            numbers[3] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subsubsection}{" + numbers[2]+ r"}"
+                            result += r"\setcounter{subsubsection}{" + \
+                                                            numbers[2] + r"}"
                             result += '\n'
-                            result += r"\setcounter{paragraph}{" + numbers[1]+ r"}"
+                            result += r"\setcounter{paragraph}{" + \
+                                                            numbers[1] + r"}"
                             result += '\n'
-                            result += r"\setcounter{subparagraph}{" + numbers[0]+ r"}"
+                            result += r"\setcounter{subparagraph}{" + \
+                                                            numbers[0] + r"}"
                             result += '\n'
                             result += r"\subparagraph{"
  
@@ -213,6 +236,8 @@ class _LatexHeaderBuilder(object):
         
         result += r"}"
         
+        result += self.__bottom_space(header)
+        
         if header.sequence is not None:
             if header.is_style_element_set("header-numbered"):
                 if header.effective_style['header-numbered']:
@@ -224,7 +249,6 @@ class _LatexHeaderBuilder(object):
     
 
 class _LatexParagraphBuilder(object):
-    __last_indent = -1
     def generate(self, paragraph):
         result = "\n\n"
         alignment = ""
@@ -254,21 +278,24 @@ class _LatexParagraphBuilder(object):
             margin_right = paragraph.effective_style['margin-right']
         if paragraph.effective_style.has_key('text-indent'):
             text_indent = paragraph.effective_style['text-indent']
-            
+        
         if alignment != "":
             if alignment == AlignmentProperty.LEFT:
-                justification_before += r"\begin{flushleft}" + "\n "
-                justification_after += "\n" + r"\end{flushleft}" + "\n "
-            if alignment == AlignmentProperty.RIGHT:
-                justification_before += r"\begin{flushright}" + "\n "
-                justification_after += "\n" + r"\end{flushright}" + "\n"
-            if alignment == AlignmentProperty.CENTER :
-                justification_before += r"\begin{center}" + "\n"
-                justification_after += "\n" + r"\end{center}" + "\n"
-        if  self.__last_indent != text_indent:
-            result += r"\setlength{\parindent}{" + str(text_indent) + r"pt}"
-            self.__last_indent = text_indent  
-            
+                justification_before += r"\vspace{2pt}\vspace{-\baseline" + \
+                                            r"skip}\begin{flushleft}" + "\n "
+                justification_after += "\n" + r"\end{flushleft}\vspace{2pt}" + \
+                                            r"\vspace{-\baselineskip}" + "\n "
+            elif alignment == AlignmentProperty.RIGHT:
+                justification_before += r"\vspace{2pt}\vspace{-\baseline" + \
+                                            r"skip}\begin{center}" + "\n "
+                justification_after += "\n" + r"\end{center}\vspace{2pt}" + \
+                                            r"\vspace{-\baselineskip}" + "\n"
+            elif alignment == AlignmentProperty.CENTER :
+                justification_before += r"\vspace{2pt}\vspace{-\baseline" + \
+                                            r"skip}\begin{flushright}" + "\n"
+                justification_after += "\n" + r"\end{flushright}\vspace{" + \
+                                        r"2pt}\vspace{-\baselineskip}" + "\n"
+    
         if margin_top != 0:
             margins_before += "\\vspace*{%.2fpt}" % margin_top
         margin_sides = margin_left + margin_right
@@ -276,7 +303,7 @@ class _LatexParagraphBuilder(object):
         if margin_sides != 0:
             begin_margin += r"\addtolength{\textwidth}{-"
             begin_margin += "%.2fpt} "  % margin_sides
-        begin_margin += r"\begingroup "
+        begin_margin += r"\hspace{-3pt}\begingroup "
             
         end_margin += r"\par"
         end_margin += "\n"
@@ -289,7 +316,8 @@ class _LatexParagraphBuilder(object):
             margins_after += "\\vspace*{%.2fpt}" % margin_bottom
             
         if paragraph.effective_style.has_key('background-color'):
-            background_color = _generate_rgb_from_hex(paragraph.effective_style['background-color'])
+            background_color = _generate_rgb_from_hex(paragraph.\
+                                        effective_style['background-color'])
             counter += 1
             colorbox += r"{\colorbox [RGB] {"
             colorbox += background_color['r'] + ", "
@@ -297,10 +325,14 @@ class _LatexParagraphBuilder(object):
             colorbox += background_color['b'] + "} "
                       
         result += margins_before
+        result += r"\vspace{-3pt}\noindent"
         result += begin_margin
         result += colorbox
         result += r"{\parbox {\textwidth}"
         result += r"{"
+        
+        result += r"\setlength{\parindent}{" + str(text_indent) + r"pt}" 
+        
         result += justification_before
         for element in paragraph.content:
             result += element.generate()
@@ -323,8 +355,14 @@ class _LatexSpanBuilder(object):
         highlight = ""
         counter = 0;
         font_changed = False
-        if span.effective_style.has_key('background-color'):
-            background_color = _generate_rgb_from_hex(span.effective_style['background-color'])
+        document = span.get_root()
+        
+        if (span.is_style_element_set('background-color')) and \
+                        (document.is_style_element_set('background-color')) \
+                        and (span.effective_style['background-color'] != \
+                              document.effective_style['background-color']):
+            background_color = _generate_rgb_from_hex(span.\
+                                        effective_style['background-color'])
             counter += 2
             result += r"{\protect\definecolor {spancolor}{RGB}{"
             result += background_color['r'] + ", "
@@ -345,7 +383,8 @@ class _LatexSpanBuilder(object):
             if not font_changed:
                 result += r"{"
                 counter += 1
-            result += r"\fontsize {" + str(font_size) + "}{" + self.__get_leading(font_size) + "}"
+            result += r"\fontsize {" + str(font_size) + "}{" + \
+                                        self.__get_leading(font_size) + "}"
             font_changed = True
         if font_changed:
             result += r"\selectfont "
@@ -421,13 +460,16 @@ class _FloatGenerator(object):
         if element.is_style_element_set("alignment"):
             align_env = None 
             if element.effective_style['alignment'] == AlignmentProperty.LEFT\
-                    or element.effective_style['alignment'] == AlignmentProperty.JUSTIFY:
+                    or element.effective_style['alignment'] == \
+                                                    AlignmentProperty.JUSTIFY:
                 align_env = "flushleft"
                 captionsetup_parameters['justification'] = "raggedright"
-            elif element.effective_style['alignment'] == AlignmentProperty.CENTER:
+            elif element.effective_style['alignment'] == \
+                                                    AlignmentProperty.CENTER:
                 align_env = "center"
                 captionsetup_parameters['justification'] = "centering"
-            elif element.effective_style['alignment'] == AlignmentProperty.RIGHT:
+            elif element.effective_style['alignment'] == \
+                                                    AlignmentProperty.RIGHT:
                 align_env = "flushright"
                 captionsetup_parameters['justification'] = "raggedleft"
             
@@ -541,7 +583,8 @@ class _FloatGenerator(object):
         if format_prefix not in self.__format_numbers:
             self.__format_numbers[format_prefix] = 0
         
-        result = "%s%06d" % (format_prefix, self.__format_numbers[format_prefix])
+        result = "%s%06d" % (format_prefix, \
+                             self.__format_numbers[format_prefix])
         self.__format_numbers[format_prefix] += 1
         return result
     
@@ -936,6 +979,8 @@ class _LatexDocumentBuilder(object):
         result += self.__generate_table_packages_reference(document)
         result += self.__generate_package_reference("color")
         result += self.__generate_package_reference("soul")
+        result += self.__generate_package_reference("titlesec", \
+                                                    {"compact": None})
         
         result += self.__float_generator.generate_custom_format_declarations(\
                             document, "thefigure", "img", Image)
@@ -944,6 +989,10 @@ class _LatexDocumentBuilder(object):
                             
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
+        
+        result += "\n\\titlespacing{\\section}{0pt}{0pt}{0pt}"
+        result += "\n\\titlespacing{\\subsection}{0pt}{0pt}{0pt}"
+        result += "\n\\titlespacing{\\subsubsection}{0pt}{0pt}{0pt}"
         
         result += "\n\n\\begin{document}"
         
@@ -1035,8 +1084,10 @@ class _LatexListBuilder(object):
                                 "\\" + command, char)
     
     def __generate_default_bullet_char_declaration(self, lst):
-        default_bullet_chars = [BulletCharProperty.BULLET, BulletCharProperty.MEDIUM_HYPHEN,\
-                                BulletCharProperty.ASTERISK, BulletCharProperty.CDOT]
+        default_bullet_chars = [BulletCharProperty.BULLET, \
+                                BulletCharProperty.MEDIUM_HYPHEN, \
+                                BulletCharProperty.ASTERISK, \
+                                BulletCharProperty.CDOT]
         
         level = self.__get_list_level(lst)
         
