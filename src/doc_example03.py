@@ -5,7 +5,7 @@ from pydocgen.builders.latex import LatexBuilder
 
 document = Document()
 document.style += AlignmentProperty.JUSTIFY
-document.style['font-name'] = "Computer Modern"
+document.style['font-name'] = "Times New Roman"
 
 section_seq = Sequence()
 
@@ -49,14 +49,14 @@ span = Span("Nam orci")
 span.style += FontEffectProperty.UNDERLINE
 paragraph += span
 
-paragraph += "odio, sollicitudin quis vehicula eu, pulvinar at risus. Ut sed lacus libero, vitae eleifend nulla. Vivamus sed enim odio, eu "
+paragraph += " odio, sollicitudin quis vehicula eu, pulvinar at risus. Ut sed lacus libero, vitae eleifend nulla. Vivamus sed enim odio, eu "
 
 span = Span("sodales")
 span.style += FontEffectProperty.BOLD
 
 paragraph += span
 
-paragraph += "nulla. Vestibulum urna felis, mattis eget aliquet et, dictum quis risus."
+paragraph += " nulla. Vestibulum urna felis, mattis eget aliquet et, dictum quis risus."
 
 document += paragraph
 

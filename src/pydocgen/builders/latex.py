@@ -379,12 +379,15 @@ class _LatexSpanBuilder(object):
         return str(number)
     
     def __get_font_family(self, font_name):
-        if font_name ==  "Times New Roman":
+        font_name = font_name.lower().strip()
+        if font_name == "times new roman":
             return r"ptm"
-        if font_name == "Arial":
+        if font_name == "arial":
             return r"phv"
-        if font_name == "Computer Modern":
+        if font_name == "computer modern":
             return r"cmr"
+        if font_name == "courier":
+            return r"pcr"
 
 class _FloatGenerator(object):
     def __init__(self, main_builder):
@@ -874,6 +877,12 @@ class _LatexDocumentBuilder(object):
                                                 "fontenc", {"T1": None})
                 
             if font_name == "computer modern":
+                result += self.__generate_package_reference(\
+                                                "fontenc", {"T1": None})
+            
+            if font_name == "courier":
+                result += self.__generate_package_reference("courier")
+                result += "\n\\renewcommand*\\familydefault{\\ttdefault}\n"
                 result += self.__generate_package_reference(\
                                                 "fontenc", {"T1": None})
         
