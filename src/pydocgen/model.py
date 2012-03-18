@@ -642,10 +642,11 @@ _style_manager.set_style('doc-default', _style)
 #default header style
 _style = Style()
 _style['border-width'] = 0
-_style['margin-top'] = 0
-_style['margin-bottom'] = 0
+_style['margin-top'] = 10
+_style['margin-bottom'] = 10
 _style['margin-left'] = 0
 _style['margin-right'] = 0
+_style['font-size'] = 14
 _style_manager.set_style('header-default', _style)
 
 #default paragraph style
