@@ -63,7 +63,7 @@ document += paragraph
 subsection_seq = Sequence(parent=section_seq)
 
 header = Header("Lorem ipsum", subsection_seq)
-header.style['background-color'] = "#101010"
+header.style['background-color'] = "#cccccc"
 header.style['border-width'] = 1
 
 document += header
@@ -150,28 +150,98 @@ for row in xrange(0, table.rows_num):
         
 document += table
 
-table = Table(2, 2)
-table.style['alignment'] = AlignmentProperty.CENTER
+table = Table(7, 2)
+
+graybgcellstyle = Style()
+graybgcellstyle['background-color'] = "#cccccc"
+graybgcellstyle['font-effect'] = FontEffectProperty.BOLD
 
 cell = table.get_cell(0, 0)
 cell.colspan = 2
 span = Span("Placerat ac commodo arcu adipiscing")
-span.style['font-effect'] = FontEffectProperty.BOLD
 cell.content += [span]
-cell.style['background-color'] = "#cccccc"
+cell.style.update(graybgcellstyle)
 
 cell = table.get_cell(1, 0)
 cell.style['alignment'] = AlignmentProperty.JUSTIFY
 cell.colspan = 2
 span = Span("In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
-span.style['font-effect'] = FontEffectProperty.BOLD
 cell.content += [span]
-cell.style['background-color'] = "#cccccc"
+cell.style.update(graybgcellstyle)
 
-table.set_column_width(0, 130)
+cell = table.get_cell(2, 0)
+span = Span("Nam")
+cell.content += [span]
+cell.style.update(graybgcellstyle)
+
+cell = table.get_cell(2, 1)
+span = Span("Quisque?")
+cell.content += [span]
+cell.style.update(graybgcellstyle)
+
+cell = table.get_cell(3, 0)
+span = Span("tincidunt")
+cell.content += [span]
+cell.style.update(graybgcellstyle)
+cell.style['font-name'] = "Courier"
+
+cell = table.get_cell(4, 0)
+span = Span("pellentesque")
+cell.content += [span]
+cell.style.update(graybgcellstyle)
+cell.style['font-name'] = "Courier"
+
+cell = table.get_cell(5, 0)
+span = Span("vestibulum")
+cell.content += [span]
+cell.style.update(graybgcellstyle)
+cell.style['font-name'] = "Courier"
+
+cell = table.get_cell(6, 0)
+span = Span("turpis")
+cell.content += [span]
+cell.style.update(graybgcellstyle)
+cell.style['font-name'] = "Courier"
+
+table.set_column_width(0, 120)
 table.set_column_width(1, 30)
 
 document += table
+
+header = Header(Span("Phasellus tempor risus eget."), section_seq)
+
+document += header
+
+document += "Comment"
+
+lst = List()
+lst += "Nunc"
+lst += "sagittis"
+lst += "suscipit diam,"
+lst += "ut lacinia justo hendrerit quis."
+lst += ""
+lst += "Sed vitae ante facilisis enim feugiat ultrices in nec libero."
+
+document += lst
+
+paragraph = Paragraph("Comment")
+paragraph.style['alignment'] = AlignmentProperty.CENTER
+
+document += paragraph
+
+lst = List()
+lst.style['list-style'] = ListStyleProperty.NUMBER
+
+lst += "Suspendisse a"
+lst += "ligula nec elit mattis placerat."
+lst += "Aliquam porttitor leo quis tortor gravida ultrices."
+
+document += lst
+
+paragraph = Paragraph("Comment")
+paragraph.style['alignment'] = AlignmentProperty.RIGHT
+
+document += paragraph
 
 document.builder = LatexBuilder()
 document.generate_file("doc_example03.tex")
