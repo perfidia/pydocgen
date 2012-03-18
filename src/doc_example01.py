@@ -27,7 +27,7 @@ span = Span("First header")
 span.style = Style()
 span.style['font-name'] = "Computer Modern"
 span.style['font-size'] = 14
-span.style['font-effects'] = FontEffectProperty.ITALIC
+span.style['font-effect'] = FontEffectProperty.ITALIC
 span.style['color'] = "#1243ff"
 span.style['background-color'] = "#00ff00"
 
@@ -46,7 +46,7 @@ span = Span("Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasel
 span.style = Style()
 span.style['font-name'] = "Computer Modern"
 span.style['font-size'] = 9
-span.style['font-effects'] = FontEffectProperty.UNDERLINE
+span.style['font-effect'] = FontEffectProperty.UNDERLINE
 span.style['color'] = "#1243ff"
 
 paragraph += span

@@ -114,6 +114,11 @@ class DocumentTreeNode(object):
                 stack.append(first_child_not_visited)
                 curr_node = first_child_not_visited
             else:
+                try:
+                    for span in curr_node.caption:
+                        span.parent = curr_node
+                except AttributeError:
+                    pass
                 stack.pop()
                 if (len(stack) > 0):
                     curr_node = stack[-1]
@@ -323,36 +328,44 @@ class Header(NumberedObject):
         if content is None:
             content = []
         super(Header, self).__init__(content, sequence)
+        self.style = StyleManager().get_style('header-default')
         self.sequence 
-
-class Image(NumberedObject):
-    """A class representing the image.
-    """
-    
-    def __init__(self, sequence=None):
-        super(Image, self).__init__(sequence=sequence)
-        self.path = None
         
+class CaptionedObject(NumberedObject):
+    def __init__(self, sequence=None):
+        super(CaptionedObject, self).__init__(sequence=sequence)
+        self.__caption = []
+    
     def __get_caption(self):
-        return self.content
+        return self.__caption
     
     def __set_caption(self, caption):
         if caption is None:
             caption = []
-        elif (not isinstance(caption, list)) and\
-                    (not isinstance(caption, Span)) and\
-                    (not isinstance(caption, str)):
-            raise TypeError("Caption needs to be a string, \
-                                        Span or list of Span!")
-        if isinstance(caption, list):
-            self.content = caption
-        if isinstance(caption, str):
-            self.content = [Span(caption)]
         else:
-            self.content = [caption]
+            if (not isinstance(caption, list)) and\
+                        (not isinstance(caption, Span)) and\
+                        (not isinstance(caption, str)):
+                raise TypeError("Caption needs to be a string, \
+                                            Span or list of Span!")
+            if isinstance(caption, list):
+                self.__caption = caption
+            if isinstance(caption, str):
+                self.__caption = [Span(caption)]
+            else:
+                self.__caption = [caption]
         
     caption = property(__get_caption, __set_caption)
 
+class Image(CaptionedObject):
+    """A class representing the image.
+    """
+    
+    def __init__(self, path=None, sequence=None):
+        super(Image, self).__init__(sequence=sequence)
+        self.path = path
+        self.style = StyleManager().get_style("image-default")
+        
 class TableCell(DocumentTreeNode):
     """A class representing a cell of the table. It is used internally by the
     Table class.
@@ -362,21 +375,33 @@ class TableCell(DocumentTreeNode):
         super(TableCell, self).__init__()
         self.rowspan = 1
         self.colspan = 1
+        
+    def __iadd__(self, other):
+        if isinstance(other, str):
+            other = Span(other)
 
-class Table(NumberedObject):
+        return super(TableCell, self).__iadd__(other)
+
+class Table(CaptionedObject):
     """A class representing the table.
     """
     
     __default_row_height = 20
     __default_column_width = 100
     
-    def __init__(self, sequence=None):
+    def __init__(self, rows_num=1, cols_num=1, sequence=None):
         super(Table, self).__init__(sequence=sequence)
         self.__rows = [[TableCell()]]
         self.__rowHeights = [self.__default_row_height]
         self.__columnWidths = [self.__default_column_width]
-        self.border_width = 1
         self.caption = None
+        self.style = StyleManager().get_style("table-default")
+        
+        if rows_num > 1:
+            self.append_row(rows_num - 1)
+            
+        if cols_num > 1:
+            self.append_column(cols_num - 1)
             
     def __get_rows_num(self):
         return len(self.__rows)
@@ -393,39 +418,43 @@ class Table(NumberedObject):
     def get_cell(self, row, column):
         return (self.__rows[row])[column]
         
-    def insert_row(self, index):
-        row = self.__create_row()
-        self.__rows.insert(index, row)
-        self.__rowHeights.insert(index, self.__default_row_height)
+    def insert_row(self, index, count=1):
+        for _ in xrange(0, count):
+            row = self.__create_row()
+            self.__rows.insert(index, row)
+            self.__rowHeights.insert(index, self.__default_row_height)
         
-    def append_row(self):
-        self.insert_row(self.rows_num)
+    def append_row(self, count=1):
+        self.insert_row(self.rows_num, count)
         
-    def delete_row(self, index):
-        if (self.rows_num > 1):
-            del self.__rows[index]
-            del self.__rowHeights[index]
-        else:
-            self.__rows[0] = self.__create_row()
-            self.__rowHeights[0] = self.__default_row_height
+    def delete_row(self, index, count=1):
+        for _ in xrange(0, count):
+            if (self.rows_num > 1):
+                del self.__rows[index]
+                del self.__rowHeights[index]
+            else:
+                self.__rows[0] = self.__create_row()
+                self.__rowHeights[0] = self.__default_row_height
         
-    def insert_column(self, index):
-        for row in self.__rows:
-            row.insert(index, TableCell())
-        self.__columnWidths.insert(index, self.__default_column_width)
+    def insert_column(self, index, count=1):
+        for _ in xrange(0, count):
+            for row in self.__rows:
+                row.insert(index, TableCell())
+            self.__columnWidths.insert(index, self.__default_column_width)
             
-    def append_column(self):
-        self.insert_column(self.cols_num)
+    def append_column(self, count=1):
+        self.insert_column(self.cols_num, count)
         
-    def delete_column(self, index):
-        if (self.cols_num > 1):
-            for row in self.__rows:
-                del row[index]
-            del self.__columnWidths[index]
-        else:
-            for row in self.__rows:
-                row[0] = TableCell()
-            self.__columnWidths[0] = self.__default_column_width
+    def delete_column(self, index, count=1):
+        for _ in xrange(0, count):
+            if (self.cols_num > 1):
+                for row in self.__rows:
+                    del row[index]
+                del self.__columnWidths[index]
+            else:
+                for row in self.__rows:
+                    row[0] = TableCell()
+                self.__columnWidths[0] = self.__default_column_width
             
     def get_row_height(self, index):
         return self.__rowHeights[index]
@@ -441,7 +470,7 @@ class Table(NumberedObject):
     
     def __get_content(self):
         content = []
-        for i in xrange(0, self.rows_num - 1):
+        for i in xrange(0, self.rows_num):
             content.extend(self.__rows[i])
         return content
         
@@ -458,6 +487,9 @@ class Property(object):
         
     def __eq__(self, other):
         return self.value == other.value
+    
+    def __hash__(self):
+        return hash(self.value)
 
 class ListStyleProperty(Property):
     """A class representing the "list-style" property of the list style.
@@ -594,11 +626,17 @@ _style['alignment'] = AlignmentProperty.LEFT
 _style['text-indent'] = 0
 _style['color'] = "#000000"
 _style['background-color'] = "#ffffff"
-_style['list-_style'] = ListStyleProperty.BULLET
+_style['list-style'] = ListStyleProperty.BULLET
 _style['item-spacing'] = 2
 _style['item-indent'] = 12
 _style['header-numbered'] = True
+_style['border-width'] = 1
 _style_manager.set_style('doc-default', _style)
+
+#default header style
+_style = Style()
+_style['border-width'] = 0
+_style_manager.set_style('header-default', _style)
 
 #default paragraph style
 _style = Style()
@@ -607,6 +645,22 @@ _style['margin-bottom'] = 0
 _style['margin-left'] = 0
 _style['margin-right'] = 0
 _style_manager.set_style('paragraph-default', _style)
+
+#default image style
+_style = Style()
+_style['margin-top'] = 0
+_style['margin-bottom'] = 0
+_style['margin-left'] = 0
+_style['margin-right'] = 0
+_style_manager.set_style('image-default', _style)
+
+#default table style
+_style = Style()
+_style['margin-top'] = 0
+_style['margin-bottom'] = 0
+_style['margin-left'] = 0
+_style['margin-right'] = 0
+_style_manager.set_style('table-default', _style)
 
 #default list style
 _style = Style()
