@@ -109,7 +109,17 @@ class HtmlBuilder(Builder):
 
 
     def generate_image(self, image):
-        return '<div+'+self.__generate_style_from_dict(image)+'><img src=\"' + image.path + '\" '+self.__generate_style_from_dict(image)+' /></div>'
+        image_width_code = image.style.get('width', None) 
+        if image_width_code :
+            image_width_code = 'width=\"'+str(image_width_code)+'\"'
+        else:
+            image_width_code = ''
+        image_height_code = image.style.get('height')
+        if image_height_code : 
+            image_height_code = 'height=\"'+str(image_height_code)+'\"'
+        else:
+            image_height_code = '' 
+        return '<div+'+self.__generate_style_from_dict(image)+'><img src=\"' + image.path + '\" '+self.__generate_style_from_dict(image)+' '+image_height_code+' '+image_width_code+'/></div>'
     
     def generate_inline_style(self, elem):
         result = ''
@@ -149,6 +159,7 @@ class HtmlBuilder(Builder):
                     elif key == 'border-width' : 
                         css += 'border-style: solid; border-width: ' + str(style[key]) + 'pt;'
                     else:
-                        css += key + ': ' + str(style[key]) + 'pt;'
+                        if not isinstance(elem, Table) and key in ('marign-left', 'margin-right'): 
+                            css += key + ': ' + str(style[key]) + 'pt;'
             css += '\"'
         return css 
