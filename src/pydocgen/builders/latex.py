@@ -1,7 +1,8 @@
 ﻿# -*- coding: utf-8 -*-
 
-from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, AlignmentProperty,\
-                            FontEffectProperty, Span, PageOrientationProperty
+from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, \
+                            AlignmentProperty, FontEffectProperty, Span, \
+                            Table, PageOrientationProperty
 from pydocgen.builders.common import Builder
 
 
@@ -54,8 +55,21 @@ def _append_content_code(result, element):
         for element in element.content:
             result += element.generate()
             
-        return result 
+        return result
+    
+def _hex2dec(s):
+    return int(s, 16)
 
+def _generate_rgb_from_hex(color):
+    result = {}
+    result['r'] = str(_hex2dec(color[1] + color[2]))
+    result['g'] = str(_hex2dec(color[3] + color[4]))
+    result['b'] = str(_hex2dec(color[5] + color[6]))
+    return result
+
+def _generate_color(hex_color):
+    rgb_dict = _generate_rgb_from_hex(hex_color)
+    return "[RGB]{%s,%s,%s}" % (rgb_dict['r'], rgb_dict['g'], rgb_dict['b'])
 
 # main builder
 
@@ -67,6 +81,7 @@ class LatexBuilder(Builder):
         self.__paragraph_builder = _LatexParagraphBuilder()
         self.__header_builder = _LatexHeaderBuilder()
         self.__image_builder = _LatexImageBuilder(self.__float_generator)
+        self.__table_builder = _LatexTableBuilder(self.__float_generator)
         self.__list_builder = _LatexListBuilder()
         self.__document_builder = _LatexDocumentBuilder(self.__float_generator)
         
@@ -99,7 +114,7 @@ class LatexBuilder(Builder):
         return self.__image_builder.generate(image)
     
     def generate_table(self, table):
-        return ""
+        return self.__table_builder.generate(table)
 
 
 #helper builders
@@ -300,7 +315,7 @@ class _LatexSpanBuilder(object):
         if font_changed:
             result += r"\selectfont "
 #        if span.effective_style.has_key('background-color'):
-#            background_color = self.__generate_rgb_from_hex(span.effective_style['background-color'])
+#            background_color = _generate_rgb_from_hex(span.effective_style['background-color'])
 #            counter += 1
 #            result += r"\colorbox [RGB] {";
 #            result += background_color['r'] + ", "
@@ -308,7 +323,7 @@ class _LatexSpanBuilder(object):
 #            result += background_color['b'] + "} {"
             
         if span.effective_style.has_key('color'):
-            font_color = self.__generate_rgb_from_hex(span.effective_style['color']) 
+            font_color = _generate_rgb_from_hex(span.effective_style['color']) 
             counter += 1
             result += r"\color [RGB] {";
             result += font_color['r'] + r", "
@@ -331,16 +346,6 @@ class _LatexSpanBuilder(object):
         for _ in xrange(0, counter):
             result += r"}"
         return result
-        
-    def __generate_rgb_from_hex(self, color):
-        result = {}
-        result['r'] = str(self.__hex2dec(color[1]+color[2]))
-        result['g'] = str(self.__hex2dec(color[3]+color[4]))
-        result['b'] = str(self.__hex2dec(color[5]+color[6]))
-        return result
-
-    def __hex2dec(self, s):
-        return int(s, 16)
        
     def __get_leading(self, number):
         number = int(number *1.2)
@@ -438,7 +443,7 @@ class _FloatGenerator(object):
             margins_after = "\n" + ("\t" * tab_indent_level) + margins_after
         
         # putting the caption
-        if len(element.caption) > 0:
+        if (element.caption is not None) and (len(element.caption) > 0):
             caption_content = ""
             for span in element.caption:
                 caption_content += span.generate()
@@ -603,6 +608,105 @@ class _LatexImageBuilder(object):
         result += self.__float_generator.generate_float(image, "figure",
                                                         "thefigure", inner_part)
         
+        return result
+    
+class _LatexTableBuilder(object):
+    def __init__(self, float_generator):
+        self.__float_generator = float_generator
+    
+    def generate(self, table):
+        result = ""
+        inner_part = ""
+        
+        columns_def = "|"
+        
+        for i in xrange(0, table.cols_num):
+            columns_def += "p{%dmm}|" % table.get_column_width(i)
+            
+        # handling the "border-width" style property
+        if table.is_style_element_set("border-width"):
+            inner_part += "\\setlength{\\arrayrulewidth}{%dpt}" % \
+                table.effective_style['border-width']
+        
+        inner_part += "\\begin{tabular}{%s}\n\hline" % columns_def
+        
+        for row in xrange(0, table.rows_num):
+            skip_cols = 0
+            for col in xrange(0, table.cols_num):
+                if skip_cols > 0:
+                    skip_cols -= 1
+                    continue
+                
+                cell = table.get_cell(row, col)
+                col_width = table.get_column_width(col)
+                
+                alignment = None
+                if len(cell.content) > 0:
+                    if (cell.content[0].is_style_element_set("alignment")):
+                        alignment = cell.content[0].effective_style['alignment']
+                for element in cell.content:
+                    element_code = element.generate()
+                    element_code = element_code.replace("\\begin{center}\n", \
+                                                        "")
+                    element_code = element_code.replace("\\begin{flushleft}\n"\
+                                                        , "")
+                    element_code = element_code.replace("\\begin{flushright}\n"\
+                                                        , "")
+                    element_code = element_code.replace("\n\\end{center}", \
+                                                        "")
+                    element_code = element_code.replace("\n\\end{flushleft}", \
+                                                        "")
+                    element_code = element_code.replace("\n\\end{flushright}", \
+                                                        "")
+                    element_code = element_code.replace("\n\n", \
+                                                        "")
+                    
+                    #inner_part += "\\vspace{-\\tabcolsep}"
+                    
+                    colspan = min(cell.colspan, table.cols_num - col)
+
+                    if col == 0:
+                        left_rule = "|"
+                    else:
+                        left_rule = ""
+                        
+                    
+                        
+                    if colspan > 1:
+                        sum_width = 0
+                        for i in xrange(col, col + colspan):
+                            sum_width += table.get_column_width(i)
+                        skip_cols = colspan - 1
+                        inner_part += "\\multicolumn{%d}{%sp{%dmm+%d\\tabcolsep+\\arrayrulewidth}|}{" % (colspan, left_rule, sum_width, colspan)
+                        
+                    # handling the "alignment" style property
+                    if alignment is not None:
+                        if alignment == AlignmentProperty.LEFT:
+                            inner_part += "\\raggedright"
+                        elif alignment == AlignmentProperty.CENTER:
+                            inner_part += "\\centering"
+                        elif alignment == AlignmentProperty.RIGHT:
+                            inner_part += "\\raggedleft"
+                    
+                    # handling the "alignment" style property      
+                    if cell.is_style_element_set("background-color"):
+                        inner_part += "\\cellcolor%s" % \
+                            _generate_color(\
+                                    cell.effective_style['background-color'])
+                        
+                    inner_part += element_code
+                    if colspan > 1:
+                        inner_part += "}"
+                if col < table.cols_num - cell.colspan:
+                    inner_part += "&"
+            
+            inner_part += "\\tabularnewline\\hline\n"
+        
+        inner_part += "\n\\end{tabular}"
+        
+        result += self.__float_generator.generate_float(table, "table",
+                                                        "thetable", inner_part)
+        
         return result    
 
 class _LatexDocumentBuilder(object):
@@ -624,7 +728,8 @@ class _LatexDocumentBuilder(object):
         if (style.has_key("font-size")):
             optional_parameters[str(style["font-size"]) + "pt"] = None
         
-        if (not prop.has_key("language")) or (not prop['language'].startswith('en-US')):
+        if (not prop.has_key("language")) or (not prop['language'].
+                                              startswith('en-US')):
             optional_parameters["a4paper"] = None
         
         result += _generate_parameters_list(optional_parameters)
@@ -734,6 +839,15 @@ class _LatexDocumentBuilder(object):
         
         return result
     
+    def __generate_table_packages_reference(self, document):
+        result = ""
+        
+        if document.successor_isinstance(Table):
+            result += self.__generate_package_reference("calc")
+            result += self.__generate_package_reference("colortbl")
+        
+        return result
+    
     def generate(self, document):     
         result = ""
         
@@ -749,10 +863,13 @@ class _LatexDocumentBuilder(object):
                         document.effective_style)
         result += self.__generate_enumitem_package_reference(document)
         result += self.__generate_graphicx_package_reference(document)
-        result += "\n\\usepackage{color}"
+        result += self.__generate_table_packages_reference(document)
+        result += self.__generate_package_reference("color")
         
         result += self.__float_generator.generate_custom_format_declarations(\
                             document, "thefigure", "img", Image)
+        result += self.__float_generator.generate_custom_format_declarations(\
+                            document, "thetable", "tbl", Table)
         result += self.__generate_pagestyle_declaration(\
                         document.effective_style)
         
