@@ -74,6 +74,8 @@ class DocumentTreeNode(object):
         return self.get_root().builder
     
     def get_root(self):
+        """Get root of the document tree (document)."""
+        
         node = self
         while node.parent is not None:
             node = node.parent  
@@ -95,6 +97,10 @@ class DocumentTreeNode(object):
     effective_style = property(__get_effective_style, None)
     
     def fill_parent_fields(self):
+        """Set "parent" attribute for every node in the document tree
+        except from the root (document).
+        """
+        
         stack = []
         visited = {}
         curr_node = self
@@ -124,6 +130,10 @@ class DocumentTreeNode(object):
                     curr_node = stack[-1]
                     
     def successor_isinstance(self, req_type):
+        """Determine whether one of the node successors is instance of
+        req_type and return bool value.
+        """
+        
         result = False
         stack = []
         visited = {}
@@ -153,6 +163,8 @@ class DocumentTreeNode(object):
         return result
     
     def reset_sequences(self):
+        """Reset sequence for every element in the document tree."""
+        
         stack = []
         visited = {}
         curr_node = self
@@ -179,11 +191,17 @@ class DocumentTreeNode(object):
                     curr_node = stack[-1]
                 
     def generate(self):
+        """Generate output code and return is as a string"""
+        
         return self.builder.generate(self)
     
-    def is_style_element_set(self, style_element):
-        return (self.effective_style.has_key(style_element)) and\
-                (self.effective_style[style_element] is not None)
+    def is_style_property_set(self, style_property):
+        """Check whether the element's effective style has defined
+        style_property style property and return bool result.
+        """
+        
+        return (self.effective_style.has_key(style_property)) and\
+                (self.effective_style[style_property] is not None)
 
 class Document(DocumentTreeNode):
     """A class representing the document.

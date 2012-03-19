@@ -55,9 +55,9 @@ class HtmlBuilder(Builder):
         
         seq_number = ''
         if header.sequence is not None:
-            if header.is_style_element_set('header-numbered'):
+            if header.is_style_property_set('header-numbered'):
                 if header.effective_style['header-numbered']:
-                    if element.is_style_element_set("seq-number-sep"):
+                    if element.is_style_property_set("seq-number-sep"):
                         seq_number = element.sequence.to_str(header.\
                                             effective_style['seq-number-sep'])
                     else:
