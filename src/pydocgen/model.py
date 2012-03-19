@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 class DocumentProperties(dict):
-    """A class used for storing document properties. The common property names 
+    """Class used for storing document properties. The common property names 
     are: "title", "keywords", "language".
     """
     
     pass
 
 class Style(dict):
-    """A class representing the element style.
+    """Class representing the element style.
     """
     
     def __init__(self, other=None):
@@ -204,7 +204,7 @@ class DocumentTreeNode(object):
                 (self.effective_style[style_property] is not None)
 
 class Document(DocumentTreeNode):
-    """A class representing the document.
+    """Class representing the document.
     """
     
     builder = None
@@ -218,6 +218,9 @@ class Document(DocumentTreeNode):
         self.builder = None
         
     def generate_file(self, path):
+        """Generate output code and save it to file.
+        """
+        
         if self.builder is not None:
             output = self.generate()
             output_file = open(path, "w")
@@ -236,7 +239,7 @@ class Document(DocumentTreeNode):
         
 
 class Paragraph(DocumentTreeNode):
-    """A class representing the paragraph.
+    """Class representing the paragraph.
     """
     
     def __init__(self, content=None):
@@ -252,7 +255,7 @@ class Paragraph(DocumentTreeNode):
         return super(Paragraph, self).__iadd__(other)
 
 class Span(DocumentTreeNode):
-    """A class representing the span.
+    """Class representing the span.
     """
     
     def __init__(self, text=None):
@@ -260,7 +263,7 @@ class Span(DocumentTreeNode):
         self.text = text
 
 class List(DocumentTreeNode):
-    """A class representing the list.
+    """Class representing the list.
     """
     
     def __init__(self, content=None):
@@ -276,7 +279,7 @@ class List(DocumentTreeNode):
         return super(List, self).__iadd__(other)
 
 class Sequence(object):
-    """A class representing the sequence.
+    """Class representing the sequence.
     """
     
     def __init__(self, start_value=1, parent=None):
@@ -285,10 +288,17 @@ class Sequence(object):
         self.parent = parent
         
     def advance(self):
+        """Increase sequence value by 1.
+        """
+        
         self.__value += 1
         return self.__value
     
     def to_str(self, separator="."):
+        """Convert sequence value to string, taking into account parent
+        sequences.
+        """
+        
         seq = self
         result = str(seq.value)
         
@@ -305,9 +315,15 @@ class Sequence(object):
         return self.__value
     
     def reset(self):
+        """Reset the sequence to the initial value."""
+        
         self.__value = self.__start_value
     
     def get_numbers(self):
+        """Return a list of sequence values starting from the least 
+        significant.
+        """
+        
         seq = self
         numbers = [str(seq.value - 1)]
         
@@ -318,6 +334,9 @@ class Sequence(object):
         return numbers
     
     def get_level(self):
+        """Return level of the sequence.
+        """
+        
         seq = self
         level = 0
         
@@ -344,7 +363,7 @@ class NumberedObject(DocumentTreeNode):
         self.sequence = sequence
 
 class Header(NumberedObject):
-    """A class representing the header.
+    """Class representing the header.
     """
     
     def __init__(self, content=None, sequence=None):
@@ -381,7 +400,7 @@ class CaptionedObject(NumberedObject):
     caption = property(__get_caption, __set_caption)
 
 class Image(CaptionedObject):
-    """A class representing the image.
+    """Class representing the image.
     """
     
     def __init__(self, path=None, sequence=None):
@@ -390,7 +409,7 @@ class Image(CaptionedObject):
         self.style = StyleManager().get_style("image-default")
         
 class TableCell(DocumentTreeNode):
-    """A class representing a cell of the table. It is used internally by the
+    """Class representing a cell of the table. It is used internally by the
     Table class.
     """
     
@@ -406,7 +425,7 @@ class TableCell(DocumentTreeNode):
         return super(TableCell, self).__iadd__(other)
 
 class Table(CaptionedObject):
-    """A class representing the table.
+    """Class representing the table.
     """
     
     __default_row_height = 20
@@ -439,18 +458,26 @@ class Table(CaptionedObject):
         return row
     
     def get_cell(self, row, column):
+        """Get cell in given row and column."""
+        
         return (self.__rows[row])[column]
         
     def insert_row(self, index, count=1):
+        """Insert a row at the index position."""
+        
         for _ in xrange(0, count):
             row = self.__create_row()
             self.__rows.insert(index, row)
             self.__rowHeights.insert(index, self.__default_row_height)
         
     def append_row(self, count=1):
+        """Insert a row at the end of the table."""
+        
         self.insert_row(self.rows_num, count)
         
     def delete_row(self, index, count=1):
+        """Delete the row at the index position."""
+        
         for _ in xrange(0, count):
             if (self.rows_num > 1):
                 del self.__rows[index]
@@ -460,15 +487,21 @@ class Table(CaptionedObject):
                 self.__rowHeights[0] = self.__default_row_height
         
     def insert_column(self, index, count=1):
+        """Insert a column at the index position."""
+        
         for _ in xrange(0, count):
             for row in self.__rows:
                 row.insert(index, TableCell())
             self.__columnWidths.insert(index, self.__default_column_width)
             
     def append_column(self, count=1):
+        """Insert a column at the end of the table."""
+        
         self.insert_column(self.cols_num, count)
         
     def delete_column(self, index, count=1):
+        """Delete the column at the index position."""
+        
         for _ in xrange(0, count):
             if (self.cols_num > 1):
                 for row in self.__rows:
@@ -480,15 +513,23 @@ class Table(CaptionedObject):
                 self.__columnWidths[0] = self.__default_column_width
             
     def get_row_height(self, index):
+        """Return row height"""
+        
         return self.__rowHeights[index]
     
     def set_row_height(self, index, height):
+        """Set row height."""
+        
         self.__rowHeights[index] = height
         
     def get_column_width(self, index):
+        """Return column width."""
+        
         return self.__columnWidths[index]
     
     def set_column_width(self, index, width):
+        """Set column width."""
+        
         self.__columnWidths[index] = width
     
     def __get_content(self):
@@ -505,6 +546,7 @@ class Property(object):
     """An abstract class which is a base for some special, predefined properties
     of document elements stored in a style.
     """
+    
     def __init__(self, value):
         self.value = value
         
@@ -515,8 +557,9 @@ class Property(object):
         return hash(self.value)
 
 class ListStyleProperty(Property):
-    """A class representing the "list-style" property of the list style.
+    """Class representing the "list-style" property of the list style.
     """
+    
     BULLET = None
     NUMBER = None
         
@@ -524,9 +567,10 @@ ListStyleProperty.BULLET = ListStyleProperty(0)
 ListStyleProperty.NUMBER = ListStyleProperty(1)
 
 class AlignmentProperty(Property):
-    """A class representing the "alignment" property of the document element 
+    """Class representing the "alignment" property of the document element 
     style.
     """
+    
     LEFT = None
     CENTER = None
     RIGHT = None
@@ -538,9 +582,10 @@ AlignmentProperty.RIGHT = AlignmentProperty(2)
 AlignmentProperty.JUSTIFY = AlignmentProperty(3)
 
 class PageOrientationProperty(Property):
-    """A class representing the "page-orientation" property of the document 
+    """Class representing the "page-orientation" property of the document 
     style.
     """
+    
     PORTRAIT = None
     LANDSCAPE = None
 
@@ -548,11 +593,12 @@ PageOrientationProperty.PORTRAIT = PageOrientationProperty(0)
 PageOrientationProperty.LANDSCAPE = PageOrientationProperty(1)
 
 class FontEffectProperty(Property):
-    """A class representing the font effect of the span which is set by the
+    """Class representing the font effect of the span which is set by the
     "font-effect" style property. A few style effects can be combined and 
     assigned to the style by adding few FontEffectProperty objects 
     ("+" operator).
     """
+    
     BOLD = None
     ITALIC = None
     UNDERLINE = None
@@ -575,9 +621,10 @@ FontEffectProperty.ITALIC = FontEffectProperty(2)
 FontEffectProperty.UNDERLINE = FontEffectProperty(4)
 
 class BulletCharProperty(Property):
-    """A class representing a special value of the "bullet-char" property of 
+    """Class representing a special value of the "bullet-char" property of 
     the list style.
     """
+    
     BULLET = None
     CDOT = None
     DIAMOND = None
@@ -595,9 +642,10 @@ BulletCharProperty.MEDIUM_HYPHEN = BulletCharProperty(5)
 BulletCharProperty.LONG_HYPHEN = BulletCharProperty(6)
 
 class PageSizeProperty(Property):
-    """A class containing some predefined values of the "page-size" property of 
+    """Class containing some predefined values of the "page-size" property of 
     the document style.    
     """
+    
     A4 = None
     A5 = None
     B4 = None
