@@ -1,4 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import sys
+sys.path.append('../src')
 
 from pydocgen.model import *
 from pydocgen.builders.latex import LatexBuilder
@@ -282,7 +286,7 @@ document += table
 
 if __name__ == '__main__':
     document.builder = LatexBuilder()
-    document.generate_file("doc_example01.tex")
+    document.generate_file("example02.tex")
     
     document.builder = HtmlBuilder()
-    document.generate_file("doc_example01.htm")
+    document.generate_file("example02.htm")

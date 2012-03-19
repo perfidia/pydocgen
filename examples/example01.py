@@ -1,4 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import sys
+sys.path.append('../src')
 
 from pydocgen.model import *
 from pydocgen.builders.latex import LatexBuilder
@@ -78,7 +82,7 @@ paragraph += " elit tincidunt arcu placerat ac commodo arcu adipiscing:"
 
 document += paragraph
 
-image = Image("ppwi.png")
+image = Image("example01_img.png")
 image.style['alignment'] = AlignmentProperty.CENTER
 image.style['width'] = 66
 
@@ -250,7 +254,7 @@ paragraph.style['alignment'] = AlignmentProperty.RIGHT
 document += paragraph
 
 document.builder = LatexBuilder()
-document.generate_file("doc_example03.tex")
+document.generate_file("example01.tex")
 
 document.builder = HtmlBuilder();
-document.generate_file("doc_example03.htm")
+document.generate_file("example01.htm")
