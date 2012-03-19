@@ -8,6 +8,12 @@ from pydocgen.model import *
 from pydocgen.builders.latex import LatexBuilder
 from pydocgen.builders.html import HtmlBuilder
 
+hdrstyle = StyleManager().get_style('header-default')
+hdrstyle['margin-top'] = 0
+hdrstyle['margin-bottom'] = 0
+
+StyleManager().set_style('header-default', hdrstyle)
+
 document = Document()
 document.style += AlignmentProperty.JUSTIFY
 document.style['font-name'] = "Times New Roman"

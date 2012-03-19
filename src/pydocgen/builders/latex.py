@@ -491,8 +491,10 @@ class _FloatGenerator(object):
             
             if align_env is not None:
                 tabs = "\t" * tab_indent_level
-                pre += "\n%s\\begin{%s}" % (tabs, align_env)
-                post = ("\n%s\\end{%s}" % (tabs, align_env)) + post
+                pre += ("\n%s\\vspace{2pt}\\vspace{-\\baseline" + \
+                                    "skip}\\begin{%s}") % (tabs, align_env)
+                post = (("\n%s\\end{%s}\\vspace{2pt}" + \
+                        "\\vspace{-\\baselineskip}") % (tabs, align_env)) + post
                 tab_indent_level += 1
                 captionsetup_parameters['singlelinecheck'] = "false"
         
@@ -589,7 +591,8 @@ class _FloatGenerator(object):
         result += post
         
         if include_float_env_cmd:
-            result += "\n\\end{%s}" % float_name
+            result += "\n\\end{%s}\\vspace{2pt}\\vspace{-\\baselineskip}" % \
+                                                                    float_name
         else:
             result += "}"
         
@@ -750,7 +753,8 @@ class _LatexTableBuilder(object):
             elif table_alignment_property == AlignmentProperty.RIGHT:
                 optional_params['r'] = None        
         
-        inner_part += "\\begin{longtable}%s{%s}\n\hline" % \
+        inner_part += ("\\vspace{2pt}\\vspace{-\\baselineskip}\\begin" + \
+                            "{longtable}%s{%s}\n\hline") % \
                     (_generate_parameters_list(optional_params) , columns_def)
         
         for row in xrange(0, table.rows_num):
@@ -825,7 +829,7 @@ class _LatexTableBuilder(object):
         if (table.caption is not None) and (len(table.caption) > 0):
             inner_part += self.__float_generator.generate_caption(table)
         
-        inner_part += "\n\\end{longtable}"
+        inner_part += "\n\\end{longtable}\\vspace{2pt}\\vspace{-\\baselineskip}"
         
         result += self.__float_generator.generate_float(table, "table",
                                         "thetable", inner_part, False, False)

@@ -672,8 +672,8 @@ class StyleManager(object):
     def __init__(self):
         self.__dict__ = self.__shared_state
         
-    def set_style(self, style_name, _style):
-        self.__styles[style_name] = _style
+    def set_style(self, style_name, style):
+        self.__styles[style_name] = style
         
     def get_style(self, style_name):
         return Style(self.__styles[style_name])

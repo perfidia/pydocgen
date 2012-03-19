@@ -32,7 +32,6 @@ par_seq = Sequence(1, subsubheaders_seq)
 
 #header 1
 span = Span("First header")
-span.style = Style()
 span.style['font-name'] = "Computer Modern"
 span.style['font-size'] = 14
 span.style['font-effect'] = FontEffectProperty.ITALIC
@@ -47,11 +46,9 @@ document += header
 
 #paragraph with two spans
 paragraph = Paragraph()
-paragraph.style = Style()
 paragraph.style['alignment'] =  AlignmentProperty.LEFT
 paragraph.style['text-indent'] = 8
 span = Span("Sed in purus dolor. Ut id mauris vel urna fringilla blandit. Phasellus non risus dolor.")
-span.style = Style()
 span.style['font-name'] = "Computer Modern"
 span.style['font-size'] = 9
 span.style['font-effect'] = FontEffectProperty.UNDERLINE
@@ -60,7 +57,6 @@ span.style['color'] = "#1243ff"
 paragraph += span
 
 span = Span(" Times New Roman 17")
-span.style = Style()
 span.style['font-name'] = "Times New Roman"
 span.style['font-size'] = 17
 span.style['color'] = "#1243ff"
@@ -85,7 +81,6 @@ image.caption = "To jest rysunek na środku"
 #paragraph centered with margins set
 span = Span("Aliquam vehicula sem ut pede. Cras purus lectus, egestas eu, vehicula at, imperdiet sed, nibh. Morbi consectetuer luctus felis. Donec vitae nisi. Aliquam tincidunt feugiat elit. Duis sed elit ut turpis ullamcorper feugiat. Praesent pretium, mauris sed fermentum hendrerit, nulla lorem iaculis magna, pulvinar scelerisque urna tellus a justo. Suspendisse pulvinar massa in metus. Duis quis quam. Proin justo. Curabitur ac sapien. Nam erat. Praesent ut quam.")
 paragraph = Paragraph()
-paragraph.style = Style()
 paragraph.style['alignment'] = AlignmentProperty.CENTER
 paragraph.style['margin-top'] = 30
 paragraph.style['margin-bottom'] = 30
@@ -96,7 +91,6 @@ document += paragraph
 
 #simple list
 number_list = List()
-number_list.style = Style()
 number_list.style['list-style'] = ListStyleProperty.NUMBER
 span = Span("inside1")
 number_list += span
@@ -106,7 +100,6 @@ number_list += span
 
 
 lst = List()
-lst.style = Style()
 lst.style['list-style'] = ListStyleProperty.BULLET
 span = Span("item1")
 lst += span
@@ -130,7 +123,6 @@ document += lst
 
 #a not numbered header
 header = Header()
-header.style = Style()
 header.style['header-numbered'] = False
 header.sequence = headers_seq
 span = Span("And this is a not numbered header")
@@ -176,24 +168,19 @@ document += header
 header = Header()
 header.sequence = subheaders_seq
 span = Span("Next subheader")
-span.style = Style()
 span.style['color'] = "#ff0000"
 span.style['background-color'] = "#0fb099"
 
 header += span
 document += header
 
-
-
 #paragraph right alignment
 span = Span("Text Text text 1234567890 asdg kjjsnfb ekrhgrmfg tr grt gtrw e gtwtr  ergt")
-span.style = Style()
 span.style['font-name'] = "Times New Roman"
 span.style['font-size'] = 11
 span.style['color'] = "#ffff00"
 span.style['background-color'] = "#0fb099"
 paragraph = Paragraph()
-paragraph.style = Style()
 paragraph.style['alignment'] = AlignmentProperty.RIGHT
 paragraph.style['margin-top'] = 30
 paragraph.style['margin-bottom'] = 30
@@ -205,12 +192,10 @@ document += paragraph
 
 #paragraph right alignment
 span = Span("Text Text text 1234567890 asdg kjjsnfb ekrhgrmfg tr grt gtrw e gtwtr  ergt")
-span.style = Style()
 span.style['font-name'] = "Times New Roman"
 span.style['font-size'] = 11
 span.style['color'] = "#ffff00"
 paragraph = Paragraph()
-paragraph.style = Style()
 paragraph.style['alignment'] = AlignmentProperty.RIGHT
 paragraph.style['background-color'] = "#ff0000"
 paragraph += span
@@ -225,7 +210,6 @@ image.caption = "To jest rysunek"
 
 
 table = Table(5, 2)
-
 cellstyle = Style()
 cellstyle['background-color'] = "#ff00ce"
 cellstyle['font-effect'] = FontEffectProperty.ITALIC
@@ -243,14 +227,12 @@ cell = table.get_cell(1, 0)
 cell.style['alignment'] = AlignmentProperty.JUSTIFY
 cell.colspan = 2
 span = Span("In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
-span.style = Style()
 span.style['background-color'] = "#00ff00"
 cell.content += [span]
 cell.style.update(cellstyle)
 
 cell = table.get_cell(2, 0)
 span = Span("In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
-span.style = Style()
 span.style['background-color'] = "#1111cc"
 cell.content += [span]
 cell.style.update(cellstyle)
