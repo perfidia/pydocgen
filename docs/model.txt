@@ -1,4 +1,4 @@
-Model Reference
+Model
 ===============================================
 
 .. automodule:: pydocgen.model

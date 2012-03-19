@@ -11,12 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
-   model_reference
+   model
    latex_builder
    html_builder
-
-   
-
 
 
 Indices and tables

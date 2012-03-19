@@ -139,11 +139,11 @@ class _LatexHeaderBuilder(object):
     """A class responsible for creating and handling headers.
     """
     def __top_space(self, header):
-        if header.is_style_element_set("margin-top"):
+        if header.is_style_property_set("margin-top"):
             return "\\vspace{%dpt}" % header.effective_style['margin-top']
         
     def __bottom_space(self, header):
-        if header.is_style_element_set("margin-bottom"):
+        if header.is_style_property_set("margin-bottom"):
             return "\\vspace{%dpt}" % header.effective_style['margin-bottom']
     
     def generate(self, header):
@@ -166,10 +166,10 @@ class _LatexHeaderBuilder(object):
                 result += r"\paragraph*{"
             if level > 3:
                 result += r"\subparagraph*{"
-            if header.is_style_element_set("header-numbered"):
+            if header.is_style_property_set("header-numbered"):
                 if header.effective_style['header-numbered']:
 
-                    if header.is_style_element_set("seq-number-sep"):
+                    if header.is_style_property_set("seq-number-sep"):
                         number = header.sequence.to_str(header.\
                                             effective_style['seq-number-sep'])
                         result += number
@@ -249,7 +249,7 @@ class _LatexHeaderBuilder(object):
         result += self.__bottom_space(header)
         
         if header.sequence is not None:
-            if header.is_style_element_set("header-numbered"):
+            if header.is_style_property_set("header-numbered"):
                 if header.effective_style['header-numbered']:
                     header.sequence.advance()
             else:    
@@ -371,8 +371,8 @@ class _LatexSpanBuilder(object):
         font_changed = False
         document = span.get_root()
         
-        if (span.is_style_element_set('background-color')) and \
-                        (document.is_style_element_set('background-color')) \
+        if (span.is_style_property_set('background-color')) and \
+                        (document.is_style_property_set('background-color')) \
                         and (span.effective_style['background-color'] != \
                               document.effective_style['background-color']):
             background_color = _generate_rgb_from_hex(span.\
@@ -473,7 +473,7 @@ class _FloatGenerator(object):
         number_declaration = ""
             
         # handling the "alignment" style 
-        if element.is_style_element_set("alignment"):
+        if element.is_style_property_set("alignment"):
             align_env = None 
             if element.effective_style['alignment'] == AlignmentProperty.LEFT\
                     or element.effective_style['alignment'] == \
@@ -497,25 +497,25 @@ class _FloatGenerator(object):
                 captionsetup_parameters['singlelinecheck'] = "false"
         
         # handling the margins
-        if element.is_style_element_set("margin-top")\
-                    or element.is_style_element_set("margin-bottom")\
-                    or element.is_style_element_set("margin-left")\
-                    or element.is_style_element_set("margin-right"):
+        if element.is_style_property_set("margin-top")\
+                    or element.is_style_property_set("margin-bottom")\
+                    or element.is_style_property_set("margin-left")\
+                    or element.is_style_property_set("margin-right"):
             margin_top = 0
             margin_bottom = 0
             margin_left = 0
             margin_right = 0
             
-            if element.is_style_element_set("margin-top"):
+            if element.is_style_property_set("margin-top"):
                 margin_top = element.effective_style['margin-top']
                 
-            if element.is_style_element_set("margin-bottom"):
+            if element.is_style_property_set("margin-bottom"):
                 margin_bottom = element.effective_style['margin-bottom']
                 
-            if element.is_style_element_set("margin-left"):
+            if element.is_style_property_set("margin-left"):
                 margin_left = element.effective_style['margin-left']
                 
-            if element.is_style_element_set("margin-right"):
+            if element.is_style_property_set("margin-right"):
                 margin_right = element.effective_style['margin-right']
                 
             if margin_top != 0:
@@ -546,7 +546,7 @@ class _FloatGenerator(object):
 
             # handling the sequence
             if element.sequence is not None:
-                if element.is_style_element_set("seq-number-sep"):
+                if element.is_style_property_set("seq-number-sep"):
                     number = element.sequence.to_str(element.\
                                             effective_style['seq-number-sep'])
                 else:
@@ -556,7 +556,7 @@ class _FloatGenerator(object):
                             ("\t" * (tab_indent_level - 1), number_command, \
                              number)
                             
-            if element.is_style_element_set("caption-title"):
+            if element.is_style_property_set("caption-title"):
                 captionsetup_parameters['format'] = element.caption_format_name
                 
             captionsetup = "\n%s\\captionsetup%s" % \
@@ -653,7 +653,7 @@ class _FloatGenerator(object):
                 curr_node = first_child_not_visited
             else:
                 if (isinstance(curr_node, dest_type) and\
-                            (curr_node.is_style_element_set("caption-title"))):
+                            (curr_node.is_style_property_set("caption-title"))):
                     formats[curr_node] = self.__generate_caption_format(\
                                 curr_node.effective_style['caption-title'], \
                                 number_command)
@@ -703,11 +703,11 @@ class _LatexImageBuilder(object):
         parameters = {}
         
         # handling the "width" style 
-        if image.is_style_element_set("width"):
+        if image.is_style_property_set("width"):
             parameters['width'] = "%.2fmm" % image.effective_style['width']
             
         # handling the "height" style 
-        if image.is_style_element_set("height"):
+        if image.is_style_property_set("height"):
             parameters['height'] = "%.2fmm" % image.effective_style['height']
        
         inner_part = "\\includegraphics%s{%s}" % \
@@ -734,13 +734,13 @@ class _LatexTableBuilder(object):
             columns_def += "p{%dmm}|" % table.get_column_width(i)
             
         # handling the "border-width" style property
-        if table.is_style_element_set("border-width"):
+        if table.is_style_property_set("border-width"):
             inner_part += "\\setlength{\\arrayrulewidth}{%dpt}" % \
                 table.effective_style['border-width']
                 
         optional_params = {}
         
-        if (table.is_style_element_set("alignment")):
+        if (table.is_style_property_set("alignment")):
             table_alignment_property = table.effective_style['alignment']
             
             if table_alignment_property == AlignmentProperty.LEFT:
@@ -764,7 +764,7 @@ class _LatexTableBuilder(object):
                 
                 alignment = None
                 if len(cell.content) > 0:
-                    if (cell.content[0].is_style_element_set("alignment")):
+                    if (cell.content[0].is_style_property_set("alignment")):
                         alignment = cell.content[0].effective_style['alignment']
                 for element in cell.content:
                     element_code = element.generate()
@@ -809,7 +809,7 @@ class _LatexTableBuilder(object):
                             inner_part += "\\raggedleft"
                     
                     # handling the "alignment" style property      
-                    if cell.is_style_element_set("background-color"):
+                    if cell.is_style_property_set("background-color"):
                         inner_part += "\\cellcolor%s" % \
                             _generate_color(\
                                     cell.effective_style['background-color'])
@@ -1122,7 +1122,7 @@ class _LatexListBuilder(object):
     def generate(self, lst):
         result = ""
         
-        if lst.is_style_element_set('list-style'):
+        if lst.is_style_property_set('list-style'):
             style = lst.effective_style['list-style']
         else:
             style = ListStyleProperty.BULLET
@@ -1142,18 +1142,18 @@ class _LatexListBuilder(object):
                 result += "\n"
             
             #handling the "item-spacing" style
-            if lst.is_style_element_set("item-spacing"):
+            if lst.is_style_property_set("item-spacing"):
                 parameters['itemsep'] = "%dpt" %\
                         lst.effective_style['item-spacing']
                 parameters['parsep'] = "0pt"
                 
             #handling the "item-indent" style
-            if lst.is_style_element_set("item-indent"):
+            if lst.is_style_property_set("item-indent"):
                 parameters['itemindent'] = "%dpt" %\
                         lst.effective_style['item-indent']
                 
             #handling the "margin-top" style
-            if lst.is_style_element_set("margin-top"):
+            if lst.is_style_property_set("margin-top"):
                 margin_top = max(lst.effective_style['margin-top'], 0)
                 parameters['topsep'] = "%dpt" % margin_top
             else:
@@ -1161,22 +1161,22 @@ class _LatexListBuilder(object):
                         
             #handling the "margin-bottom" style
             margin_correction = 0
-            if lst.is_style_element_set("margin-bottom"):
+            if lst.is_style_property_set("margin-bottom"):
                 margin_bottom = max(lst.effective_style['margin-bottom'], 0)
                 margin_correction = margin_bottom - margin_top
                 
             #handling the "margin-left" style
-            if lst.is_style_element_set("margin-left"):
+            if lst.is_style_property_set("margin-left"):
                 parameters['leftmargin'] = "%dpt" %\
                         lst.effective_style['margin-left']
                 
             #handling the "margin-right" style
-            if lst.is_style_element_set("margin-right"):
+            if lst.is_style_property_set("margin-right"):
                 parameters['rightmargin'] = "%dpt" %\
                         lst.effective_style['margin-right']
             
             #handling the "bullet-char" style
-            if lst.is_style_element_set("bullet-char"):
+            if lst.is_style_property_set("bullet-char"):
                 bullet_char_command = self.__get_bullet_command(lst)
                 
                 if bullet_char_command is not None:                    

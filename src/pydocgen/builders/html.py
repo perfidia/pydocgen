@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from pydocgen.model import ListStyleProperty, AlignmentProperty, \
-        FontEffectProperty, Image, Style, Table
+                                    FontEffectProperty, Image, Style, Table
+
 from pydocgen.builders.common import Builder
 
 class HtmlBuilder(Builder):
@@ -15,15 +16,21 @@ class HtmlBuilder(Builder):
             body += str(self.generate(element))
         self.generate_style_file(document.effective_style, self.CSS_STYLE_FN)
         result = ''
+        result += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"' + \
+                                    '"http://www.w3.org/TR/html4/strict.dtd">\n'
         if 'language' in document.properties:
             result += '<html lang=\"' + document.properties['language'] + '\">'
         else:
             result += '<html>\n'
         result += '<head>\n'
+        title = ''
         if 'title' in document.properties:
-            result += '\t<title>' + document.properties['title'] +'</title>\n'
-        result += '\t<link rel=\"stylesheet\" type=\"text/css\" href=\".\\' \
-        + self.CSS_STYLE_FN + '\" />\n'
+            title = document.properties['title']
+        result += '\t<title>' + title + '</title>\n'
+        result += '\t<meta http-equiv="content-type" content="text/html; ' + \
+                                                            'charset=UTF-8">\n'
+        result += '\t<link rel=\"stylesheet\" type=\"text/css\" href=\".\\' + \
+                                                self.CSS_STYLE_FN + '\">\n'
         result += '</head>\n\n'
         result += '<body>\n' + body + '\n</body>\n</html>'
         return result
@@ -51,9 +58,9 @@ class HtmlBuilder(Builder):
         
         seq_number = ''
         if header.sequence is not None:
-            if header.is_style_element_set('header-numbered'):
+            if header.is_style_property_set('header-numbered'):
                 if header.effective_style['header-numbered']:
-                    if element.is_style_element_set("seq-number-sep"):
+                    if element.is_style_property_set("seq-number-sep"):
                         seq_number = element.sequence.to_str(header.\
                                             effective_style['seq-number-sep'])
                     else:
@@ -134,8 +141,7 @@ class HtmlBuilder(Builder):
 
 
     def generate_image(self, image):
-        return '<div ' + self.__generate_style_from_dict(image) + '><img src=\"' + image.path + \
-            '\" ' + self.__generate_style_from_dict(image) + '/></div>'
+        return '<div ' + self.__generate_style_from_dict(image) + '><img alt="image" src=\"' + image.path + '\" ' + self.__generate_style_from_dict(image) + '></div>'
     
     def generate_inline_style(self, elem):
         result = ''
