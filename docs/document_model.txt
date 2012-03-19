@@ -1,4 +1,4 @@
-Model
+Document Model
 ===============================================
 
 .. automodule:: pydocgen.model
