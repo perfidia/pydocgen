@@ -160,7 +160,7 @@ class HtmlBuilder(Builder):
     
     
     def __generate_style_from_dict(self, elem):
-        if isinstance(elem, str):
+        if isinstance(elem, str) or isinstance(elem, unicode):
             return ''
         style = elem.style
         css = ''

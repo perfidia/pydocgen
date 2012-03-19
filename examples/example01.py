@@ -63,7 +63,7 @@ span = Span("Nam orci")
 span.style += FontEffectProperty.UNDERLINE
 paragraph += span
 
-paragraph += " odio, sollicitudin quis vehicula eu, pulvinar at risus. Ut sed lacus libero, vitae eleifend nulla. Vivamus sed enim odio, eu "
+paragraph += u" odio, sollicitudin quis vehicula eu, pulvinar at risus. Ut sed lacus libero, vitae eleifend nulla. Vivamus sed enim odio, eu "
 
 span = Span("sodales")
 span.style += FontEffectProperty.BOLD
@@ -181,7 +181,7 @@ cell.style.update(graybgcellstyle)
 cell = table.get_cell(1, 0)
 cell.style['alignment'] = AlignmentProperty.JUSTIFY
 cell.colspan = 2
-span = Span("In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
+span = Span(u"In suscipit elit tincidunt arcu placerat ac commodo arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero. Quisque ligula velit, pellentesque a consectetur non, bibendum eleifend nibh. Nam non tincidunt orci. Nunc ultricies neque nec magna vestibulum malesuada. Cras mollis feugiat turpis, eu mollis magna laoreet eu. Vivamus pharetra imperdiet libero, nec bibendum sapien adipiscing at. Nunc dictum facilisis est sed ultricies.")
 cell.content += [span]
 cell.style.update(graybgcellstyle)
 

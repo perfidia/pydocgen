@@ -610,7 +610,7 @@ class _FloatGenerator(object):
     def __generate_caption_format(self, caption_title_style, number_command):
         result = ""
         caption_title = caption_title_style
-        if isinstance(caption_title, str):
+        if isinstance(caption_title, str) or isinstance(caption_title, unicode):
             caption_title = Span(caption_title)
         if isinstance(caption_title, Span):
             caption_title = [caption_title]
@@ -1090,7 +1090,8 @@ class _LatexListBuilder(object):
         bullet_char_dict = self.__get_bullet_char_dict()
         if bullet_char_dict.has_key(bullet_char_style_val):
             bullet_char =  bullet_char_dict[bullet_char_style_val]
-        elif isinstance(bullet_char_style_val, str):
+        elif isinstance(bullet_char_style_val, str) or\
+                            isinstance(bullet_char_style_val, unicode):
             bullet_char = bullet_char_style_val
             
         return bullet_char

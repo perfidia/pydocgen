@@ -57,7 +57,8 @@ class DocumentTreeNode(object):
         self.style = Style()
         try:
             self.content = content
-            if isinstance(self.content, str):
+            if isinstance(self.content, str) or\
+                                    isinstance(self.content, unicode):
                 span = Span()
                 span.text = self.content
                 self.content = span
@@ -223,14 +224,14 @@ class Document(DocumentTreeNode):
         
         if self.builder is not None:
             output = self.generate()
-            output_file = open(path, "w")
-            output_file.write(output)
+            output_file = open(path, "w")            
+            output_file.write(output.encode("utf-8"))
             output_file.close()
         else:
             raise Exception("The document has no builder!")
         
     def __iadd__(self, other):
-        if isinstance(other, str):
+        if isinstance(other, str) or isinstance(other, unicode):
             other = Span(other)
         if isinstance(other, Span):
             other = Paragraph(other)
@@ -249,7 +250,7 @@ class Paragraph(DocumentTreeNode):
         self.style = StyleManager().get_style('paragraph-default')
         
     def __iadd__(self, other):
-        if isinstance(other, str):
+        if isinstance(other, str) or isinstance(other, unicode):
             other = Span(other)
 
         return super(Paragraph, self).__iadd__(other)
@@ -273,7 +274,7 @@ class List(DocumentTreeNode):
         self.style = StyleManager().get_style('list-default')
         
     def __iadd__(self, other):
-        if isinstance(other, str):
+        if isinstance(other, str) or isinstance(other, unicode):
             other = Span(other)
 
         return super(List, self).__iadd__(other)
@@ -387,12 +388,13 @@ class CaptionedObject(NumberedObject):
         else:
             if (not isinstance(caption, list)) and\
                         (not isinstance(caption, Span)) and\
-                        (not isinstance(caption, str)):
+                        (not isinstance(caption, str)) and\
+                        (not isinstance(caption, unicode)):
                 raise TypeError("Caption needs to be a string, \
                                             Span or list of Span!")
             if isinstance(caption, list):
                 self.__caption = caption
-            if isinstance(caption, str):
+            if isinstance(caption, str) or isinstance(caption, unicode):
                 self.__caption = [Span(caption)]
             else:
                 self.__caption = [caption]
@@ -419,7 +421,7 @@ class TableCell(DocumentTreeNode):
         self.colspan = 1
         
     def __iadd__(self, other):
-        if isinstance(other, str):
+        if isinstance(other, str) or isinstance(other, unicode):
             other = Span(other)
 
         return super(TableCell, self).__iadd__(other)
