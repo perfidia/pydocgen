@@ -224,7 +224,7 @@ class Document(DocumentTreeNode):
         
         if self.builder is not None:
             output = self.generate()
-            output_file = open(path, "w")            
+            output_file = open(path, "w")   
             output_file.write(output.encode("utf-8"))
             output_file.close()
         else:

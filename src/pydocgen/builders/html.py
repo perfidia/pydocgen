@@ -13,7 +13,7 @@ class HtmlBuilder(Builder):
     def generate_document(self, document):
         body = ''
         for element in document.content:
-            body += str(self.generate(element))
+            body += self.generate(element)
         self.generate_style_file(document.effective_style, self.CSS_STYLE_FN)
         result = ''
         result += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"' + \
@@ -146,7 +146,7 @@ class HtmlBuilder(Builder):
             image_caption += image.sequence + ' ' 
         for c in image.caption:
             image_caption += self.generate(c) 
-        return '<div ' + self.__generate_style_from_dict(image) + '><img alt=\"'+image_caption+'\" src=\"' + image.path + '\" ' + self.__generate_style_from_dict(image) + '></div>'
+        return '<div ' + self.__generate_style_from_dict(image) + '><img alt="image" src=\"' + image.path + '\" ' + self.__generate_style_from_dict(image) + '></div>'
     
     def generate_inline_style(self, elem):
         result = ''
