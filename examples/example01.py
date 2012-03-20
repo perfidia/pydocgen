@@ -49,8 +49,8 @@ paragraph += span
 paragraph += " elit tincidunt arcu placerat ac "
 
 span = Span("commodo")
-span.style += FontEffectProperty.BOLD
-
+span.style['font-effect']  = (FontEffectProperty.BOLD + FontEffectProperty.STRIKE \
+    + FontEffectProperty.ITALIC + FontEffectProperty.UNDERLINE)
 paragraph += span
 
 paragraph += " arcu adipiscing. Nunc sagittis suscipit diam, ut lacinia justo hendrerit quis. Sed vitae ante facilisis enim feugiat ultrices in nec libero."

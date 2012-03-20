@@ -423,7 +423,9 @@ class _LatexSpanBuilder(object):
             if FontEffectProperty.UNDERLINE in font_effects:
                 counter += 1
                 result += r"\protect\underline{"
-        
+            if FontEffectProperty.STRIKE in font_effects:
+                counter += 1
+                result += r"\protect\st{"        
         result += span.text
         for _ in xrange(0, counter):
             result += r"}"

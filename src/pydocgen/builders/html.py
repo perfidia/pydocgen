@@ -161,7 +161,7 @@ class HtmlBuilder(Builder):
     
     def __generate_style_from_dict(self, elem):
         if isinstance(elem, str) or isinstance(elem, unicode):
-            return ''
+            return '' 
         style = elem.style
         css = ''
         if style != None:
@@ -181,13 +181,19 @@ class HtmlBuilder(Builder):
                               }.get(style[key]) + ';'
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
-                    elif key == 'font-effect':
-                        css += {FontEffectProperty.BOLD:'font-weight: bold',\
-                         FontEffectProperty.ITALIC:'font-style: italic',\
-                         FontEffectProperty.UNDERLINE:'text-decoration: underline',\
-                         'text-decoration': str(style[key])\
-                         }.get(style[key],\
-                        'text-decoration: ' + str(style[key])) + ';'
+                    elif key == 'font-effect':                        
+                        font_effects = style['font-effect']
+                        if FontEffectProperty.BOLD in font_effects:
+                            css += 'font-weight: bold;'
+                        if FontEffectProperty.ITALIC in font_effects:
+                            css += 'font-style: italic;'
+                        if FontEffectProperty.UNDERLINE in font_effects \
+                        and FontEffectProperty.UNDERLINE in font_effects:
+                            css += 'text-decoration: underline line-through;'
+                        elif FontEffectProperty.UNDERLINE in font_effects:    
+                            css += 'text-decoration: underline;'
+                        elif FontEffectProperty.STRIKE in font_effects:
+                            css += 'text-decoration: line-through;'
                     elif key == 'item-spacing':
                         css += 'border-spacing: ' + str(style[key]) + 'pt ' + str(style[key]) + 'pt;';
                     elif key == 'item-indent':

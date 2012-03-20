@@ -604,6 +604,7 @@ class FontEffectProperty(Property):
     BOLD = None
     ITALIC = None
     UNDERLINE = None
+    STRIKE = None
     
     def __add__(self, other):
         return FontEffectProperty(self.value | other.value)
@@ -621,6 +622,7 @@ class FontEffectProperty(Property):
 FontEffectProperty.BOLD = FontEffectProperty(1)
 FontEffectProperty.ITALIC = FontEffectProperty(2)
 FontEffectProperty.UNDERLINE = FontEffectProperty(4)
+FontEffectProperty.STRIKE = FontEffectProperty(8)
 
 class BulletCharProperty(Property):
     """Class representing a special value of the "bullet-char" property of 

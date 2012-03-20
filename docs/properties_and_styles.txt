@@ -167,7 +167,7 @@ Size of the span's font.
 
 font-effect
 ----------------------------------------------
-An effect associated with the span's font. Effect consists of one or more primitive effects: FontEffectProperty.BOLD, FontEffectProperty.ITALIC, FontEffectProperty.UNDERLINE.
+An effect associated with the span's font. Effect consists of one or more primitive effects: FontEffectProperty.BOLD, FontEffectProperty.ITALIC, FontEffectProperty.UNDERLINE, FontEffectProperty.STRIKE.
 
 | **Type:** FontEffectProperty
 | **Supported builders:** LatexBuilder, HtmlBuilder
