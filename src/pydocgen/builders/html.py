@@ -188,7 +188,7 @@ class HtmlBuilder(Builder):
                         if FontEffectProperty.ITALIC in font_effects:
                             css += 'font-style: italic;'
                         if FontEffectProperty.UNDERLINE in font_effects \
-                        and FontEffectProperty.UNDERLINE in font_effects:
+                        and FontEffectProperty.STRIKE in font_effects:
                             css += 'text-decoration: underline line-through;'
                         elif FontEffectProperty.UNDERLINE in font_effects:    
                             css += 'text-decoration: underline;'
