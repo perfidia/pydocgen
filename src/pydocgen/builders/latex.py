@@ -409,19 +409,21 @@ class _LatexSpanBuilder(object):
             result += font_color['r'] + r", "
             result += font_color['g'] + r", "
             result += font_color['b'] + r"} {"
+            
+        result += highlight
+        
         if span.effective_style.has_key('font-effect'):
             font_effects = span.effective_style['font-effect']
             if FontEffectProperty.BOLD in font_effects:
                 counter += 1
-                result += r"\textbf {"
+                result += r"\protect\textbf {"
             if FontEffectProperty.ITALIC in font_effects:
                 counter += 1
-                result += r"\textit{"
+                result += r"\protect\textit{"
             if FontEffectProperty.UNDERLINE in font_effects:
                 counter += 1
-                result += r"\underline{"
+                result += r"\protect\underline{"
         
-        result += highlight
         result += span.text
         for _ in xrange(0, counter):
             result += r"}"
