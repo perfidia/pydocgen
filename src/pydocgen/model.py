@@ -597,7 +597,7 @@ PageOrientationProperty.LANDSCAPE = PageOrientationProperty(1)
 class FontEffectProperty(Property):
     """Class representing the font effect of the span which is set by the
     "font-effect" style property. A few style effects can be combined and 
-    assigned to the style by adding few FontEffectProperty objects 
+    assigned to the style by adding a few FontEffectProperty objects 
     ("+" operator).
     """
     

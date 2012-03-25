@@ -239,8 +239,6 @@ class _LatexHeaderBuilder(object):
         else:    
             result += r"\section*{"
   
-        
-        
         for element in header.content:
             result += element.generate()   
         
@@ -356,10 +354,8 @@ class _LatexParagraphBuilder(object):
         result += end_margin
         result += margins_after
         
-        
         return result
         
-
 
 class _LatexSpanBuilder(object):
     """A class responsible for creating and handling spans.
