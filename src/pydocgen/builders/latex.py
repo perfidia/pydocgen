@@ -297,13 +297,13 @@ class _LatexParagraphBuilder(object):
                                             r"\vspace{-\baselineskip}" + "\n "
             elif alignment == AlignmentProperty.RIGHT:
                 justification_before += r"\vspace{2pt}\vspace{-\baseline" + \
-                                            r"skip}\begin{center}" + "\n "
-                justification_after += "\n" + r"\end{center}\vspace{2pt}" + \
+                                            r"skip}\begin{flushright}" + "\n "
+                justification_after += "\n" + r"\end{flushright}\vspace{2pt}" + \
                                             r"\vspace{-\baselineskip}" + "\n"
             elif alignment == AlignmentProperty.CENTER :
                 justification_before += r"\vspace{2pt}\vspace{-\baseline" + \
-                                            r"skip}\begin{flushright}" + "\n"
-                justification_after += "\n" + r"\end{flushright}\vspace{" + \
+                                            r"skip}\begin{center}" + "\n"
+                justification_after += "\n" + r"\end{center}\vspace{" + \
                                         r"2pt}\vspace{-\baselineskip}" + "\n"
     
         if margin_top != 0:
@@ -572,7 +572,7 @@ class _FloatGenerator(object):
         result += "\n\n"
         
         if include_float_env_cmd:
-            result += "\\begin{%s}[ht!]" % float_name
+            result += "\\begin{%s}[H]" % float_name
         else:
             result += "{"
         
@@ -971,6 +971,7 @@ class _LatexDocumentBuilder(object):
         if document.successor_isinstance(Image):
             result += self.__generate_package_reference("graphicx")
             result += self.__generate_package_reference("caption")
+            result += self.__generate_package_reference("float")
         
         return result
     
@@ -981,6 +982,7 @@ class _LatexDocumentBuilder(object):
             result += self.__generate_package_reference("calc")
             result += self.__generate_package_reference("colortbl")
             result += self.__generate_package_reference("longtable")
+            result += self.__generate_package_reference("float")
         
         return result
     
