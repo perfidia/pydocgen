@@ -13,7 +13,7 @@ Contents:
    
    document_model
    properties_and_styles
-
+   _static/todo
 
 Indices and tables
 ==================

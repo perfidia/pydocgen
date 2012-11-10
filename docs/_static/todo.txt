@@ -1,0 +1,5 @@
+TODO
+====
+
+* test adding image to different elements (like table for example)
+* describe architecture of a builder

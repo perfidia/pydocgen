@@ -5,8 +5,8 @@ import sys
 sys.path.append('../src')
 
 from pydocgen.model import *
-from pydocgen.builders.latex import LatexBuilder
-from pydocgen.builders.html import HtmlBuilder
+from pydocgen.builders import LatexBuilder
+from pydocgen.builders import HtmlBuilder
 
 hdrstyle = StyleManager().get_style('header-default')
 hdrstyle['margin-top'] = 0
@@ -14,7 +14,7 @@ hdrstyle['margin-bottom'] = 0
 
 StyleManager().set_style('header-default', hdrstyle)
 
-document = Document()
+document = Document("output1", path="../output")
 document.style += AlignmentProperty.JUSTIFY
 document.style['font-name'] = "Times New Roman"
 
@@ -161,7 +161,7 @@ for row in xrange(0, table.rows_num):
     for col in xrange(0, table.cols_num):
         cell = table.get_cell(row, col).style['alignment'] = \
                     AlignmentProperty.LEFT
-        
+
 document += table
 
 table = Table(7, 2)
@@ -259,8 +259,12 @@ paragraph.style['alignment'] = AlignmentProperty.RIGHT
 
 document += paragraph
 
+#############################################################
+#                    GENERATE THE DOCUMENT                  #
+#############################################################
+
 document.builder = LatexBuilder()
-document.generate_file("example01.tex")
+document.generate()
 
 document.builder = HtmlBuilder();
-document.generate_file("example01.htm")
+document.generate()

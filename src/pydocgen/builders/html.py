@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from pydocgen.model import ListStyleProperty, AlignmentProperty, \
                                     FontEffectProperty, Image, Style, Table
 
@@ -9,12 +11,14 @@ class HtmlBuilder(Builder):
     def __init__(self):
         super(HtmlBuilder, self).__init__()
         self.CSS_STYLE_FN = 'style.css'
-    
+
+        self.extension = "html"
+
     def generate_document(self, document):
         body = ''
         for element in document.content:
             body += self.generate(element)
-        self.generate_style_file(document.effective_style, self.CSS_STYLE_FN)
+        self.generate_style_file(document, self.CSS_STYLE_FN)
         result = ''
         result += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"' + \
                                     '"http://www.w3.org/TR/html4/strict.dtd">\n'
@@ -32,30 +36,30 @@ class HtmlBuilder(Builder):
         result += '\t<link rel=\"stylesheet\" type=\"text/css\" href=\".\\' + \
                                                 self.CSS_STYLE_FN + '\">\n'
         result += '</head>\n\n'
-        result += '<body>\n' + body + '\n</body>\n</html>'
+        result += '<body>\n' + body + '\n</body>\n</html>\n'
         return result
-    
+
     def generate_paragraph(self, paragraph):
         p, tmp = '', None
         if paragraph.content:
-            for element in paragraph.content:        
+            for element in paragraph.content:
                 tmp = self.generate(element)
                 if tmp :
                     p += tmp
         return '\n<p ' + self.__generate_style_from_dict(paragraph) + \
              '>\n\t' + p + '\n</p>\n'
-    
+
     def generate_span(self, span):
         return '<span ' + self.__generate_style_from_dict(span) + '>' + \
             span.text + '</span>'
-    
+
     def generate_header(self, header):
         content = ''
         if header.content:
             for element in header.content:
                 if element:
                     content += element.generate()
-        
+
         seq_number = ''
         if header.sequence is not None:
             if header.is_style_property_set('header-numbered'):
@@ -71,8 +75,8 @@ class HtmlBuilder(Builder):
         h_lvl = header.sequence.get_level()+1 if header.sequence.get_level() < 5 else 6
         h_lvl = 'h'+str(h_lvl);
         return '\n\n<'+h_lvl+' '+self.__generate_style_from_dict(header) + '>' + \
-            seq_number + " " + content + '</'+h_lvl+'>\n\n' 
-    
+            seq_number + " " + content + '</'+h_lvl+'>\n\n'
+
     def generate_list(self, lst):
         result, tmp = '', None
         for item in lst.content:
@@ -85,15 +89,15 @@ class HtmlBuilder(Builder):
             return '\n<ul ' + self.__generate_style_from_dict(lst) + '>\n' + result + '\n</ul>\n'
         else:
             return '\n<ul ' + self.__generate_style_from_dict(lst) + '>\n' + result + '\n</ul>\n'
-        
+
     def generate_table(self, table):
         result = '\n\n<table border=\"1\" '\
          + self.__generate_style_from_dict(table) + '>'
         caption = ''
         if table.sequence != None:
-            caption += table.sequence + ' ' 
+            caption += table.sequence + ' '
         for c in table.caption:
-            caption += self.generate(c) 
+            caption += self.generate(c)
         result +=  '<caption>'+caption+'</caption>'
         skip_cols = 0
         for i in xrange(0, table.rows_num):
@@ -105,15 +109,17 @@ class HtmlBuilder(Builder):
                 colspan_code = ''
                 if table.get_cell(i, j).colspan is not None and table.get_cell(i, j).colspan > 1:
                     skip_cols = table.get_cell(i, j).colspan - 1
-                    colspan_code = ' colspan=\"' + str(table.get_cell(i, j).colspan) + '\" ';  
+                    colspan_code = ' colspan=\"' + str(table.get_cell(i, j).colspan) + '\" ';
                 result+='\n<td '+colspan_code + self.__generate_style_from_dict(table.get_cell(i, j))+'>'
                 for k in table.get_cell(i, j).content:
-                    result += self.generate(k) 
+                    result += self.generate(k)
                 result += '</td>'
             result += '\n</tr>\n'
         return  result + '\n</table>\n\n'
-        
-    def generate_style_file(self, style, fn):
+
+    def generate_style_file(self, document, fn):
+        style = document.effective_style
+
         css = 'body {\n'
         if style != None:
             for key in style.keys():
@@ -138,21 +144,23 @@ class HtmlBuilder(Builder):
                         css += key + ': ' + str(style[key]) + 'pt;\n'
         css = css[:-2]
         css += '\n}\n'
-        
+
+        fn = os.path.join(document.path, fn)
+
         output_file = open(fn, "w")
         output_file.write(css)
-        output_file.close() 
+        output_file.close()
         return None
 
 
     def generate_image(self, image):
         image_caption = ''
         if image.sequence != None:
-            image_caption += image.sequence + ' ' 
+            image_caption += image.sequence + ' '
         for c in image.caption:
-            image_caption += self.generate(c) 
+            image_caption += self.generate(c)
         return '<div ' + self.__generate_style_from_dict(image) + '><img alt="image" src=\"' + image.path + '\" ' + self.__generate_style_from_dict(image) + '></div>'
-    
+
     def generate_inline_style(self, elem):
         result = ''
         try:
@@ -162,11 +170,11 @@ class HtmlBuilder(Builder):
         except:
             result = ''
         return result
-    
-    
+
+
     def __generate_style_from_dict(self, elem):
         if isinstance(elem, str) or isinstance(elem, unicode):
-            return '' 
+            return ''
         style = elem.style
         css = ''
         if style != None:
@@ -186,7 +194,7 @@ class HtmlBuilder(Builder):
                               }.get(style[key]) + ';'
                     elif  key == 'list-_style':
                         pass #Using <ul> or <ol> instead
-                    elif key == 'font-effect':                        
+                    elif key == 'font-effect':
                         font_effects = style['font-effect']
                         if FontEffectProperty.BOLD in font_effects:
                             css += 'font-weight: bold;'
@@ -195,7 +203,7 @@ class HtmlBuilder(Builder):
                         if FontEffectProperty.UNDERLINE in font_effects \
                         and FontEffectProperty.STRIKE in font_effects:
                             css += 'text-decoration: underline line-through;'
-                        elif FontEffectProperty.UNDERLINE in font_effects:    
+                        elif FontEffectProperty.UNDERLINE in font_effects:
                             css += 'text-decoration: underline;'
                         elif FontEffectProperty.STRIKE in font_effects:
                             css += 'text-decoration: line-through;'
@@ -205,14 +213,15 @@ class HtmlBuilder(Builder):
                         pass #css += 'text-indent: ' + str(style[key]) + 'pt;\n'
                     elif key == 'background-color' or key == 'color':
                         css += key + ': ' + style[key] + ';'
-                    elif key == 'border-width' : 
+                    elif key == 'border-width' :
                         css += 'border-style: solid; border-width: ' + str(style[key]) + 'pt;'
-                    elif key == 'width' : 
+                    elif key == 'width' :
                         css += 'width: ' + str(style[key]) + 'mm;'
-                    elif key == 'height' : 
+                    elif key == 'height' :
                         css += 'height: ' + str(style[key]) + 'mm;'
                     else:
-                        if not isinstance(elem, Table) and key in ('marign-left', 'margin-right'): 
+                        if not isinstance(elem, Table) and key in ('marign-left', 'margin-right'):
                             css += key + ': ' + str(style[key]) + 'pt;'
             css += '\"'
-        return css 
+
+        return css

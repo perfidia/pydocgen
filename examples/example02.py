@@ -5,11 +5,11 @@ import sys
 sys.path.append('../src')
 
 from pydocgen.model import *
-from pydocgen.builders.latex import LatexBuilder
-from pydocgen.builders.html import HtmlBuilder
+from pydocgen.builders import LatexBuilder
+from pydocgen.builders import HtmlBuilder
 
 #creating document with specific properties and styles
-document = Document()
+document = Document("output2", path="../output")
 document.properties['language'] = "pl"
 document.style['font-name'] = "Times New Roman"
 document.style['font-size'] = 11
@@ -264,11 +264,12 @@ table.set_column_width(1, 30)
 document += table
 
 
-# here we generate the document
+#############################################################
+#                    GENERATE THE DOCUMENT                  #
+#############################################################
 
-if __name__ == '__main__':
-    document.builder = LatexBuilder()
-    document.generate_file("example02.tex")
-    
-    document.builder = HtmlBuilder()
-    document.generate_file("example02.htm")
+document.builder = LatexBuilder()
+document.generate()
+
+document.builder = HtmlBuilder();
+document.generate()
