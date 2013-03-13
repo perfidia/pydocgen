@@ -11,12 +11,23 @@ class DitaBuilder(Builder):
         result = ''
         result 
         
-class DitaTopic:
+class DitaTopic(object):
     __topic = None
     __title = None
     __shortdesc = None
     __body = None
     __relatedlinks = []
+    
+    def getTopic(self):
+        result = ''
+        result += self.generateTopic()
+        result += self.generateTitle()
+        result += self.generateShortdesc()
+        result += self.generateBody()
+        result += self.generateRelatedLinks()
+        result += '</topic>'
+        
+        
     
     def setTopic(self, topic):
         __topic = topic
@@ -51,7 +62,7 @@ class DitaTopic:
     def generateBody(self):
         result = ''
         if self.__body != None:
-            result += '<body>' + self.__body + '</body>'
+            result += self.__body.getContent()
         return result
         
     def addLink(self, iformat, href, scope):
@@ -69,7 +80,7 @@ class DitaTopic:
         return result
         
         
-class Link:
+class Link(object):
     __format = None
     __href = None
     __scope = None
@@ -95,6 +106,64 @@ class Link:
     
     def getLink(self):
         return self
+    
+class Content(object):
+    """Main class for building DITA documents. 
+    Opening of every tag should be added to self.__content
+    and closing of every tag should be added do self.__stack.
+    To close last opened tag just type self.__stack.pop()
+    It should allow to nest elements easily
+    """
+    __content = None
+    __stack = []
+    
+    def __init__(self):
+        self.__content = '' 
+        
+    def getContent(self):
+        while not self.__stack:
+            self.__content += self.__stack.pop()
+            
+    def addSimpleTable(self, table):
+        self.__content += '<simpletable>'
+        self.__stack.append('</simpletable>')
+        # TODO generateTable with content
+        self.__stack.pop(); #close table
+        
+    
+class Body(Content):
+    __content = None
+    __sections = []
+    
+    def __init__(self):
+        self.__content = ''
+        self.__content += '<body>'
+        self.__stack.append('</body>')
+        
+    def getBody(self):
+        return self
+    
+    def addSection(self, section):
+        self.__content += section.getContent
+        
+
+class Section(Content):
+    #__content = None
+    __title = None
+    #__stack = []
+    
+    def __init__(self, title):
+        self.__content = ''
+        self.__content += '<section>'
+        self.__stack.append('</section>')
+        if title != None:
+            self.__content += '<title>' + title + '</title>'
+            
+    
+            
+            
+       
+            
     
         
         
