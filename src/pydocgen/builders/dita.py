@@ -8,13 +8,26 @@ from pydocgen.model import ListStyleProperty, AlignmentProperty, \
 from pydocgen.builders.common import Builder
 
 class DitaBuilder(Builder):
+    """Class responsible for creating a DITA document.
+    It inherits from base Builder class shared between all builder classes.
+    """
+    
     def __init__(self):
+        """Class constructor. Calls base class constructor.
+        """
+        
         super(DitaBuilder, self).__init__()
         self.CSS_STYLE_FN = 'style.css'
 
         self.extension = "dita"
 
     def generate_document(self, document):
+        """Main method for generating DITA document. Generates DITA frame for content and fills that frame with data.
+        
+        Args:
+            document (Document): Stores a document representation independent of a particular builder class.
+        """
+        
         body = ''
         for element in document.content:
             body += self.generate(element)
@@ -35,6 +48,12 @@ class DitaBuilder(Builder):
         return result
 
     def generate_paragraph(self, paragraph):
+        """Generates a DITA paragraph and fills it with data.
+        
+        Args:
+            paragraph (Paragraph): Stores information about the paragraph. Information is independent of the output file format.
+        """
+        
         p, tmp = '', None
         if paragraph.content:
             for element in paragraph.content:
@@ -45,10 +64,22 @@ class DitaBuilder(Builder):
              '>\n\t' + p + '\n</p>\n'
 
     def generate_span(self, span):
+        """Generates a DITA span.
+        
+        Args:
+            span (Span): stores information about span. Information is independent of the output file format.
+        """
+        
         return '<span' + self.__generate_style_from_dict(span) + '>' + \
             span.text + '</span>'
 
     def generate_header(self, header):
+        """Generates a DITA header and fills it with data.
+        
+        Args:
+        header (Header): Stores information about the header. Information is independent of the output file format.
+        """
+        
         content = ''
         if header.content:
             for element in header.content:
@@ -75,6 +106,12 @@ class DitaBuilder(Builder):
            # seq_number + " " +  + '</'+h_lvl+'>\n\n'
 
     def generate_list(self, lst):
+        """Generates a DITA list and fills it with content.
+        
+        Args:
+            lst(List): Stores information about the list. Information is independent of the output file format.
+        """
+        
         result, tmp = '', None
         for item in lst.content:
             tmp = self.generate(item)
@@ -88,6 +125,13 @@ class DitaBuilder(Builder):
             return '\n<ul' + self.__generate_style_from_dict(lst) + '>\n' + result + '\n</ul>\n'
 
     def generate_table(self, table):
+        """Generates a DITA table and fills the table with content.
+        
+        Args:
+            table (Table): Stores information about the table. Information is independent of the output file format.
+        
+        """
+        
         result = '\n\n<table'\
          + self.__generate_style_from_dict(table) + '>'
         caption = ''
@@ -138,6 +182,14 @@ class DitaBuilder(Builder):
         return  result + '\n</tbody>\n</tgroup>\n</table>\n\n'
 
     def generate_style_file(self, document, fn):
+        """Generates a css style
+            
+        Args:
+            document (Document): stores information about the document.
+            fn (str): file path.
+        
+        """
+        
         style = document.effective_style
 
         css = 'body {\n'
@@ -174,6 +226,12 @@ class DitaBuilder(Builder):
 
 
     def generate_image(self, image):
+        """Generates a DITA image.
+        
+        Args:
+            image (Image): Stores information about the image. Information is independent of the output file format.
+        """
+        
         image_caption = ''
         if image.sequence != None:
             image_caption += image.sequence + ' '
@@ -182,6 +240,13 @@ class DitaBuilder(Builder):
         return '<div><image href=\"' + image.path + '\" placement=\"break\"' + self.__generate_style_from_dict(image) + '>\n<alt>alternative </alt>\n</image>\n</div>'
 
     def generate_inline_style(self, elem):
+        """Generates a style for an element.
+        
+        Args:
+            elem (Paragraph): Stores information about content of a paragraph. 
+        
+        """
+        
         result = ''
         try:
             if isinstance(elem.style, Style) :
