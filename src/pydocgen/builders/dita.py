@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+"""
+.. module:: dita_py
+    :platform: Unix, Windows
+    :synopsis: Module for creating a DITA documentation
+"""
+
 import os
 
 from pydocgen.model import ListStyleProperty, AlignmentProperty, \

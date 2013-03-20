@@ -14,6 +14,7 @@ Contents:
    _static/document_model
    _static/properties_and_styles
    _static/dita_analysis
+   _static/dita_module
    _static/todo
 
 Indices and tables
