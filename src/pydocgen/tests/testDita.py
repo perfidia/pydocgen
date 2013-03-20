@@ -5,6 +5,7 @@ from builders import DitaBuilder
 class TestDitaBuilder(unittest.TestCase):
     def setUp(self):
         self.paragraph = DitaBuilder.generate_paragraph(self, 'test paragraph')
+        self.lst = DitaBuilder.generate_list(self, ['content'])
 
     def testParagraph(self):
         p = self.paragraph
@@ -14,6 +15,11 @@ class TestDitaBuilder(unittest.TestCase):
 
     def tearDown(self):
         self.paragraph.dispose()
+        
+    def testList(self):
+        l = self.lst
+        assert string.find(l, '<li') != -1
+        assert string.find(l, '</li>') != -1
 
 if __name__ == "__main__":
     unittest.main()
