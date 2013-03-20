@@ -216,9 +216,9 @@ class DitaBuilder(Builder):
 
 
     def __generate_style_from_dict(self, elem):
-	return ''
-	
-	"""
+        return ''
+    
+    """
         if isinstance(elem, str) or isinstance(elem, unicode):
             return ''
         style = elem.style
