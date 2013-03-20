@@ -232,6 +232,12 @@ class DitaBuilder(Builder):
         return '<div><image href=\"' + image.path + '\" placement=\"break\"' + self.__generate_style_from_dict(image) + '>\n<alt>alternative </alt>\n</image>\n</div>'
 
     def generate_inline_style(self, elem):
+        """Generates a style for an element.
+        
+        Args:
+            elem (Paragraph): Stores information about content of a paragraph. 
+        
+        """
         result = ''
         try:
             if isinstance(elem.style, Style) :
