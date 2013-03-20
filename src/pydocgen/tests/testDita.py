@@ -1,4 +1,5 @@
 import unittest
+import string
 from builders import DitaBuilder
 
 class TestDitaBuilder(unittest.TestCase):
@@ -7,12 +8,12 @@ class TestDitaBuilder(unittest.TestCase):
 
     def testParagraph(self):
         p = self.paragraph
-        assert p == '\n<p' + DitaBuilder.__generate_style_from_dict(self, 'test paragraph') + \
-             '>\n\t' + 'test paragraph' + '\n</p>\n'
+        assert string.find(p,'<p>') != -1
+        assert string.find(p,'test paragraph') != -1
+        assert string.find(p,'</p>') != -1
 
     def tearDown(self):
         self.paragraph.dispose()
 
 if __name__ == "__main__":
     unittest.main()
- 
