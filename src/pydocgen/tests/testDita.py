@@ -1,7 +1,7 @@
 import unittest
 import string
-from builders import DitaBuilder
-from model import Document,Span,Paragraph,Sequence,Header,List,Table,Image
+from pydocgen.builders import DitaBuilder
+from pydocgen.model import Document,Span,Paragraph,Sequence,Header,List,Table,Image
 
 class TestDitaBuilder(unittest.TestCase):
     def setUp(self):
