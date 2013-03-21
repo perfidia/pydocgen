@@ -43,7 +43,7 @@ class DitaBuilder(Builder):
         if 'title' in document.properties:
             title = document.properties['title']
         result += '\t<title>' + title + '</title>\n'
-        result += '\t<shortdisc>' + title + '</shortdisc>\n'
+        result += '\t<shortdesc>' + title + '</shortdesc>\n'
         result += '<body>\n' + body + '\n</body>\n</topic>\n'
         return result
 
@@ -279,6 +279,11 @@ class DitaBuilder(Builder):
 	return ''
 	
     def alignmentFun(self,elem):
+        """Sets text alignment for the element. Alignment is among left, center, right and justify.
+        
+        Args:
+            elem (Element): Stores information about content of particular part of text.
+        """
         style = elem.style
         css = ''
         if style != None:
@@ -292,6 +297,11 @@ class DitaBuilder(Builder):
         return css;
 
     def fontType(self,elem):
+        """Sets font effect such as bold, italic underline and strike for the element.
+        
+        Args:
+            elem (Element): Stores information about particular part of text.              
+        """
         if isinstance(elem, str) or isinstance(elem, unicode):
             return ''
         style = elem.style
