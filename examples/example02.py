@@ -7,6 +7,7 @@ sys.path.append('../src')
 from pydocgen.model import *
 from pydocgen.builders import LatexBuilder
 from pydocgen.builders import HtmlBuilder
+from pydocgen.builders import DitaBuilder
 
 #creating document with specific properties and styles
 document = Document("output2", path="../output")
@@ -272,4 +273,7 @@ document.builder = LatexBuilder()
 document.generate()
 
 document.builder = HtmlBuilder();
+document.generate()
+
+document.builder = DitaBuilder();
 document.generate()

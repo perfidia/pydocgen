@@ -70,8 +70,26 @@ class DitaBuilder(Builder):
             span (Span): stores information about span. Information is independent of the output file format.
         """
         
-        return '<span' + self.__generate_style_from_dict(span) + '>' + \
-            span.text + '</span>'
+        css=self.fontType(span)
+        open1='';
+        close1='';
+        if css=='b':
+            open1='<b>'
+            close1='</b>'
+        if css=='u':
+            open1='<u>'
+            close1='</u>'
+        if css=='i':
+            open1='<u>'
+            close1='</u>'
+        if css=='sdel':
+            open1='<u><del>'
+            close1='</del></u>'
+	if css=='del':
+	    open1='<del>'
+            close1='</del>'
+			
+        return open1+span.text+close1
 
     def generate_header(self, header):
         """Generates a DITA header and fills it with data.
@@ -158,7 +176,7 @@ class DitaBuilder(Builder):
             if table.get_cell(i, j).colspan is not None and table.get_cell(i, j).colspan > 1:
                skip_cols = table.get_cell(i, j).colspan - 1
                colspan_code = ' namest=\"col' +str(j+1)+'\" nameend=\"col'+ str(j+table.get_cell(i, j).colspan) + '\" ';
-            result+='\n<entry '+colspan_code + self.__generate_style_from_dict(table.get_cell(i, j))+'>'
+            result+='\n<entry '+colspan_code + self.alignmentFun(table.get_cell(i, j))+'>'
             for k in table.get_cell(i, j).content:
                  result += self.generate(k)
             result += '</entry>'
@@ -174,7 +192,7 @@ class DitaBuilder(Builder):
                 if table.get_cell(i, j).colspan is not None and table.get_cell(i, j).colspan > 1:
                     skip_cols = table.get_cell(i, j).colspan - 1
                     colspan_code = ' namest=\"col' + str(j+1)+'\" nameend=\"col'+ str(j+table.get_cell(i, j).colspan) + '\" ';
-                result+='\n<entry '+colspan_code + self.__generate_style_from_dict(table.get_cell(i, j))+'>'
+                result+='\n<entry '+colspan_code + self.alignmentFun(table.get_cell(i, j))+'>'
                 for k in table.get_cell(i, j).content:
                     result += self.generate(k)
                 result += '</entry>'
@@ -260,4 +278,37 @@ class DitaBuilder(Builder):
     def __generate_style_from_dict(self, elem):
 	return ''
 	
-	
+    def alignmentFun(self,elem):
+        style = elem.style
+        css = ''
+        if style != None:
+            for key in style.keys():
+                if key == 'alignment':
+                    css+='align=\" '+{AlignmentProperty.LEFT:'left\"'\
+                              ,AlignmentProperty.CENTER:'center\"', \
+                              AlignmentProperty.RIGHT:'right\"', \
+                              AlignmentProperty.JUSTIFY:'justify\"'\
+                              }.get(style[key])
+        return css;
+
+    def fontType(self,elem):
+        if isinstance(elem, str) or isinstance(elem, unicode):
+            return ''
+        style = elem.style
+        css = ''
+        if style != None:
+            for key in style.keys():
+                if key == 'font-effect':
+                    font_effects = style['font-effect']
+                    if FontEffectProperty.BOLD in font_effects:
+                        css = 'b'
+                    if FontEffectProperty.ITALIC in font_effects:
+                        css = 'i'
+                    if FontEffectProperty.UNDERLINE in font_effects \
+                        and FontEffectProperty.STRIKE in font_effects:
+                        css = 'sdel'
+                    elif FontEffectProperty.UNDERLINE in font_effects:
+                        css = 'u'
+                    elif FontEffectProperty.STRIKE in font_effects:
+                        css = 'del'
+        return css	

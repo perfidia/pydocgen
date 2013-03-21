@@ -7,6 +7,7 @@ sys.path.append('../src')
 from pydocgen.model import *
 from pydocgen.builders import LatexBuilder
 from pydocgen.builders import HtmlBuilder
+from pydocgen.builders import DitaBuilder
 
 hdrstyle = StyleManager().get_style('header-default')
 hdrstyle['margin-top'] = 0
@@ -267,4 +268,7 @@ document.builder = LatexBuilder()
 document.generate()
 
 document.builder = HtmlBuilder();
+document.generate()
+
+document.builder = DitaBuilder();
 document.generate()

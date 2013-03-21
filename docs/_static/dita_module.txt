@@ -1,5 +1,0 @@
-DITA model
-===============================================
-
-.. automodule:: pydocgen.dita
-   :members:
