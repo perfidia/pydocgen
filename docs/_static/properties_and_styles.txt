@@ -12,7 +12,7 @@ Language of the document. The property affects hyphenation rules used in the out
 
 | **Type:** str
 | **Supported values:** "pl-PL", "en-US"
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder, DitaBuilder
 
 -----------------------------------------------
 title
@@ -20,7 +20,7 @@ title
 Title of the document.
 
 | **Type:** str
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder, DitaBuilder
 
 
 Supported style properties
@@ -51,7 +51,7 @@ Top margin of the page.
 
 | **Type:** int
 | **Units:** mm
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-bottom
 ----------------------------------------------
@@ -59,7 +59,7 @@ Bottom margin of the page.
 
 | **Type:** int
 | **Units:** mm
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-left
 ----------------------------------------------
@@ -67,7 +67,7 @@ Left margin of the page.
 
 | **Type:** int
 | **Units:** mm
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-right
 ----------------------------------------------
@@ -75,7 +75,7 @@ Right margin of the page.
 
 | **Type:** int
 | **Units:** mm
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 font-size
 ----------------------------------------------
@@ -83,7 +83,7 @@ Default font size for the document.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 font-name
 ----------------------------------------------
@@ -91,7 +91,7 @@ Name of the document default font.
 
 | **Type:** str
 | **Supported values:** "Arial", "Computer Modern", "Courier", "Times New Roman"
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 ----------------------------------------------
 *Paragraph* style properties
@@ -103,7 +103,7 @@ Alignment of the paragraph text.
 
 | **Type:** AlignmentProperty
 | **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT, AlignmentProperty.JUSTIFY
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 text-indent
 ----------------------------------------------
@@ -119,7 +119,7 @@ Space above the paragraph.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-bottom
 ----------------------------------------------
@@ -127,7 +127,7 @@ Space below the paragraph.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-left
 ----------------------------------------------
@@ -135,7 +135,7 @@ Space on the left side of the paragraph.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-right
 ----------------------------------------------
@@ -143,7 +143,7 @@ Space on the right side of the paragraph.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 ----------------------------------------------
 *Span* style properties
@@ -155,7 +155,7 @@ Name of the span's font.
 
 | **Type:** str
 | **Supported values:** "Arial", "Computer Modern", "Courier", "Times New Roman"
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 font-size
 ----------------------------------------------
@@ -163,28 +163,28 @@ Size of the span's font.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 font-effect
 ----------------------------------------------
 An effect associated with the span's font. Effect consists of one or more primitive effects: FontEffectProperty.BOLD, FontEffectProperty.ITALIC, FontEffectProperty.UNDERLINE, FontEffectProperty.STRIKE.
 
 | **Type:** FontEffectProperty
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 color
 ----------------------------------------------
 Color of the span's font. The value should be hex color code, e.g. "#c0c0c0".
 
 | **Type:** str
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 background-color
 ----------------------------------------------
 Color of the span's highlight. The value should be hex color code, e.g. "#c0c0c0".
 
 | **Type:** str
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 ----------------------------------------------
 *Header* style properties
@@ -195,14 +195,14 @@ seq-number-sep
 Separator of the subsection number. For example, if the separator is ".", the number could look like this: "2.1.1". If the separator is "> ", the number will be like "2> 1> 1". 
 
 | **Type:** str
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 header-numbered
 ----------------------------------------------
 Visibility of the section number. When the number is not visible, the value of the sequence is not incremented.
 
 | **Type:** bool
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-top
 ----------------------------------------------
@@ -230,7 +230,7 @@ Style of the list.
 
 | **Type:** ListStyleProperty
 | **Supported values:** ListStyleProperty.BULLET, ListStyleProperty.NUMBER
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 item-spacing
 ----------------------------------------------
@@ -262,7 +262,7 @@ Space below the list.
 
 | **Type:** int
 | **Units:** pt
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-left
 ----------------------------------------------
@@ -298,7 +298,7 @@ Width of the image. If only one of the image dimensions is specified (width or h
 
 | **Type:** float
 | **Units:** mm
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 height
 ----------------------------------------------
@@ -306,7 +306,7 @@ Height of the image. If only one of the image dimensions is specified (width or 
 
 | **Type:** float
 | **Units:** mm
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 margin-top
 ----------------------------------------------
@@ -346,7 +346,7 @@ Alignment of image on the page.
 
 | **Type:** AlignmentProperty
 | **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 seq-number-sep
 ----------------------------------------------
@@ -404,7 +404,7 @@ Alignment of table on the page.
 
 | **Type:** AlignmentProperty
 | **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 border-width
 ----------------------------------------------
@@ -438,11 +438,11 @@ Alignment of the content within the cell.
 
 | **Type:** AlignmentProperty
 | **Supported values:** AlignmentProperty.LEFT, AlignmentProperty.CENTER, AlignmentProperty.RIGHT
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 background-color
 ----------------------------------------------
 Color of the cell background. The value should be hex color code, e.g. "#c0c0c0".
 
 | **Type:** str
-| **Supported builders:** LatexBuilder, HtmlBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
