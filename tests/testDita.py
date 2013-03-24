@@ -34,15 +34,16 @@ class TestDitaBuilder(unittest.TestCase):
         assert string.find(d,'<?xml version="1.0" encoding="utf-8"?>\n') == 0
         assert string.find(d,'<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">\n') != -1
         assert string.find(d,'<topic xml:lang="en" id="main_topic">\n\t<title></title>\n\t') != -1
-        assert string.find(d,'<shortdesc></shortdesc>\n<body>\n\n</body>\n</topic>\n') != -1
+        assert string.find(d,'<body>\n\n</body>\n</topic>\n') == len(d)-25
         
     def testSpan(self):
         s = self.span
-        assert s == '<span>test span</span>'
+        assert string.find(s, 'test span') != -1
                 
     def testParagraph(self):
         p = self.paragraph
-        assert p == '\n<p>\n\t\n</p>\n'
+        assert string.find(p, '\n<p>\n\t') == 0
+        assert string.find(p, '\n</p>\n') == len(p)-6
         
 #    def testHeader(self):
 #        h = self.header
@@ -56,13 +57,13 @@ class TestDitaBuilder(unittest.TestCase):
                                 
     def testTable(self):
         t = self.table
-        assert string.find(t, '\n\n<simpletable') == 0
-        assert string.find(t, '\n</simpletable>\n\n') == len(t)-17
+        assert string.find(t, '\n\n<table') == 0
+        assert string.find(t, '\n</table>\n\n') == len(t)-11
         
     def testImage(self):
         i = self.image
         assert string.find(i, '<div><image href=\"path\"') == 0
-        assert string.find(i, '\n</image>\n</div>') == len(i)-16        
+        assert string.find(i, '</image>\n</div>') == len(i)-15        
 
     def tearDown(self):
         self.document=None
