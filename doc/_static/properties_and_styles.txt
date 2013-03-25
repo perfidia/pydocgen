@@ -12,7 +12,7 @@ Language of the document. The property affects hyphenation rules used in the out
 
 | **Type:** str
 | **Supported values:** "pl-PL", "en-US"
-| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder, DitaBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 -----------------------------------------------
 title
@@ -20,7 +20,7 @@ title
 Title of the document.
 
 | **Type:** str
-| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder, DitaBuilder
+| **Supported builders:** LatexBuilder, HtmlBuilder, DitaBuilder
 
 
 Supported style properties
