@@ -2,9 +2,10 @@
 
 import os
 
-from pydocgen.model import ListStyleProperty, AlignmentProperty,FontEffectProperty, Image, Style, Table
+from pydocgen.model import ListStyleProperty, AlignmentProperty, FontEffectProperty, Image, Style, Table
 
 from pydocgen.builders.common import Builder
+
 
 class DitaBuilder(Builder):
     """Class responsible for creating a DITA document.
@@ -12,9 +13,6 @@ class DitaBuilder(Builder):
     """
     
     def __init__(self):
-        """Class constructor. Calls base class constructor.
-        """
-        
         super(DitaBuilder, self).__init__()
         self.CSS_STYLE_FN = 'style.css'
 
@@ -33,9 +31,9 @@ class DitaBuilder(Builder):
             body += self.generate(element)
 
         self.generate_style_file(document, self.CSS_STYLE_FN)
-        result = '';
-        result += '<?xml version="1.0" encoding="utf-8"?>\n';
-        result += '<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">\n';
+        result = ''
+        result += '<?xml version="1.0" encoding="utf-8"?>\n'
+        result += '<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">\n'
         if 'language' in document.properties:
             result += '<topic xml:lang=\"' + document.properties['language'] + '\" id="main_topic" >'
         else:
@@ -60,11 +58,11 @@ class DitaBuilder(Builder):
 
             for element in paragraph.content:
                 tmp = self.generate(element)
-                if tmp :
+                if tmp:
                     p += tmp
 
         return '\n<p' + \
-             '>\n\t' + p + '\n</p>\n'
+               '>\n\t' + p + '\n</p>\n'
 
     def generate_span(self, span):
         """Generates a DITA span.
@@ -72,9 +70,8 @@ class DitaBuilder(Builder):
         Args:
             span (Span): stores information about span. Information is independent of the output file format.
         """
-        
 
-        css=self.fontType(span)
+        css = self.fontType(span)
         open1 = ''
         close1 = ''
         if css == 'b':
@@ -120,7 +117,7 @@ class DitaBuilder(Builder):
             else:
                 header.sequence.advance()
 
-        return '<section>\n\t<title>'+seq_number+' '+content+'</title>\n</section>'
+        return '<section>\n\t<title>' + seq_number + ' ' + content + '</title>\n</section>'
 
     def generate_list(self, lst):
         """Generates a DITA list and fills it with content.
@@ -143,17 +140,15 @@ class DitaBuilder(Builder):
         else:
             return '\n<ul' + '>\n' + result + '\n</ul>\n'
 
-    def generate_table(self, table):
+    def generate_table(self, table):                
         """Generates a DITA table and fills the table with content.
         
         Args:
-            table (Table): Stores information about the table. Information is independent of the output file format.
-        
+            table (Table): Stores information about the table. Information is independent of the output file format.        
         """
-        
         result = '\n\n<table' + '>'
         caption = ''
-        if table.sequence != None:
+        if table.sequence is not None:
             caption += table.sequence + ' '
 
         for c in table.caption:
@@ -165,10 +160,10 @@ class DitaBuilder(Builder):
         for j in xrange(0, table.cols_num):
             colCount += 1
 
-        result += '<tgroup cols=\"' + str(colCount)+'\">\n'
+        result += '<tgroup cols=\"' + str(colCount) + '\">\n'
 
         for j in xrange(0, table.cols_num):
-            result += '<colspec colnum=\"'+str(j + 1)+'\" colname=\"col'+str(j + 1)+'\" />'
+            result += '<colspec colnum=\"' + str(j + 1) + '\" colname=\"col' + str(j + 1) + '\" />'
 
         i = 0
         skip_cols = 0
@@ -176,16 +171,17 @@ class DitaBuilder(Builder):
 
         for j in xrange(0, table.cols_num):
             if skip_cols > 0:
-               skip_cols -= 1
-               continue
+                skip_cols -= 1
+                continue
             colspan_code = ''
             if table.get_cell(i, j).colspan is not None and table.get_cell(i, j).colspan > 1:
-               skip_cols = table.get_cell(i, j).colspan - 1
-               colspan_code = ' namest=\"col' +str(j+1)+'\" nameend=\"col'+ str(j+table.get_cell(i, j).colspan) + '\" ';
-            result+='\n<entry '+colspan_code + self.alignmentFun(table.get_cell(i, j))+'>'
+                skip_cols = table.get_cell(i, j).colspan - 1
+                colspan_code = ' namest=\"col' + str(j + 1) + '\" nameend=\"col' + str(
+                    j + table.get_cell(i, j).colspan) + '\" '
+            result += '\n<entry ' + colspan_code + self.alignmentFun(table.get_cell(i, j)) + '>'
 
             for k in table.get_cell(i, j).content:
-                 result += self.generate(k)
+                result += self.generate(k)
 
             result += '</entry>'
         result += '\n</row>\n</thead>\n<tbody>'
@@ -201,44 +197,48 @@ class DitaBuilder(Builder):
                 colspan_code = ''
                 if table.get_cell(i, j).colspan is not None and table.get_cell(i, j).colspan > 1:
                     skip_cols = table.get_cell(i, j).colspan - 1
-                    colspan_code = ' namest=\"col' + str(j+1)+'\" nameend=\"col'+ str(j+table.get_cell(i, j).colspan) + '\" ';
-                result+='\n<entry '+colspan_code + self.alignmentFun(table.get_cell(i, j))+'>'
+                    colspan_code = ' namest=\"col' + str(j + 1) + '\" nameend=\"col' + str(
+                        j + table.get_cell(i, j).colspan) + '\" '
+                result += '\n<entry ' + colspan_code + self.alignmentFun(table.get_cell(i, j)) + '>'
 
                 for k in table.get_cell(i, j).content:
                     result += self.generate(k)
 
                 result += '</entry>'
             result += '\n</row>\n'
-        return  result + '\n</tbody>\n</tgroup>\n</table>\n\n'
+        return result + '\n</tbody>\n</tgroup>\n</table>\n\n'
 
     def generate_style_file(self, document, fn):
         """Generates a css style
             
         Args:
             document (Document): stores information about the document.
-            fn (str): file path.
-        
+            fn (str): file path.        
         """
         
         style = document.effective_style
 
         css = 'body {\n'
-        if style != None:
+        if style is not None:
 
             for key in style.keys():
-                if key in ('margin-top', 'margin-bottom', 'margin-left', 'margin-right', 'font-size', 'font-name', 'alignment', 'text-indent', \
-                           'color', 'background-color', 'list-_style', 'item-spacing', 'item-indent'):
+                if key in (
+                    'margin-top', 'margin-bottom', 'margin-left', 'margin-right', 'font-size', 'font-name', 'alignment',
+                    'text-indent', \
+                    'color', 'background-color', 'list-_style', 'item-spacing', 'item-indent'):
                     if key == 'font-name':
                         css += 'font-family: ' + style[key] + ';\n'
                     elif key == 'alignment':
-                        css += 'text-align: ' + {AlignmentProperty.LEFT:'left', AlignmentProperty.CENTER:'center',AlignmentProperty.RIGHT:'right', \
-                                                 AlignmentProperty.JUSTIFY:'justify'}.get(style[key]) + ';\n'
-                    elif  key == 'list-_style':
+                        css += 'text-align: ' + {AlignmentProperty.LEFT: 'left', AlignmentProperty.CENTER: 'center',
+                                                 AlignmentProperty.RIGHT: 'right', \
+                                                 AlignmentProperty.JUSTIFY: 'justify'}.get(style[key]) + ';\n'
+                    elif key == 'list-_style':
                         pass #Using <ul> or <ol> instead
                     elif key == 'font-effect':
-                        css += 'font-style: '+{FontEffectProperty.BOLD:'bold', FontEffectProperty.ITALIC:'italic', FontEffectProperty.UNDERLINE:'oblique'}.get(style[key])+';\n'
+                        css += 'font-style: ' + {FontEffectProperty.BOLD: 'bold', FontEffectProperty.ITALIC: 'italic',
+                                                 FontEffectProperty.UNDERLINE: 'oblique'}.get(style[key]) + ';\n'
                     elif key == 'item-spacing':
-                        css += 'border-spacing: ' + str(style[key]) + 'pt ' + str(style[key]) + 'pt;\n';
+                        css += 'border-spacing: ' + str(style[key]) + 'pt ' + str(style[key]) + 'pt;\n'
                     elif key == 'item-indent':
                         pass #css += 'text-indent: ' + str(style[key]) + 'pt;\n'
                     elif key == 'background-color' or key == 'color':
@@ -271,14 +271,11 @@ class DitaBuilder(Builder):
         for c in image.caption:
             image_caption += self.generate(c)
 
-        return '<div><image href=\"' + image.path + '\" placement=\"break\" ' + self.alignmentFun(image) + '></image>\n</div>'
+        return '<div><image href=\"' + image.path + '\" placement=\"break\" ' + self.alignmentFun(
+            image) + '></image>\n</div>'
 
 
-
-
-
-
-    def alignmentFun(self,elem):
+    def alignmentFun(self, elem):
         """Sets text alignment for the element. Alignment is among left, center, right and justify.
         
         Args:
@@ -290,32 +287,31 @@ class DitaBuilder(Builder):
         if style != None:
             for key in style.keys():
                 if key == 'alignment':
-                    css+='align=\"' + {AlignmentProperty.LEFT:'left\"'\
-                              ,AlignmentProperty.CENTER:'center\"', \
-                              AlignmentProperty.RIGHT:'right\"', \
-                              AlignmentProperty.JUSTIFY:'justify\"'\
-                              }.get(style[key])
+                    css += 'align=\"' + {AlignmentProperty.LEFT: 'left\"', \
+                                         AlignmentProperty.CENTER: 'center\"', \
+                                         AlignmentProperty.RIGHT: 'right\"', \
+                                         AlignmentProperty.JUSTIFY: 'justify\"' \
+                        }.get(style[key])
         return css
 
-    def widthFun(self,elem):
+    def widthFun(self, elem):
         """Sets width and height for part of text stored in elem.
         
         Args:
-            elem (Element): Stores information about content of particular part of text.
-        
+            elem (Element): Stores information about content of particular part of text.        
         """
         
         style = elem.style
         css = ''
-        if style != None:
+        if style is not None:
             for key in style.keys():
-                if key == 'width' :
+                if key == 'width':
                     css += 'colwidth=\" ' + str(style[key]) + '*\"'
-                elif key == 'height' :
+                elif key == 'height':
                     css += 'colheight=\"' + str(style[key]) + '*\"'
-        return css;
+        return css
 
-    def fontType(self,elem):
+    def fontType(self, elem):
         """Sets font effect such as bold, italic underline and strike for the element.
         
         Args:
@@ -326,7 +322,7 @@ class DitaBuilder(Builder):
             return ''
         style = elem.style
         css = ''
-        if style != None:
+        if style is not None:
 
             for key in style.keys():
 
