@@ -83,12 +83,7 @@ class DitaBuilder(Builder):
         if css == 'i':
             open1 = '<u>'
             close1 = '</u>'
-        if css == 'sdel':
-            open1 = '<u><del>'
-            close1 = '</del></u>'
-        if css == 'del':
-            open1 = '<del>'
-            close1 = '</del>'
+        
 
         return open1 + span.text + close1
 
