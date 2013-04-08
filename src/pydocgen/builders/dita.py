@@ -33,7 +33,7 @@ class DitaBuilder(Builder):
         self.generate_style_file(document, self.CSS_STYLE_FN)
         result = ''
         result += '<?xml version="1.0" encoding="utf-8"?>\n'
-        result += '<!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "../dtd/map.dtd">\n'
+        result += '<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Composite//EN" "../ditabase.dtd">\n'
         if 'language' in document.properties:
             result += '<topic xml:lang=\"' + document.properties['language'] + '\" id="main_topic" >'
         else:
@@ -271,8 +271,8 @@ class DitaBuilder(Builder):
         for c in image.caption:
             image_caption += self.generate(c)
 
-        return '<div><image href=\"' + image.path + '\" placement=\"break\" ' + self.alignmentFun(
-            image) + '></image>\n</div>'
+        return '<image href=\"' + image.path + '\" placement=\"break\" ' + self.alignmentFun(
+            image) + '></image>\n'
 
 
     def alignmentFun(self, elem):
@@ -332,13 +332,9 @@ class DitaBuilder(Builder):
                         css = 'b'
                     if FontEffectProperty.ITALIC in font_effects:
                         css = 'i'
-                    if FontEffectProperty.UNDERLINE in font_effects \
-                        and FontEffectProperty.STRIKE in font_effects:
-                        css = 'sdel'
                     elif FontEffectProperty.UNDERLINE in font_effects:
                         css = 'u'
-                    elif FontEffectProperty.STRIKE in font_effects:
-                        css = 'del'
+                    
         return css
 
 
