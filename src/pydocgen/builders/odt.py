@@ -13,6 +13,12 @@ class OdtBuilder(Builder):
         self.extension = "fodt"
 
     def generate_document(self, document):
+        
+        body = ''
+
+        for element in document.content:
+            body += self.generate(element)
+        
         result =  '<?xml version="1.0" encoding="UTF-8"?>\n'
         result += '\n'
         result += '<office:document\n'
@@ -28,8 +34,40 @@ class OdtBuilder(Builder):
         result += '</office:meta>\n'
         result += '<office:body>\n'
         result += '       <office:text>\n'
-        result += '                <text:p text:style-name="Standard">test</text:p>\n'
+        result += body
+        #result += '                <text:p text:style-name="Standard">test</text:p>\n'
         result += '        </office:text>\n'
         result += '</office:body>\n'
         result += '</office:document>\n'
         return result;
+    
+    def generate_paragraph(self, paragraph):        
+        p, tmp = '', None
+        if paragraph.content:
+
+            for element in paragraph.content:
+                tmp = self.generate(element)
+                if tmp:
+                    p += tmp
+
+        result = '        <text:p text:style-name="Standard">' + p + '</text:p>\n'
+
+        return result
+    
+    def generate_span(self, span):
+
+        result = '<text:span>' + span.text + '</text:span>'
+        return result
+    
+    
+    def generate_header(self, el):
+        return ''
+    
+    def generate_list(self, el):
+        return ''
+    
+    def generate_image(self, el):
+        return ''
+    
+    def generate_table(self, el):
+        return ''
