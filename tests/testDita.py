@@ -33,7 +33,7 @@ class TestDitaBuilder(unittest.TestCase):
         d = self.document
         assert string.find(d,'<?xml version="1.0" encoding="utf-8"?>\n') == 0
         assert string.find(d,'<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Composite//EN" "../ditabase.dtd">\n') != -1
-        assert string.find(d,'<topic xml:lang="en" id="main_topic">\n\t<title></title>\n\t') != -1
+        assert string.find(d,'<topic xml:lang="en" id="main_topic">\n\t<title></title>\n') != -1
         assert string.find(d,'<body>\n\n</body>\n</topic>\n') == len(d)-25
         
     def testSpan(self):
@@ -62,8 +62,8 @@ class TestDitaBuilder(unittest.TestCase):
         
     def testImage(self):
         i = self.image
-        assert string.find(i, '<div><image href=\"path\"') == 0
-        assert string.find(i, '</image>\n</div>') == len(i)-15        
+        assert string.find(i, '<image href=\"path\"') == 0
+        assert string.find(i, '</image>\n') == len(i)-9        
 
     def tearDown(self):
         self.document=None
