@@ -8,6 +8,7 @@ from pydocgen.model import *
 from pydocgen.builders import LatexBuilder
 from pydocgen.builders import HtmlBuilder
 from pydocgen.builders import DitaBuilder
+from pydocgen.builders import OdtBuilder
 
 hdrstyle = StyleManager().get_style('header-default')
 hdrstyle['margin-top'] = 0
@@ -271,4 +272,7 @@ document.builder = HtmlBuilder();
 document.generate()
 
 document.builder = DitaBuilder();
+document.generate()
+
+document.builder = OdtBuilder()
 document.generate()

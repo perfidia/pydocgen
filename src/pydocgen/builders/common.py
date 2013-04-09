@@ -20,3 +20,4 @@ class Builder(object):
             return self.generate_image(documentTreeNode)
         if isinstance(documentTreeNode, Table):
             return self.generate_table(documentTreeNode)
+        print "Illegal node instance"

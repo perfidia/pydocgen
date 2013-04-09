@@ -8,6 +8,7 @@ from pydocgen.model import *
 from pydocgen.builders import LatexBuilder
 from pydocgen.builders import HtmlBuilder
 from pydocgen.builders import DitaBuilder
+from pydocgen.builders import OdtBuilder
 
 #creating document with specific properties and styles
 document = Document("output2", path="../output")
@@ -276,4 +277,7 @@ document.builder = HtmlBuilder();
 document.generate()
 
 document.builder = DitaBuilder();
+document.generate()
+
+document.builder = OdtBuilder()
 document.generate()
