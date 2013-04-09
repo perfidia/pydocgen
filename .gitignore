@@ -6,3 +6,5 @@
 .pydevproject
 .settings/*
 output
+/build
+/dist
