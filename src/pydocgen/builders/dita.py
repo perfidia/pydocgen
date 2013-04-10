@@ -10,6 +10,8 @@ from pydocgen.builders.common import Builder
 class DitaBuilder(Builder):
     """Class responsible for creating a DITA document.
     It inherits from base Builder class shared between all builder classes.
+    
+    Class supports DITA format in version 1.1.
     """
     
     def __init__(self):
