@@ -105,8 +105,27 @@ class OdtBuilder(Builder):
         else:
             return False;
     
-    def generate_header(self, el):
-        return ''
+    def generate_header(self, header):
+        
+        content = ''
+        if header.content:
+            for element in header.content:
+                if element:
+                    content += element.generate()
+
+        seq_number = ''
+        if header.sequence is not None:
+            if header.is_style_property_set('header-numbered'):
+                if header.effective_style['header-numbered']:
+                    if element.is_style_property_set("seq-number-sep"):
+                        seq_number = element.sequence.to_str(header.effective_style['seq-number-sep'])
+                    else:
+                        seq_number = str(header.sequence)
+                    header.sequence.advance()
+            else:
+                header.sequence.advance()
+        
+        return '        <text:h text:outline-level="' + seq_number + '">' + content + '</text:h>\n'
     
     def generate_list(self, el):
         return ''
