@@ -14,7 +14,8 @@ class OdtBuilder(Builder):
 
     def generate_document(self, document):
         
-        self.styles = dict()
+        self.spanStyles = dict()
+        self.paragraphStyles = dict()
         self.styleIndex = 0
         
         body = ''
@@ -23,12 +24,22 @@ class OdtBuilder(Builder):
             body += self.generate(element)
          
         styles = '    <office:automatic-styles>\n'
-        if self.styles is not None:
-            for key in self.styles.keys():
-                styles += '        <style:style style:name="T' + str(key) + '" style:family="text">\n'
-                styles += '            <style:text-properties ' + self.styles[key] + '/>\n'
+        if self.spanStyles is not None:
+            for key in self.spanStyles.keys():
+                styles += '        <style:style style:name="' + str(key) + '" style:family="text">\n'
+                styles += '            <style:text-properties ' + self.spanStyles[key] + '/>\n'
+                styles += '        </style:style>\n'
+        if self.paragraphStyles is not None:
+            for key in self.paragraphStyles.keys():
+                styles += '        <style:style style:name="' + str(key) + '" style:family="paragraph">\n'
+                styles += '            <style:paragraph-properties ' + self.paragraphStyles[key] + '/>\n'
                 styles += '        </style:style>\n'
         styles += '    </office:automatic-styles>\n'
+        
+        #<style:style style:name="P1" style:family="paragraph" style:parent-style-name="Standard">
+   #<style:paragraph-properties fo:margin-left="0.4in" fo:margin-right="0in" fo:text-indent="0in" style:auto-text-indent="false"/>
+  #</style:style>
+
         
         result =  '<?xml version="1.0" encoding="UTF-8"?>\n'
         result += '\n'
@@ -57,14 +68,28 @@ class OdtBuilder(Builder):
     
     def generate_paragraph(self, paragraph):        
         p, tmp = '', None
+        
         if paragraph.content:
-
             for element in paragraph.content:
                 tmp = self.generate(element)
                 if tmp:
                     p += tmp
+                    
+        styleBody = ''
+        
+        if paragraph.style is not None:
+            if paragraph.style.has_key('text-indent'):
+                indent = paragraph.style['text-indent']
+                styleBody += 'fo:margin-left="' + str(indent) + 'pt" fo:margin-right="0in" fo:text-indent="0in" style:auto-text-indent="false" '
+            if paragraph.style.has_key('margin-top'):
+                pass
 
-        result = '        <text:p text:style-name="Standard">' + p + '</text:p>\n'
+        if styleBody <> '':
+            self.paragraphStyles[self.styleIndex] = styleBody
+            result = '        <text:p text:style-name="' + str(self.styleIndex) + '">' + p + '</text:p>\n'
+            self.styleIndex += 1
+        else:
+            result = '        <text:p>' + p + '</text:p>\n'
 
         return result
     
@@ -73,7 +98,8 @@ class OdtBuilder(Builder):
         resolved = self.resolveStyle(span);
 
         if resolved:
-            result = '<text:span text:style-name="T' + str(self.styleIndex) + '">' + span.text + '</text:span>'
+            result = '<text:span text:style-name="' + str(self.styleIndex) + '">' + span.text + '</text:span>'
+            self.styleIndex += 1
         else:
             result = '<text:span>' + span.text + '</text:span>'
         
@@ -84,9 +110,8 @@ class OdtBuilder(Builder):
                 return ''
         style = elem.style
         
-        self.styleIndex += 1
         styleBody = ''
-        
+   
         if style is not None:
             for key in style.keys():
                 if key == 'font-effect':
@@ -98,7 +123,7 @@ class OdtBuilder(Builder):
                     elif FontEffectProperty.UNDERLINE in font_effects:
                         styleBody += 'style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color" '
                         
-                    self.styles[self.styleIndex] = styleBody
+                    self.spanStyles[self.styleIndex] = styleBody
                     
         if styleBody <> '':
             return True
