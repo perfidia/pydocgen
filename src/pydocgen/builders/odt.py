@@ -18,17 +18,29 @@ class OdtBuilder(Builder):
         self.styleIndex = 0
         
         body = ''
+        meta= ''
 
         for element in document.content:
             body += self.generate(element)
+            
+        # styles.xml file
          
-        styles = '    <office:document-styles>\n'
+        styles = '    <office:automatic-styles>\n'
         if self.styles is not None:
             for key in self.styles.keys():
                 styles += '        <style:style style:name="T' + str(key) + '" style:family="text">\n'
                 styles += '            <style:text-properties ' + self.styles[key] + '/>\n'
                 styles += '        </style:style>\n'
-        styles += '    </office:document-styles>\n'
+        styles += '    </office:automatic-styles>\n'
+        
+        # meta.xml file
+        
+        meta += '<office:document-meta>\n'
+        meta += '        <meta:creation-date>2013-04-09T22:26:39</meta:creation-date>\n'
+        meta += '        <meta:generator>pydocgen 0.0.3</meta:generator>\n'
+        meta += '</office:document-meta>\n'
+        
+        # content.xml file
         
         result =  '<?xml version="1.0" encoding="UTF-8"?>\n'
         result += '\n'
@@ -39,13 +51,7 @@ class OdtBuilder(Builder):
         result += '    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"\n'
         result += '    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"\n'
         result += '    office:version="1.2" \n'
-        result += '    office:mimetype="application/vnd.oasis.opendocument.text">\n'
-        result += '</office:document-content>\n'
-        result += '\n'
-        result += '<office:document-meta>\n'
-        result += '        <meta:creation-date>2013-04-09T22:26:39</meta:creation-date>\n'
-        result += '        <meta:generator>pydocgen 0.0.3</meta:generator>\n'
-        result += '</office:document-meta>\n'
+        result += '    office:mimetype="application/vnd.oasis.opendocument.text">\n' 
         result += styles
         result += '<office:body>\n'
         result += '       <office:text>\n'
@@ -53,7 +59,7 @@ class OdtBuilder(Builder):
         #result += '                <text:p text:style-name="Standard">test</text:p>\n'
         result += '        </office:text>\n'
         result += '</office:body>\n'
-        result += '</office:document>\n'
+        result += '</office:document-content>\n'
         return result;
     
     def generate_paragraph(self, paragraph):        
