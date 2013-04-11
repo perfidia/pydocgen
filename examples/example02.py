@@ -8,6 +8,7 @@ from pydocgen.model import *
 from pydocgen.builders import LatexBuilder
 from pydocgen.builders import HtmlBuilder
 from pydocgen.builders import DitaBuilder
+from pydocgen.builders import DitaMapBuilder
 from pydocgen.builders import OdtBuilder
 
 #creating document with specific properties and styles
@@ -278,6 +279,12 @@ document.generate()
 
 document.builder = DitaBuilder();
 document.generate()
+
+ditamap = DitaMapBuilder()
+s = ditamap.generate_document(document,'output2.dita')
+viewsFile = open('../output/output2.ditamap', 'w')
+viewsFile.write(s)
+viewsFile.close()
 
 document.builder = OdtBuilder()
 document.generate()
