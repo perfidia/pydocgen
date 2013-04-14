@@ -249,10 +249,10 @@ class OdtStyleManager(object):
         return self.__getAttributeMMOrDefault(style, 'text-indent', 'fo:text-indent', self.__defaultTextIndent)
     
     def getFontSize(self, style):
-        return self.__getAttributePTOrDefault(style, 'font-size', 'TODO', self.__defaultFontSize)
+        return self.__getAttributePTOrDefault(style, 'font-size', 'fo:font-size', self.__defaultFontSize)
 
     def getFontName(self, style):
-        return self.__getAttributeOrDefault(style, 'font-name', 'TODO', self.__defaultFontName)
+        return self.__getAttributeOrDefault(style, 'font-name', 'style:font-name', self.__defaultFontName)
     
     def getAlignment(self, style):
         alignment = self.__getStyleValueOrDefault(style, 'alignment', self.__defaultAlignment)
@@ -271,10 +271,10 @@ class OdtStyleManager(object):
                 return ''
     
     def getColor(self, style):
-        return self.__getAttributeOrDefault(style, 'color', 'TODO', self.__defaultColor)
+        return self.__getAttributeOrDefault(style, 'color', 'fo:color', self.__defaultColor)
     
     def getBackgroundColor(self, style):
-        return self.__getAttributeOrDefault(style, 'background-color', 'TODO', self.__defaultBackgroundColor)
+        return self.__getAttributeOrDefault(style, 'background-color', 'fo:background-color', self.__defaultBackgroundColor)
     
     def getListStyle(self, style):
         return self.__getAttributeOrDefault(style, 'list-style', 'TODO', self.__defaultListStyle)
@@ -302,8 +302,10 @@ class OdtStyleManager(object):
                 styleBody += 'fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold" '
             if FontEffectProperty.ITALIC in font_effects:
                 styleBody += 'fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic" '
-            elif FontEffectProperty.UNDERLINE in font_effects:
+            if FontEffectProperty.UNDERLINE in font_effects:
                 styleBody += 'style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color" '
+            if FontEffectProperty.STRIKE in font_effects:
+                styleBody += 'style:text-line-through-style="solid" '
         return styleBody
     
     def getPageSize(self, style):
@@ -326,10 +328,13 @@ class OdtStyleManager(object):
     def getParagraphStyles(self, style):
         return self.getTextIndent(style) + self.getMarginBottom(style) \
                 + self.getMarginLeft(style) + self.getMarginRight(style) \
-                + self.getMarginTop(style) + self.getAlignment(style)
+                + self.getMarginTop(style) + self.getAlignment(style) \
+                + self.getFontSize(style)
     
     def getTextStyles(self, style):
-        return self.getFontEffect(style)
+        return self.getFontEffect(style) + self.getFontSize(style) \
+                + self.getFontName(style) + self.getColor(style) \
+                + self.getBackgroundColor(style)
     
     def getPageLayoutStyles(self):
         style = self.__effective_style
