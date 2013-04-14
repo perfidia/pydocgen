@@ -8,6 +8,7 @@ from pydocgen.model import *
 from pydocgen.builders import LatexBuilder
 from pydocgen.builders import HtmlBuilder
 from pydocgen.builders import DitaBuilder
+from pydocgen.builders import DitaMapBuilder
 from pydocgen.builders import OdtBuilder
 
 hdrstyle = StyleManager().get_style('header-default')
@@ -273,6 +274,12 @@ document.generate()
 
 document.builder = DitaBuilder();
 document.generate()
+
+ditamap = DitaMapBuilder()
+s = ditamap.generate_document(document,'output1.dita')
+viewsFile = open('../output/output1.ditamap', 'w')
+viewsFile.write(s)
+viewsFile.close()
 
 document.builder = OdtBuilder()
 document.generate()

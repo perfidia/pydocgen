@@ -32,7 +32,7 @@ class TestDitaBuilder(unittest.TestCase):
     def testDocument(self):
         d = self.document
         assert string.find(d,'<?xml version="1.0" encoding="utf-8"?>\n') == 0
-        assert string.find(d,'<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Composite//EN" "../ditabase.dtd">\n') != -1
+        assert string.find(d,'<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Composite//EN" "http://docs.oasis-open.org/dita/v1.1/CD01/dtd/ditabase.dtd">\n') != -1
         assert string.find(d,'<topic xml:lang="en" id="main_topic">\n\t<title></title>\n') != -1
         assert string.find(d,'<body>\n\n</body>\n</topic>\n') == len(d)-25
         

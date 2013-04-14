@@ -8,16 +8,12 @@ from pydocgen.builders.common import Builder
 
 
 class DitaBuilder(Builder):
-    """Class responsible for creating a DITA document.
+    """Class responsible for creating a DITA V1.1 document.
     It inherits from base Builder class shared between all builder classes.
-    
-    Class supports DITA format in version 1.1.
     """
     
     def __init__(self):
         super(DitaBuilder, self).__init__()
-        self.CSS_STYLE_FN = 'style.css'
-
         self.extension = "dita"
 
     def generate_document(self, document):
@@ -32,10 +28,10 @@ class DitaBuilder(Builder):
         for element in document.content:
             body += self.generate(element)
 
-        self.generate_style_file(document, self.CSS_STYLE_FN)
+
         result = ''
         result += '<?xml version="1.0" encoding="utf-8"?>\n'
-        result += '<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Composite//EN" "../ditabase.dtd">\n'
+        result += '<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Composite//EN" "http://docs.oasis-open.org/dita/v1.1/CD01/dtd/ditabase.dtd">\n'
         if 'language' in document.properties:
             result += '<topic xml:lang=\"' + document.properties['language'] + '\" id="main_topic" >'
         else:
@@ -205,53 +201,6 @@ class DitaBuilder(Builder):
             result += '\n</row>\n'
         return result + '\n</tbody>\n</tgroup>\n</table>\n\n'
 
-    def generate_style_file(self, document, fn):
-        """Generates a css style
-            
-        Args:
-            document (Document): stores information about the document.
-            fn (str): file path.        
-        """
-        
-        style = document.effective_style
-
-        css = 'body {\n'
-        if style is not None:
-
-            for key in style.keys():
-                if key in (
-                    'margin-top', 'margin-bottom', 'margin-left', 'margin-right', 'font-size', 'font-name', 'alignment',
-                    'text-indent', \
-                    'color', 'background-color', 'list-_style', 'item-spacing', 'item-indent'):
-                    if key == 'font-name':
-                        css += 'font-family: ' + style[key] + ';\n'
-                    elif key == 'alignment':
-                        css += 'text-align: ' + {AlignmentProperty.LEFT: 'left', AlignmentProperty.CENTER: 'center',
-                                                 AlignmentProperty.RIGHT: 'right', \
-                                                 AlignmentProperty.JUSTIFY: 'justify'}.get(style[key]) + ';\n'
-                    elif key == 'list-_style':
-                        pass #Using <ul> or <ol> instead
-                    elif key == 'font-effect':
-                        css += 'font-style: ' + {FontEffectProperty.BOLD: 'bold', FontEffectProperty.ITALIC: 'italic',
-                                                 FontEffectProperty.UNDERLINE: 'oblique'}.get(style[key]) + ';\n'
-                    elif key == 'item-spacing':
-                        css += 'border-spacing: ' + str(style[key]) + 'pt ' + str(style[key]) + 'pt;\n'
-                    elif key == 'item-indent':
-                        pass #css += 'text-indent: ' + str(style[key]) + 'pt;\n'
-                    elif key == 'background-color' or key == 'color':
-                        css += key + ': ' + style[key] + ';\n'
-                    else:
-                        css += key + ': ' + str(style[key]) + 'pt;\n'
-
-        css = css[:-2]
-        css += '\n}\n'
-
-        fn = os.path.join(document.path, fn)
-
-        output_file = open(fn, "w")
-        output_file.write(css)
-        output_file.close()
-        return None
 
 
     def generate_image(self, image):
