@@ -4,6 +4,8 @@ from pydocgen.model import ListStyleProperty, AlignmentProperty, FontEffectPrope
 
 from pydocgen.builders.common import Builder
 
+from pydocgen.model import PageOrientationProperty
+
 
 class OdtBuilder(Builder):
 
@@ -37,7 +39,13 @@ class OdtBuilder(Builder):
                 styles += '        <style:style style:name="' + str(key) + '" style:family="paragraph">\n'
                 styles += '            <style:paragraph-properties ' + self.paragraphStyles[key] + '/>\n'
                 styles += '        </style:style>\n'
+        styles += self.__resolveDocumentStyle(document.effective_style)
         styles += '    </office:automatic-styles>\n'
+        styles += '    <office:master-styles>\n'
+        styles += '        <style:master-page style:name="Standard" style:page-layout-name="pm1"/>\n'
+        styles += '    </office:master-styles>'
+        
+        
         
         #<style:style style:name="P1" style:family="paragraph" style:parent-style-name="Standard">
    #<style:paragraph-properties fo:margin-left="0.4in" fo:margin-right="0in" fo:text-indent="0in" style:auto-text-indent="false"/>
@@ -85,11 +93,11 @@ class OdtBuilder(Builder):
         styleBody = ''
         
         if paragraph.style is not None:
-            if paragraph.style.has_key('text-indent'):
-                indent = paragraph.style['text-indent']
-                styleBody += 'fo:margin-left="' + str(indent) + 'pt" fo:margin-right="0in" fo:text-indent="0in" style:auto-text-indent="false" '
-            if paragraph.style.has_key('margin-top'):
-                pass
+            styleBody += self.__addAttributeMM(paragraph.style, 'text-indent', 'fo:text-indent')
+            styleBody += self.__addAttributeMM(paragraph.style, 'margin-top', 'fo:margin-top')
+            styleBody += self.__addAttributeMM(paragraph.style, 'margin-bottom', 'fo:margin-bottom')
+            styleBody += self.__addAttributeMM(paragraph.style, 'margin-left', 'fo:margin-left')
+            styleBody += self.__addAttributeMM(paragraph.style, 'margin-right', 'fo:margin-right')
 
         if styleBody <> '':
             self.paragraphStyles[self.styleIndex] = styleBody
@@ -100,9 +108,19 @@ class OdtBuilder(Builder):
 
         return result
     
+    def __addAttributeMM(self, style, name, nativeName):
+        return self.__addAttribute(style, name, nativeName, 'mm')
+    
+    def __addAttribute(self, style, name, nativeName, valueSuffix):
+        att = ''
+        if style.has_key(name):
+            value = str(style[name]) + valueSuffix
+            att = nativeName + '="' + value + '" '
+        return att
+    
     def generate_span(self, span):
 
-        resolved = self.resolveStyle(span);
+        resolved = self.__resolveStyle(span);
 
         if resolved:
             result = '<text:span text:style-name="' + str(self.styleIndex) + '">' + span.text + '</text:span>'
@@ -112,7 +130,7 @@ class OdtBuilder(Builder):
         
         return result
     
-    def resolveStyle(self, elem):
+    def __resolveStyle(self, elem):
         if isinstance(elem, str) or isinstance(elem, unicode):
                 return ''
         style = elem.style
@@ -167,3 +185,103 @@ class OdtBuilder(Builder):
     
     def generate_table(self, el):
         return ''
+    
+    def __resolveDocumentStyle(self, style):
+        return self.__resolvePageLayout(style)
+#        if style != None:
+#            for key in style.keys():
+#                if key == 'font-size':
+#                    pass
+#                elif key == 'font-name':
+#                    pass
+#                elif key == 'alignment':
+#                    pass
+#                elif key == 'text-indent':
+#                    pass
+#                elif key == 'color':
+#                    pass
+#                elif key == 'background-color':
+#                    pass
+#                elif key == 'list-style':
+#                    pass
+#                elif key == 'item-spacing':
+#                    pass
+#                elif key == 'item-indent':
+#                    pass
+#                elif key == 'header-numbered':
+#                    pass
+#                elif key == 'border-width':
+#                    pass
+                
+    def __resolvePageLayout(self, style):
+        if style != None:
+            styleAttributes = ''
+            orientation = None
+            size = None
+            
+            if style.has_key('page-numbering'):
+                pass # TODO
+            if style.has_key('page-size'):
+                size = style['page-size']
+                if orientation is not None and size is not None:
+                    styleAttributes = self.__getPageSize()
+            if style.has_key('page-orientation'):
+                orientation = style['page-orientation']
+                if orientation == PageOrientationProperty.PORTRAIT:
+                    styleAttributes += 'style:print-orientation="portrait" '
+                else:
+                    styleAttributes += 'style:print-orientation="landscape" '
+                if size is not None and size is not None:
+                    styleAttributes += self.__getPageSize(size, orientation)
+            styleAttributes += self.__addAttributeMM(style, 'margin-top', 'fo:margin-top')
+            styleAttributes += self.__addAttributeMM(style, 'margin-bottom', 'fo:margin-bottom')
+            styleAttributes += self.__addAttributeMM(style, 'margin-left', 'fo:margin-left')
+            styleAttributes += self.__addAttributeMM(style, 'margin-right', 'fo:margin-right')
+ 
+            if styleAttributes <> '':
+                styleStr = '<style:page-layout style:name="pm1">\n'
+                styleStr += '<style:page-layout-properties ' + styleAttributes + '/>\n'
+                styleStr += '</style:page-layout>\n'
+#                   <style:header-style/> ???
+#                   <style:footer-style/> ???
+                return styleStr
+    
+    def __getPageSize(self, size, orientation):
+        styleAttributes = ''
+        if orientation == PageOrientationProperty.PORTRAIT:
+            styleAttributes += 'fo:page-width="' + str(size.value[0]) + 'mm" '
+            styleAttributes += 'fo:page-height="' + str(size.value[1]) + 'mm" ' 
+        else:
+            styleAttributes += 'fo:page-width="' + str(size.value[1]) + 'mm" '
+            styleAttributes += 'fo:page-height="' + str(size.value[0]) + 'mm" ' 
+            
+        return styleAttributes
+    
+#    <style:page-layout-properties 
+#    fo:page-width="9.9217in" 
+#    fo:page-height="6.9291in" 
+#    style:num-format="1" 
+#    style:print-orientation="portrait" 
+#    style:shadow="none" 
+#    style:writing-mode="lr-tb" 
+#    style:footnote-max-height="0in">
+#   </style:page-layout-properties>
+
+                
+#_style[] = PageSizeProperty.A4
+#_style[] = PageOrientationProperty.PORTRAIT
+#_style[] = 20
+# _style[] = 10
+# _style[] = 20
+# _style[] = 20
+# _style[] = 12
+# _style[] = "Times New Roman"
+# _style[] = AlignmentProperty.LEFT
+# _style[] = 0
+# _style[] = "#000000"
+# _style[] = "#ffffff"
+# _style[] = ListStyleProperty.BULLET
+# _style[] = 2
+# _style[] = 12
+# _style[] = True
+# _style[] = 1
