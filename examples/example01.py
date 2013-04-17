@@ -94,6 +94,7 @@ document += paragraph
 image = Image("example01_img.png")
 image.style['alignment'] = AlignmentProperty.CENTER
 image.style['width'] = 66
+image.style['height'] = 33
 
 document += image
 

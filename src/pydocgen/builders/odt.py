@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from pydocgen.model import ListStyleProperty, AlignmentProperty, FontEffectProperty, Image, Style, Table
-
 from pydocgen.builders.common import Builder
-
 from pydocgen.model import PageOrientationProperty
+from pydocgen.model import Property
 
 
 class OdtBuilder(Builder):
@@ -15,9 +14,7 @@ class OdtBuilder(Builder):
         self.extension = "fodt"
 
     def generate_document(self, document):
-        
-        self.spanStyles = dict()
-        self.paragraphStyles = dict()
+        self.styles = dict()
         self.styleIndex = 0
         self.__styleManager = OdtStyleManager(document)
         
@@ -30,29 +27,15 @@ class OdtBuilder(Builder):
         # styles.xml file
          
         styles = '    <office:automatic-styles>\n'
-        if self.spanStyles is not None:
-            for key in self.spanStyles.keys():
-                styles += '        <style:style style:name="' + str(key) + '" style:family="text">\n'
-                styles += '            <style:text-properties ' + self.spanStyles[key] + '/>\n'
-                styles += '        </style:style>\n'
-        if self.paragraphStyles is not None:
-            for key in self.paragraphStyles.keys():
-                styles += '        <style:style style:name="' + str(key) + '" style:family="paragraph">\n'
-                styles += '            <style:paragraph-properties ' + self.paragraphStyles[key] + '/>\n'
-                styles += '        </style:style>\n'
+        if self.styles is not None:
+            for key in self.styles.keys():
+                styles += self.styles[key].toString()
         styles += self.__resolveDocumentStyle(document.effective_style)
         styles += '    </office:automatic-styles>\n'
         styles += '    <office:master-styles>\n'
         styles += '        <style:master-page style:name="Standard" style:page-layout-name="pm1"/>\n'
         styles += '    </office:master-styles>'
-        
-        
-        
-        #<style:style style:name="P1" style:family="paragraph" style:parent-style-name="Standard">
-   #<style:paragraph-properties fo:margin-left="0.4in" fo:margin-right="0in" fo:text-indent="0in" style:auto-text-indent="false"/>
-  #</style:style>
 
-        
         # meta.xml file
         
         meta += '<office:document-meta>\n'
@@ -70,13 +53,15 @@ class OdtBuilder(Builder):
         result += '    xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" \n'
         result += '    xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"\n'
         result += '    xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"\n'
+        result += '    xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0\"\n'
+        result += '    xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"\n'
+        result += '    xmlns:xlink="http://www.w3.org/1999/xlink"\n'
         result += '    office:version="1.2" \n'
         result += '    office:mimetype="application/vnd.oasis.opendocument.text">\n' 
         result += styles
         result += '<office:body>\n'
         result += '       <office:text>\n'
         result += body
-        #result += '                <text:p text:style-name="Standard">test</text:p>\n'
         result += '        </office:text>\n'
         result += '</office:body>\n'
         result += '</office:document-content>\n'
@@ -97,7 +82,8 @@ class OdtBuilder(Builder):
             styleBody = self.__styleManager.getParagraphStyles(paragraph.style)
 
         if styleBody <> '':
-            self.paragraphStyles[self.styleIndex] = styleBody
+            styleObj = OdtStyle(str(self.styleIndex), OdtStyleFamily.PARAGRAPH, styleBody, None)
+            self.styles[self.styleIndex] = styleObj
             result = '        <text:p text:style-name="' + str(self.styleIndex) + '">' + p + '</text:p>\n'
             self.styleIndex += 1
         else:
@@ -106,7 +92,6 @@ class OdtBuilder(Builder):
         return result
     
     def generate_span(self, span):
-
         resolved = self.__resolveTextStyle(span);
 
         if resolved:
@@ -125,8 +110,9 @@ class OdtBuilder(Builder):
         styleBody = ''
    
         if style is not None:
-            styleBody = self.__styleManager.getTextStyles(style)     
-            self.spanStyles[self.styleIndex] = styleBody
+            styleBody = self.__styleManager.getTextStyles(style)   
+            styleObj = OdtStyle(str(self.styleIndex), OdtStyleFamily.TEXT, None, styleBody)  
+            self.styles[self.styleIndex] = styleObj
                     
         if styleBody <> '':
             return True
@@ -134,12 +120,14 @@ class OdtBuilder(Builder):
             return False;
     
     def generate_header(self, header):
-        
         content = ''
-        if header.content:
-            for element in header.content:
-                if element:
-                    content += element.generate()
+        # assume header has no inner elements, just text
+        element = header.content[0]
+        content = element.text
+#        if header.content:
+#            for element in header.content:
+#                if element:
+#                    content += element.generate()
 
         seq_number = ''
         if header.sequence is not None:
@@ -153,13 +141,56 @@ class OdtBuilder(Builder):
             else:
                 header.sequence.advance()
         
-        return '        <text:h text:outline-level="' + seq_number + '">' + seq_number + " " + content + '</text:h>\n'
+        styleObj = None
+        if header.style is not None:
+            textStyle = self.__styleManager.getTextStyles(header.style)
+            paragraphStyle = self.__styleManager.getParagraphStyles(header.style)
+            styleObj = OdtStyle(str(self.styleIndex), OdtStyleFamily.PARAGRAPH, paragraphStyle, textStyle)  
+            self.styles[self.styleIndex] = styleObj
+        
+        if styleObj is None:
+            result = '        <text:h text:outline-level="' + seq_number \
+                    + '">' + seq_number + " " + content + '</text:h>\n'
+        else:
+            result = '        <text:h text:outline-level="' + seq_number \
+                    + '" text:style-name="' + str(self.styleIndex) + '">' \
+                    + seq_number + " " + content + '</text:h>\n'
+            self.styleIndex += 1
+        
+        return result
     
     def generate_list(self, el):
         return ''
     
-    def generate_image(self, el):
-        return ''
+    def generate_image(self, image):
+        
+        f = open(image.path, "rb")
+        line = f.readline()
+        bytes = ''
+        while line <> '':
+            bytes += line
+            line = f.readline()
+        
+        styles = self.__styleManager.getImageStyles(image.style)
+
+        imageStr  = '            <draw:frame text:anchor-type="as-char" ' + styles + '>\n'
+        imageStr += '                <draw:image xlink:href="' + image.path + '" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" />\n'
+        imageStr += '            </draw:frame>\n'
+        
+        styleBody = ''
+        
+        if image.style is not None:
+            styleBody = self.__styleManager.getParagraphStyles(image.style)
+
+        if styleBody <> '':
+            styleObj = OdtStyle(str(self.styleIndex), OdtStyleFamily.PARAGRAPH, styleBody, None)
+            self.styles[self.styleIndex] = styleObj
+            result = '        <text:p text:style-name="' + str(self.styleIndex) + '">\n' + imageStr + '</text:p>\n'
+            self.styleIndex += 1
+        else:
+            result = '        <text:p>\n' + imageStr + '</text:p>\n'
+
+        return result
     
     def generate_table(self, el):
         return ''
@@ -188,7 +219,7 @@ class OdtBuilder(Builder):
                 
 #_style[] = PageSizeProperty.A4
 #_style[] = PageOrientationProperty.PORTRAIT
-#_style[] = 20
+#_style[] = 20y
 # _style[] = 10font_effects = style['font-effect']
 # _style[] = 20
 # _style[] = 20
@@ -325,6 +356,12 @@ class OdtStyleManager(object):
         else:
             return 'style:print-orientation="landscape" '
         
+    def getWidth(self, style):
+        return self.__getAttributeMM(style, "width", "svg:width")
+    
+    def getHeight(self, style):
+        return self.__getAttributeMM(style, "height", "svg:height")
+        
     def getParagraphStyles(self, style):
         return self.getTextIndent(style) + self.getMarginBottom(style) \
                 + self.getMarginLeft(style) + self.getMarginRight(style) \
@@ -342,6 +379,9 @@ class OdtStyleManager(object):
                 + self.getPageOrientation(style) + self.getMarginTop(style)\
                 + self.getMarginBottom(style) + self.getMarginLeft(style)\
                 + self.getMarginRight(style)
+                
+    def getImageStyles(self, style):
+        return self.getWidth(style) + self.getHeight(style);
     
     def __getAttributeOrDefault(self, style, name, nativeName, default):
         return self.__getAttributeWithSuffixOrDefault(style, name, nativeName, default, '')
@@ -387,3 +427,28 @@ class OdtStyleManager(object):
             value = str(style[name]) + valueSuffix
             att = nativeName + '="' + value + '" '
         return att
+    
+class OdtStyle(object):
+    def __init__(self, name, family, paragraphAttributes, textAttributes):
+        self.name = name
+        self.family = family
+        self.paragraphAttributes = paragraphAttributes
+        self.textAttributes = textAttributes
+        
+    def toString(self):
+        style  = '        <style:style style:name="' + str(self.name) + '" style:family="' + str(self.family.value) + '">\n'
+        if self.textAttributes is not None:
+            style += '            <style:text-properties ' + self.textAttributes + '/>\n'
+        if self.paragraphAttributes is not None:
+            style += '            <style:paragraph-properties ' + self.paragraphAttributes + '/>\n'
+        style += '        </style:style>\n'
+        return style
+        
+class OdtStyleFamily(Property):
+    TEXT = None
+    PARAGRAPH = None
+
+OdtStyleFamily.TEXT = OdtStyleFamily('text')
+OdtStyleFamily.PARAGRAPH = OdtStyleFamily('paragraph')
+    
+        
