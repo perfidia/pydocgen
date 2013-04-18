@@ -192,7 +192,18 @@ class OdtBuilder(Builder):
 
         return result
     
-    def generate_table(self, el):
+    def generate_table(self, table):
+        result = '\n<table:table table:name="Tabela1" table:style-name="Tabela1">'
+        result += '<table:table-column table:style-name="Tabela1" table:number-columns-repeated="2"/>'
+        for i in xrange(0, table.rows_num):
+            result += '\n<table:table-row office:value-type="string">'
+            for j in xrange(0, table.cols_num):
+                result+='\n<table:table-cell table:style-name="Tabela1">'
+                for k in table.get_cell(i, j).content:
+                    result += self.generate(k)
+                result += '</table:table-cell>'
+            result += '\n</table:table-row>\n'
+        #return  result + '\n</table:table>'
         return ''
     
     def __resolveDocumentStyle(self, style):
@@ -234,6 +245,8 @@ class OdtBuilder(Builder):
 # _style[] = 12
 # _style[] = True
 # _style[] = 1
+
+# <style:style style:name="Tabela1" style:family="table"><style:table-properties style:width="16.999cm" table:align="margins"/></style:style>
 
 class OdtStyleManager(object):
     def __init__(self, document):
