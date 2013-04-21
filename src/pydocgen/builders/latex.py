@@ -1,5 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
+import os
+
 from pydocgen.model import List, BulletCharProperty, ListStyleProperty, Image, \
                             AlignmentProperty, FontEffectProperty, Span, \
                             Table, PageOrientationProperty
@@ -716,7 +718,7 @@ class _LatexImageBuilder(object):
 
         inner_part = "\\includegraphics%s{%s}" % \
                     (_generate_parameters_list(parameters),
-                     image.path)
+                     os.path.basename(image.path))
         result += self.__float_generator.generate_float(image, "figure",
                                                         "thefigure", inner_part)
 

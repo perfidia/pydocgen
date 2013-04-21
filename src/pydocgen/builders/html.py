@@ -152,14 +152,18 @@ class HtmlBuilder(Builder):
         output_file.close()
         return None
 
-
     def generate_image(self, image):
         image_caption = ''
+
         if image.sequence != None:
             image_caption += image.sequence + ' '
+
         for c in image.caption:
             image_caption += self.generate(c)
-        return '<div ' + self.__generate_style_from_dict(image) + '><img alt="image" src=\"' + image.path + '\" ' + self.__generate_style_from_dict(image) + '></div>'
+
+        return '<div ' + self.__generate_style_from_dict(image) +\
+                '><img alt="image" src=\"' + os.path.basename(image.path) +\
+                '\" ' + self.__generate_style_from_dict(image) + '></div>'
 
     def generate_inline_style(self, elem):
         result = ''
