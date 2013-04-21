@@ -11,18 +11,18 @@ class DitaBuilder(Builder):
     """Class responsible for creating a DITA V1.1 document.
     It inherits from base Builder class shared between all builder classes.
     """
-    
+
     def __init__(self):
         super(DitaBuilder, self).__init__()
         self.extension = "dita"
 
     def generate_document(self, document):
         """Main method for generating DITA document. Generates DITA frame for content and fills that frame with data.
-        
+
         Args:
             document (Document): Stores a document representation independent of a particular builder class.
         """
-        
+
         body = ''
 
         for element in document.content:
@@ -46,11 +46,11 @@ class DitaBuilder(Builder):
 
     def generate_paragraph(self, paragraph):
         """Generates a DITA paragraph and fills it with data.
-        
+
         Args:
             paragraph (Paragraph): Stores information about the paragraph. Information is independent of the output file format.
         """
-        
+
         p, tmp = '', None
         if paragraph.content:
 
@@ -64,7 +64,7 @@ class DitaBuilder(Builder):
 
     def generate_span(self, span):
         """Generates a DITA span.
-        
+
         Args:
             span (Span): stores information about span. Information is independent of the output file format.
         """
@@ -81,17 +81,17 @@ class DitaBuilder(Builder):
         if css == 'i':
             open1 = '<u>'
             close1 = '</u>'
-        
+
 
         return open1 + span.text + close1
 
     def generate_header(self, header):
         """Generates a DITA header and fills it with data.
-        
+
         Args:
         header (Header): Stores information about the header. Information is independent of the output file format.
         """
-        
+
         content = ''
         if header.content:
             for element in header.content:
@@ -114,11 +114,11 @@ class DitaBuilder(Builder):
 
     def generate_list(self, lst):
         """Generates a DITA list and fills it with content.
-        
+
         Args:
             lst(List): Stores information about the list. Information is independent of the output file format.
         """
-        
+
         result, tmp = '', None
 
         for item in lst.content:
@@ -133,11 +133,11 @@ class DitaBuilder(Builder):
         else:
             return '\n<ul' + '>\n' + result + '\n</ul>\n'
 
-    def generate_table(self, table):                
+    def generate_table(self, table):
         """Generates a DITA table and fills the table with content.
-        
+
         Args:
-            table (Table): Stores information about the table. Information is independent of the output file format.        
+            table (Table): Stores information about the table. Information is independent of the output file format.
         """
         result = '\n\n<table' + '>'
         caption = ''
@@ -205,11 +205,11 @@ class DitaBuilder(Builder):
 
     def generate_image(self, image):
         """Generates a DITA image.
-        
+
         Args:
             image (Image): Stores information about the image. Information is independent of the output file format.
         """
-        
+
         image_caption = ''
         if image.sequence != None:
             image_caption += image.sequence + ' '
@@ -217,17 +217,17 @@ class DitaBuilder(Builder):
         for c in image.caption:
             image_caption += self.generate(c)
 
-        return '<image href=\"' + image.path + '\" placement=\"break\" ' + self.alignmentFun(
-            image) + '></image>\n'
-
+        return '<image href=\"' + os.path.basename(image.path) +\
+                '\" placement=\"break\" ' + self.alignmentFun(image) +\
+                '></image>\n'
 
     def alignmentFun(self, elem):
         """Sets text alignment for the element. Alignment is among left, center, right and justify.
-        
+
         Args:
             elem (Element): Stores information about content of particular part of text.
         """
-        
+
         style = elem.style
         css = ''
         if style != None:
@@ -242,11 +242,11 @@ class DitaBuilder(Builder):
 
     def widthFun(self, elem):
         """Sets width and height for part of text stored in elem.
-        
+
         Args:
-            elem (Element): Stores information about content of particular part of text.        
+            elem (Element): Stores information about content of particular part of text.
         """
-        
+
         style = elem.style
         css = ''
         if style is not None:
@@ -259,11 +259,11 @@ class DitaBuilder(Builder):
 
     def fontType(self, elem):
         """Sets font effect such as bold, italic underline and strike for the element.
-        
+
         Args:
-            elem (Element): Stores information about particular part of text.              
+            elem (Element): Stores information about particular part of text.
         """
-        
+
         if isinstance(elem, str) or isinstance(elem, unicode):
             return ''
         style = elem.style
@@ -280,7 +280,7 @@ class DitaBuilder(Builder):
                         css = 'i'
                     elif FontEffectProperty.UNDERLINE in font_effects:
                         css = 'u'
-                    
+
         return css
 
 
