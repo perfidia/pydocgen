@@ -127,7 +127,7 @@ class OdtBuilder(Builder):
         # assume header has no inner elements, just text
         element = header.content[0]
         content = element.text
-#        if header.content:
+#        if header.content:~    
 #            for element in header.content:
 #                if element:
 #                    content += element.generate()
@@ -162,8 +162,25 @@ class OdtBuilder(Builder):
         
         return result
     
-    def generate_list(self, el):
-        return ''
+    def generate_list(self, list):
+        styleObj = self.__styleManager.getListStyles(list.style, self.styleIndex)
+        self.styles[self.styleIndex] = styleObj            
+        
+        result = ''
+        result += '<text:list text:style-name="' + str(self.styleIndex) + '">\n'
+        
+        for item in list.content:
+            result += '<text:list-item>\n'
+            result += '<text:p text:style-name="P1">'
+            result += self.generate(item)
+            result += '</text:p>\n'
+            result += '</text:list-item>\n'    
+            
+        result += '</text:list>\n\n'
+   
+        self.styleIndex += 1
+   
+        return result
     
     def generate_image(self, image):
         
@@ -201,7 +218,7 @@ class OdtBuilder(Builder):
         for i in xrange(0, table.rows_num):
             result += '\n<table:table-row office:value-type="string">'
             for j in xrange(0, table.cols_num):
-                result+='\n<table:table-cell table:style-name="Tabela1">'
+                result += '\n<table:table-cell table:style-name="Tabela1">'
                 result += '<text:p text:style-name="P1">'
                 for k in table.get_cell(i, j).content:
                     result += self.generate(k)
@@ -389,6 +406,41 @@ class OdtStyleManager(object):
                 + self.getMarginLeft(style) + self.getMarginRight(style) \
                 + self.getMarginTop(style) + self.getAlignment(style) \
                 + self.getFontSize(style)
+                
+    def getListStyles(self, style, number):    
+        elmStart = ''
+        elmEnd = ''   
+        textLevel = 1    
+        stopPosition = 1.27
+        
+        result = ''
+        result += '<text:list-style style:name="' + str(number) + '">\n'
+        
+        if 'list-style' in style.keys() and style['list-style'] == ListStyleProperty.BULLET:
+            for styleObj in style.keys():
+                result += '<text:list-level-style-bullet text:level="' + str(textLevel) +'" text:style-name="Bullet_20_Symbols" text:bullet-char="•">\n'
+                result += '<style:list-level-properties text:list-level-position-and-space-mode="label-alignment">\n'
+                result += '<style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="' + stopPosition + \
+                            'cm" fo:text-indent="-0.635cm" fo:margin-left="' + stopPosition +'cm"/>\n'
+                result += '</style:list-level-properties>\n'
+                result += '<style:text-properties fo:font-family="StarSymbol" style:font-charset="x-symbol"/>\n'
+                result += '</text:list-level-style-bullet>\n'
+                
+                textLevel += 1
+                stopPosition += 0.635
+        elif 'list-style' in style.keys() and style['list-style'] == ListStyleProperty.NUMBER:
+            for styleObj in style.keys():
+                result += '<text:list-level-style-number text:level="' + str(textLevel) + '" style:num-suffix="." style:num-format="1">\n'
+                result += '<style:list-level-properties text:list-level-position-and-space-mode="label-alignment">\n'
+                result += '<style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="' + str(stopPosition) + \
+                            'cm" fo:text-indent="-0.635cm" fo:margin-left="' + str(stopPosition) +'cm"/>\n'
+                result += '</style:list-level-properties>\n'
+                result += '</text:list-level-style-number>\n'
+                
+                textLevel += 1
+                stopPosition += 0.635
+                
+        return result
     
     def getTextStyles(self, style):
         return self.getFontEffect(style) + self.getFontSize(style) \
