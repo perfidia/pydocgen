@@ -30,12 +30,15 @@ class OdtBuilder(Builder):
         styles = '    <office:automatic-styles>\n'
         if self.styles is not None:
             for key in self.styles.keys():
-                styles += self.styles[key].toString()
+                if type(self.styles[key]) == OdtStyle :               
+                    styles += self.styles[key].toString()
+                else: 
+                    styles += self.styles[key]
         styles += self.__resolveDocumentStyle(document.effective_style)
         styles += '    </office:automatic-styles>\n'
         styles += '    <office:master-styles>\n'
         styles += '        <style:master-page style:name="Standard" style:page-layout-name="pm1"/>\n'
-        styles += '    </office:master-styles>'
+        styles += '    </office:master-styles>' 
 
         # meta.xml file
         
@@ -164,10 +167,12 @@ class OdtBuilder(Builder):
     
     def generate_list(self, list):
         styleObj = self.__styleManager.getListStyles(list.style, self.styleIndex)
-        self.styles[self.styleIndex] = styleObj            
+        self.styles[self.styleIndex] = styleObj           
         
         result = ''
         result += '<text:list text:style-name="' + str(self.styleIndex) + '">\n'
+        
+        self.styleIndex += 1
         
         for item in list.content:
             result += '<text:list-item>\n'
@@ -176,9 +181,7 @@ class OdtBuilder(Builder):
             result += '</text:p>\n'
             result += '</text:list-item>\n'    
             
-        result += '</text:list>\n\n'
-   
-        self.styleIndex += 1
+        result += '</text:list>\n\n'   
    
         return result
     
@@ -416,19 +419,7 @@ class OdtStyleManager(object):
         result = ''
         result += '<text:list-style style:name="' + str(number) + '">\n'
         
-        if 'list-style' in style.keys() and style['list-style'] == ListStyleProperty.BULLET:
-            for styleObj in style.keys():
-                result += '<text:list-level-style-bullet text:level="' + str(textLevel) +'" text:style-name="Bullet_20_Symbols" text:bullet-char="•">\n'
-                result += '<style:list-level-properties text:list-level-position-and-space-mode="label-alignment">\n'
-                result += '<style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="' + stopPosition + \
-                            'cm" fo:text-indent="-0.635cm" fo:margin-left="' + stopPosition +'cm"/>\n'
-                result += '</style:list-level-properties>\n'
-                result += '<style:text-properties fo:font-family="StarSymbol" style:font-charset="x-symbol"/>\n'
-                result += '</text:list-level-style-bullet>\n'
-                
-                textLevel += 1
-                stopPosition += 0.635
-        elif 'list-style' in style.keys() and style['list-style'] == ListStyleProperty.NUMBER:
+        if 'list-style' in style.keys() and style['list-style'] == ListStyleProperty.NUMBER:
             for styleObj in style.keys():
                 result += '<text:list-level-style-number text:level="' + str(textLevel) + '" style:num-suffix="." style:num-format="1">\n'
                 result += '<style:list-level-properties text:list-level-position-and-space-mode="label-alignment">\n'
@@ -439,6 +430,20 @@ class OdtStyleManager(object):
                 
                 textLevel += 1
                 stopPosition += 0.635
+        else:
+            for styleObj in style.keys():
+                result += '<text:list-level-style-bullet text:level="' + str(textLevel) +'" text:style-name="Bullet_20_Symbols" text:bullet-char="•">\n'
+                result += '<style:list-level-properties text:list-level-position-and-space-mode="label-alignment">\n'
+                result += '<style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="' + str(stopPosition) + \
+                            'cm" fo:text-indent="-0.635cm" fo:margin-left="' + str(stopPosition) +'cm"/>\n'
+                result += '</style:list-level-properties>\n'
+                result += '<style:text-properties fo:font-family="StarSymbol" style:font-charset="x-symbol"/>\n'
+                result += '</text:list-level-style-bullet>\n'
+                
+                textLevel += 1
+                stopPosition += 0.635
+                
+        result += '</text:list-style>\n'
                 
         return result
     
