@@ -216,20 +216,43 @@ class OdtBuilder(Builder):
         return result
     
     def generate_table(self, table):
-        result = '\n<table:table table:name="Tabela' + str(self.tableNameIndex) +'" table:style-name="Tabela1">'
-        result += '<table:table-column table:style-name="Tabela1" table:number-columns-repeated="2"/>'
+        #styles = self.__styleManager.getTableStyles(table)        
+        
+        result = '\n<table:table table:name="Tabela' + str(self.tableNameIndex) +'" table:style-name="Tabela1">\n'
+        for i in xrange(0, table.cols_num):
+            self.styles[self.styleIndex] = self.__styleManager.getTableColumnStyle(table, i, self.styleIndex)
+            result += '  <table:table-column table:style-name="' + str(self.styleIndex) + '"/>\n'
+            self.styleIndex += 1
         for i in xrange(0, table.rows_num):
-            result += '\n<table:table-row office:value-type="string">'
+            spannedCells = None
+            colspanCounter = 0
+            result += '  <table:table-row office:value-type="string">\n'
             for j in xrange(0, table.cols_num):
-                result += '\n<table:table-cell table:style-name="Tabela1">'
-                result += '<text:p text:style-name="P1">'
-                for k in table.get_cell(i, j).content:
-                    result += self.generate(k)
-                result += '</text:p>'
-                result += '</table:table-cell>'                
-            result += '\n</table:table-row>\n'
+                if (colspanCounter == 0):                    
+                    textStyle = self.__styleManager.getTextStyles(table.get_cell(i, j).style)
+                    paragraphStyle = self.__styleManager.getParagraphStyles(table.get_cell(i, j).style)
+                    self.styles[self.styleIndex] = OdtStyle(str(self.styleIndex), OdtStyleFamily.PARAGRAPH, paragraphStyle, textStyle)
+                    spannedCells = table.get_cell(i, j).colspan > 1
+                    
+                    result += '    <table:table-cell table:style-name="Tabela1"'
+                    if (spannedCells):
+                        colspanCounter = table.get_cell(i, j).colspan
+                        result += ' table:number-columns-spanned="' + str(table.get_cell(i, j).colspan) + '"' 
+                    result += '>\n'
+                    result += '      <text:p text:style-name="' + str(self.styleIndex) + '">\n'
+                    self.styleIndex += 1
+                    for k in table.get_cell(i, j).content:
+                        result += self.generate(k)
+                    result += '      </text:p>\n'
+                    result += '    </table:table-cell>\n'
+                    if (spannedCells):
+                        for k in xrange(j, j + table.get_cell(i, j).colspan - 1):
+                            result += '    <table:covered-table-cell/>\n'
+                else:
+                    colspanCounter -= 1
+            result += '  </table:table-row>\n'
             
-        result += '\n</table:table>'
+        result += '</table:table>\n'
         
         self.tableNameIndex += 1
         
@@ -408,7 +431,7 @@ class OdtStyleManager(object):
         return self.getTextIndent(style) + self.getMarginBottom(style) \
                 + self.getMarginLeft(style) + self.getMarginRight(style) \
                 + self.getMarginTop(style) + self.getAlignment(style) \
-                + self.getFontSize(style)
+                + self.getFontSize(style) + self.getBackgroundColor(style)
                 
     def getListStyles(self, style, number):    
         elmStart = ''
@@ -446,6 +469,24 @@ class OdtStyleManager(object):
         result += '</text:list-style>\n'
                 
         return result
+    
+    def getTableColumnStyle(self, table, columnNumber, styleNumber):
+        result = ''
+        
+        result += '<style:style style:name="' + str(styleNumber) +'" style:family="table-column">\n'
+        result += '<style:table-column-properties style:column-width="' + str(table.get_column_width(columnNumber)) + 'cm"/>\n'
+        result += '</style:style>\n'
+        
+        return result
+    
+    def getTableCellStyle(self, cell, number):
+        result = ''
+        
+        result += '<style:style style:name="' + number + '" style:family="table-cell">'
+        result += '<style:table-cell-properties fo:padding="0.097cm" fo:border-left="0.05pt solid #000000" fo:border-right="none" fo:border-top="0.05pt solid #000000" fo:border-bottom="0.05pt solid #000000"/>'
+        result += '</style:style>'
+        
+        pass
     
     def getTextStyles(self, style):
         return self.getFontEffect(style) + self.getFontSize(style) \
