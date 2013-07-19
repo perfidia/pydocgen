@@ -1,0 +1,13 @@
+FAQ
+===
+
+How to create documentation using DITA?
+---------------------------------------
+
+#. Get and install DITA 1.7.2
+#. Run ``startcmd.sh`` or ``startcmd.bat``
+#. Run the following command:
+
+::
+
+    java -jar lib/dost.jar /i:path-to-map.ditamap /outdir:out /transtype:pdf
